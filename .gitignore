@@ -37,3 +37,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Gemini API Key ###
+geminiApiKey = AIzaSyDLcVLx3Klf01ugPt1adjW3J64-zTGkEeI
