@@ -1,10 +1,11 @@
 package charts;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
 
 public class PieChartRenderer implements ChartRenderer {
 

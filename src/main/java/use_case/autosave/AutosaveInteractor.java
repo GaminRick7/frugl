@@ -3,7 +3,9 @@ package use_case.autosave;
 import java.time.LocalDateTime;
 
 public class AutosaveInteractor implements AutosaveInputBoundary {
+
     private final AutosaveDataAccessInterface autosaveDataAccessObject;
+
     private final AutosaveOutputBoundary autosaveOutputBoundary;
 
     public AutosaveInteractor(AutosaveDataAccessInterface autosaveDataAccessObject,

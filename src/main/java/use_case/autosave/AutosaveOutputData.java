@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public class AutosaveOutputData {
     private final String message;
+
     private final LocalDateTime timestamp;
 
     public AutosaveOutputData(String message, LocalDateTime timestamp) {
