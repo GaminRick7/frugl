@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import entity.Transaction;
+import use_case.autosave.AutosaveDataAccessInterface;
 
 import java.io.File;
 import java.io.FileReader;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransactionDataAccessObject {
+public class TransactionDataAccessObject implements AutosaveDataAccessInterface {
     private final File jsonFile;
     private final Gson gson;
     private List<Transaction> transactions;
@@ -49,6 +50,7 @@ public class TransactionDataAccessObject {
         }
     }
 
+    @Override
     public void save() {
         try {
             if (jsonFile.getParentFile() != null && !jsonFile.getParentFile().exists()) {
