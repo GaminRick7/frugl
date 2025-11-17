@@ -14,9 +14,9 @@ import javax.swing.Timer;
 import interface_adapter.autosave.AutosaveController;
 import interface_adapter.autosave.AutosaveViewModel;
 
-public class AutosaveStatusView extends JPanel implements PropertyChangeListener {
+public class AutosaveView extends JPanel implements PropertyChangeListener {
 
-    private final AutosaveController controller;
+    private AutosaveController controller;
 
     private final AutosaveViewModel viewModel;
 
@@ -26,8 +26,7 @@ public class AutosaveStatusView extends JPanel implements PropertyChangeListener
 
     private final Timer autosaveTimer;
 
-    public AutosaveStatusView(AutosaveController controller, AutosaveViewModel viewModel) {
-        this.controller = controller;
+    public AutosaveView(AutosaveViewModel viewModel) {
         this.viewModel = viewModel;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(statusLabel);
@@ -63,6 +62,10 @@ public class AutosaveStatusView extends JPanel implements PropertyChangeListener
             return statusMessage + " (" + timestamp + ")";
         }
         return statusMessage;
+    }
+
+    public void setupAutosaveConntroller(AutosaveController controller) {
+        this.controller = controller;
     }
 }
 

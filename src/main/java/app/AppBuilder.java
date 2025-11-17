@@ -13,7 +13,7 @@ import interface_adapter.autosave.AutosaveViewModel;
 import use_case.autosave.AutosaveInputBoundary;
 import use_case.autosave.AutosaveInteractor;
 import use_case.autosave.AutosaveOutputBoundary;
-import view.AutosaveStatusView;
+import view.AutosaveView;
 
 public class AppBuilder {
 
@@ -21,26 +21,35 @@ public class AppBuilder {
 
     private final CardLayout cardLayout = new CardLayout();
 
-    private AutosaveStatusView autosaveStatusView;
+    private final TransactionDataAccessObject transactionDataAccessObject = new TransactionDataAccessObject();
+
+    private AutosaveView autosaveView;
+    private AutosaveViewModel autosaveViewModel;
+
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
     }
 
-    public AppBuilder addAutosaveFeature() {
-        AutosaveViewModel viewModel = new AutosaveViewModel();
-        AutosaveOutputBoundary presenter = new AutosavePresenter(viewModel);
-        TransactionDataAccessObject autosaveDao = new TransactionDataAccessObject();
-        AutosaveInputBoundary interactor = new AutosaveInteractor(autosaveDao, presenter);
-        AutosaveController controller = new AutosaveController(interactor);
-        autosaveStatusView = new AutosaveStatusView(controller, viewModel);
+    public AppBuilder addAutosaveView() {
+        autosaveViewModel = new AutosaveViewModel();
+        autosaveView = new AutosaveView(autosaveViewModel);
 
-        cardPanel.add(autosaveStatusView, getAutosaveViewName());
+        cardPanel.add(autosaveView, getAutosaveViewName());
+        return this;
+    }
+
+    public  AppBuilder addAutosaveUseCase() {
+        final AutosaveOutputBoundary autosaveOutputBoundary = new AutosavePresenter(autosaveViewModel);
+        final AutosaveInputBoundary autosaveInputBoundary = new AutosaveInteractor(transactionDataAccessObject, autosaveOutputBoundary);
+        AutosaveController controller = new AutosaveController(autosaveInputBoundary);
+
+        autosaveView.setupAutosaveConntroller(controller);
         return this;
     }
 
     public JFrame build() {
-        if (autosaveStatusView == null) {
+        if (autosaveView == null) {
             throw new IllegalStateException("Call addAutosaveFeature() before build().");
         }
         JFrame frame = new JFrame("Frugl");
@@ -53,7 +62,7 @@ public class AppBuilder {
     }
 
     private String getAutosaveViewName() {
-        return autosaveStatusView.getClass().getSimpleName();
+        return autosaveView.getClass().getSimpleName();
     }
 }
 
