@@ -4,14 +4,21 @@ import use_case.autosave.AutosaveOutputBoundary;
 import use_case.autosave.AutosaveOutputData;
 
 public class AutosavePresenter implements AutosaveOutputBoundary {
+
+    private final AutosaveViewModel viewModel;
+
+    public AutosavePresenter(AutosaveViewModel viewModel) {
+        this.viewModel = viewModel;
+    }
+
     @Override
     public void presentSuccess(AutosaveOutputData outputData) {
-        System.out.println(outputData.getMessage() + " at " + outputData.getTimestamp());
+        viewModel.setSuccess(outputData.getMessage(), outputData.getTimestamp());
     }
 
     @Override
     public void presentFailure(String errorMessage) {
-        System.err.println(errorMessage);
+        viewModel.setFailure(errorMessage);
     }
 }
 
