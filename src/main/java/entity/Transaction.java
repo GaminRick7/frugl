@@ -23,14 +23,11 @@ public class Transaction {
 
     }
 
-
-
-    public double getAmount() {
+    public double getAmount(){
         return this.amount;
     }
 
-
-    public Source getSource() {
+    public Source getSource(){
         return this.source;
     }
 
@@ -38,5 +35,6 @@ public class Transaction {
         return this.date;
     }
 
+    public Category getCategory(){return source.getCategory();}
 
 }
