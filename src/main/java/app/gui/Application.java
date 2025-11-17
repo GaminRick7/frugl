@@ -9,17 +9,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-
+import javax.swing.*;
 
 
 //import org.json.JSONException;
@@ -95,9 +85,10 @@ public class Application {
     // in our GUI
     private static JPanel createDefaultCard() {
         final JPanel defaultCard = new JPanel();
-        defaultCard.setLayout(new GridBagLayout());
+        defaultCard.setLayout(new BoxLayout(defaultCard, BoxLayout.Y_AXIS));
 
-
+        defaultCard.add( new JLabel("Home Page"));
+        defaultCard.add( new JLabel("Welcome! "));
 
         return defaultCard;
     }
@@ -142,8 +133,14 @@ public class Application {
 
         getTransactionCard.add(tileBlock, BorderLayout.NORTH);
 
-        JButton okayButton = new JButton("Okay");
-        getTransactionCard.add(okayButton, BorderLayout.SOUTH);
+//        JButton okayButton = new JButton("Okay");
+//        okayButton.addActionListener(cancelEvent -> {
+//            dialog.dispose();
+//        });
+
+//        getTransactionCard.add(okayButton, BorderLayout.SOUTH);
+
+
 
         return getTransactionCard;
 
