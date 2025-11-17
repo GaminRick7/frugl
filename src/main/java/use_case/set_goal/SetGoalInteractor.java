@@ -28,10 +28,8 @@ public class SetGoalInteractor implements SetGoalInputBoundary {
         Goal goal = new Goal(input.yearMonth, input.categories, input.goalAmount);
 
         try {
-            dataAccess.saveGoal(goal);
-            presenter.prepareSuccessView(
-                    new SetGoalOutputData(goal, true, "Goal successfully saved.")
-            );
+            // TODO: Save the goal through using data access
+            presenter.prepareSuccessView(new SetGoalOutputData(goal, true, "Goal successfully saved."));
         } catch (Exception e) {
             presenter.prepareFailView("An error occurred while saving goal: " + e.getMessage());
         }
