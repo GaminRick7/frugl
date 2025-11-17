@@ -1,20 +1,23 @@
 package charts;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
+
 public class TimeChartRenderer implements ChartRenderer {
 
     private final List<Integer> income;
+
     private final List<Integer> expenses;
+
     private final List<String> months;
 
     public TimeChartRenderer(List<Integer> income,
-                                   List<Integer> expenses,
-                                   List<String> months) {
+                             List<Integer> expenses,
+                             List<String> months) {
         this.income = income;
         this.expenses = expenses;
         this.months = months;

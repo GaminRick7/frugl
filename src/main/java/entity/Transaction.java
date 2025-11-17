@@ -1,6 +1,8 @@
 package entity;
-import com.google.gson.annotations.SerializedName;
+
 import java.time.LocalDate;
+
+import com.google.gson.annotations.SerializedName;
 
 public class Transaction {
     @SerializedName("date")
@@ -14,10 +16,10 @@ public class Transaction {
 
 
     //create transaction class with category
-    public Transaction(Source source, double amount, LocalDate date){
+    public Transaction(Source source, double amount, LocalDate date) {
         this.date = date;
         this.source = source;
-        this.amount =  amount;
+        this.amount = amount;
 
     }
 
@@ -29,7 +31,7 @@ public class Transaction {
         return this.source;
     }
 
-    public LocalDate getDate(){
+    public LocalDate getDate() {
         return this.date;
     }
 
