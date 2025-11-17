@@ -1,5 +1,11 @@
 package app;
 
+import java.awt.CardLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
+
 import data_access.TransactionDataAccessObject;
 import interface_adapter.autosave.AutosaveController;
 import interface_adapter.autosave.AutosavePresenter;
@@ -9,14 +15,10 @@ import use_case.autosave.AutosaveInteractor;
 import use_case.autosave.AutosaveOutputBoundary;
 import view.AutosaveStatusView;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.WindowConstants;
-import java.awt.CardLayout;
-
 public class AppBuilder {
 
     private final JPanel cardPanel = new JPanel();
+
     private final CardLayout cardLayout = new CardLayout();
 
     private AutosaveStatusView autosaveStatusView;

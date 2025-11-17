@@ -1,7 +1,8 @@
 package view;
 
-import interface_adapter.autosave.AutosaveController;
-import interface_adapter.autosave.AutosaveViewModel;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.time.LocalDateTime;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -9,16 +10,20 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.time.LocalDateTime;
+
+import interface_adapter.autosave.AutosaveController;
+import interface_adapter.autosave.AutosaveViewModel;
 
 public class AutosaveStatusView extends JPanel implements PropertyChangeListener {
 
     private final AutosaveController controller;
+
     private final AutosaveViewModel viewModel;
+
     private final JLabel statusLabel = new JLabel();
+
     private final JButton saveNowButton = new JButton("Save Now");
+
     private final Timer autosaveTimer;
 
     public AutosaveStatusView(AutosaveController controller, AutosaveViewModel viewModel) {

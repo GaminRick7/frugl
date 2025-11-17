@@ -9,7 +9,9 @@ public class AutosaveViewModel {
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
 
     private String statusMessage = "Autosave not run yet";
+
     private LocalDateTime lastSavedAt;
+
     private String errorMessage;
 
     public void setSuccess(String message, LocalDateTime timestamp) {
