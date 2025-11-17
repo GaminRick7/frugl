@@ -81,12 +81,12 @@ public class TransactionDataAccessObject implements AutosaveDataAccessInterface 
 
     public List<Transaction> getByDateRange(LocalDate startDate, LocalDate endDate) {
         List<Transaction> result = new ArrayList<>();
-        for (Transaction transaction : transactions) {
-            LocalDate date = transaction.getDate();
-            if (!date.isBefore(startDate) && !date.isAfter(endDate)) {
-                result.add(transaction);
-            }
-        }
+//        for (Transaction transaction : transactions) {
+//            LocalDate date = transaction.getDate();
+//            if (!date.isBefore(startDate) && !date.isAfter(endDate)) {
+//                result.add(transaction);
+//            }
+//        }
         return result;
     }
 
