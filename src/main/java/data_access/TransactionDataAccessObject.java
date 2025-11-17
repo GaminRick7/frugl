@@ -70,7 +70,7 @@ public class TransactionDataAccessObject implements AutosaveDataAccessInterface 
         }
     }
 
-    public void add(Transaction transaction) {
+    public void addTransaction(Transaction transaction) {
         transactions.add(transaction);
         save();
     }
