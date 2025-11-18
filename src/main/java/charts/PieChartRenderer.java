@@ -1,34 +1,28 @@
 package charts;
 
-import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.net.URL;
 import java.util.Map;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.joining;
 
-import javax.imageio.ImageIO;
-
-public class PieChartRenderer implements ChartRenderer {
-
-    private final Map<String, Integer> categories;
-
-    public PieChartRenderer(Map<String, Integer> categories) {
-        this.categories = categories;
-        //TODO implementation depends on data input
-    }
+public class PieChartRenderer implements ChartRenderer<ProcessedPieChartData> {
 
     @Override
-    public BufferedImage render() throws Exception {
+    public Image render(ProcessedPieChartData data) throws Exception {
+        Map<String, Double> categories = data.getCategoryTotals();
+
         String values = categories.values().stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
+                .map(v -> String.format("%.2f", v))
+                .collect(joining(","));
 
-        String labels = String.join("|", categories.keySet());
+        String labels = categories.keySet().stream()
+                .collect(joining("|"));
 
-        String url =
-                "https://chart.googleapis.com/chart?" +
-                        "cht=p&chs=500x300" +
-                        "&chd=t:" + values +
-                        "&chl=" + labels;
+        String url = "https://chart.googleapis.com/chart?" +
+                "cht=p&chs=500x300" +
+                "&chd=t:" + values +
+                "&chl=" + labels;
 
         return ImageIO.read(new URL(url));
     }

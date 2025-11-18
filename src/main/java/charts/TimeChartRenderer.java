@@ -1,49 +1,31 @@
 package charts;
 
-import java.awt.image.BufferedImage;
-import java.net.URL;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.net.URL;
+import static java.util.stream.Collectors.joining;
 
-public class TimeChartRenderer implements ChartRenderer {
-
-    private final List<Integer> income;
-
-    private final List<Integer> expenses;
-
-    private final List<String> months;
-
-    public TimeChartRenderer(List<Integer> income,
-                             List<Integer> expenses,
-                             List<String> months) {
-        this.income = income;
-        this.expenses = expenses;
-        this.months = months;
-
-        // TODO implementation depends on data input
-    }
+public class TimeChartRenderer implements ChartRenderer<ProcessedTimeChartData> {
 
     @Override
-    public BufferedImage render() throws Exception {
-        String incomeValues = income.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
+    public Image render(ProcessedTimeChartData data) throws Exception {
+        String incomeValues = data.getIncomeValues().stream()
+                .map(v -> String.format("%.2f", v))
+                .collect(joining(","));
 
-        String expenseValues = expenses.stream()
-                .map(e -> "-" + e) // negative to plot below axis
-                .collect(Collectors.joining(","));
+        String expenseValues = data.getExpenseValues().stream()
+                .map(v -> String.format("%.2f", v))
+                .collect(joining(","));
 
-        String monthLabels = String.join("|", months);
+        String labels = String.join("|", data.getLabels());
 
         String url =
                 "https://chart.googleapis.com/chart?" +
                         "cht=lc&chs=700x300" +
                         "&chxt=x,y" +
                         "&chd=t:" + incomeValues + "|" + expenseValues +
-                        "&chco=0000FF,FF0000" +
-                        "&chxl=0:|" + monthLabels +
+                        "&chco=0000FF,FF0000" + //green income, red expenses
+                        "&chxl=0:|" + labels +
                         "&chdl=Income|Expenses";
 
         return ImageIO.read(new URL(url));
