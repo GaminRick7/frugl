@@ -15,7 +15,7 @@ public class DashboardPresenter implements LoadDashboardOutputBoundary {
     private final ChartRenderer<ProcessedPieChartData> pieChartRenderer;
     private final ChartRenderer<ProcessedTimeChartData> timeChartRenderer;
 
-    public DashboardPresenter(DashboardViewModel viewModel, ChartRenderer<ProcessedPieChartData> pieChartRenderer, ChartRenderer<ProcessedTimeChartData> timeChartRenderer) {
+    public DashboardPresenter(DashboardViewModel viewModel, ChartRenderer<ProcessedTimeChartData> timeChartRenderer, ChartRenderer<ProcessedPieChartData> pieChartRenderer) {
         this.viewModel = viewModel;
         this.pieChartRenderer = pieChartRenderer;
         this.timeChartRenderer = timeChartRenderer;
