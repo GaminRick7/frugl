@@ -1,5 +1,9 @@
 package interface_adapter.import_statement;
 
+import interface_adapter.ViewManagerModel;
+import interface_adapter.dashboard.DashboardViewModel;
+import interface_adapter.set_goal.SetGoalViewModel;
+
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 
@@ -9,17 +13,17 @@ import java.time.format.DateTimeFormatter;
 public class ImportStatementPresenter implements ImportStatementOutputBoundary {
 
     private final ViewManagerModel viewManagerModel;
-    private final ImportViewModel importViewModel;
+    private final ImportStatementViewModel importStatementViewModel;
     private final DashboardViewModel dashboardViewModel;
     private final TransactionsViewModel transactionsViewModel;
-    private final GoalsViewModel goalsViewModel;
+    private final SetGoalViewModel goalsViewModel;
 
 
-    public ImportStatementPresenter(ViewManagerModel viewManagerModel, ImportViewModel importViewModel,
+    public ImportStatementPresenter(ViewManagerModel viewManagerModel, ImportStatementViewModel importViewModel,
                                     DashboardViewModel dashboardViewModel, TransactionsViewModel transactionsViewModel,
-                                    GoalsViewModel goalsViewModel ) {
+                                   SetGoalViewModel goalsViewModel ) {
         this.viewManagerModel = viewManagerModel;
-        this.importViewModel = importViewModel;
+        this.importStatementViewModel = importViewModel;
         this.dashboardViewModel = dashboardViewModel;
         this.transactionsViewModel = transactionsViewModel;
         this.goalsViewModel = goalsViewModel;
