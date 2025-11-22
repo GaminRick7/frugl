@@ -5,9 +5,16 @@ package interface_adapter.import_statement;
  */
 public class ImportStatementController {
     private final ImportStatementInputBoundary importStatementInteractor;
+    private final ViewManagerModel viewManagerModel;
 
-    public ImportStatementController(ImportStatementInputBoundary interactor) {
+    public ImportStatementController(ImportStatementInputBoundary interactor, ViewManagerModel viewManagerModel) {
         this.importStatementInteractor = interactor;
+        this.viewManagerModel = viewManagerModel;
+    }
+
+    public void backToDashboard() {
+        viewManagerModel.setState("dashboard");
+        viewManagerModel.firePropertyChange("state");
     }
 
     /**

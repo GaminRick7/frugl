@@ -9,14 +9,17 @@ import java.time.format.DateTimeFormatter;
 public class ImportStatementPresenter implements ImportStatementOutputBoundary {
 
     private final ViewManagerModel viewManagerModel;
+    private final ImportViewModel importViewModel;
     private final DashboardViewModel dashboardViewModel;
     private final TransactionsViewModel transactionsViewModel;
     private final GoalsViewModel goalsViewModel;
 
 
-    public ImportStatementPresenter(ViewManagerModel viewManagerModel,DashboardViewModel dashboardViewModel,
-                                    TransactionsViewModel transactionsViewModel, GoalsViewModel goalsViewModel ) {
+    public ImportStatementPresenter(ViewManagerModel viewManagerModel, ImportViewModel importViewModel,
+                                    DashboardViewModel dashboardViewModel, TransactionsViewModel transactionsViewModel,
+                                    GoalsViewModel goalsViewModel ) {
         this.viewManagerModel = viewManagerModel;
+        this.importViewModel = importViewModel;
         this.dashboardViewModel = dashboardViewModel;
         this.transactionsViewModel = transactionsViewModel;
         this.goalsViewModel = goalsViewModel;
@@ -29,7 +32,8 @@ public class ImportStatementPresenter implements ImportStatementOutputBoundary {
 
         String message = "Importing Successful for " + month.format(DateTimeFormatter.ofPattern("MMMM yyyy"));
         viewManagerModel.showPopup(message);
-
+        importViewModel.setState("");
+        importViewModel.firePropertyChange("filePath");
         dashboardViewModel.fireStatementAdded(month);
         transactionsViewModel.fireStatementAdded(month);
         goalsViewModel.fireStatementAdded(month);
@@ -39,5 +43,7 @@ public class ImportStatementPresenter implements ImportStatementOutputBoundary {
     public void prepareFailView(String errorMessage) {
         String message = "Importing Unsuccessful: " + errorMessage;
         viewManagerModel.showPopup(message);
+        importViewModel.setState("");
+        importViewModel.firePropertyChange("filePath");
     }
 }
