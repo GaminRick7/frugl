@@ -9,20 +9,25 @@ public class TimeChartRenderer implements ChartRenderer<ProcessedTimeChartData> 
 
     @Override
     public Image render(ProcessedTimeChartData data) throws Exception {
-        String incomeValues = data.getIncomeValues().stream()
+        String incomeValues = data.getDataPoints().stream()
+                .map(dataPoint -> dataPoint.getIncome())
                 .map(v -> String.format("%.2f", v))
                 .collect(joining(","));
 
-        String expenseValues = data.getExpenseValues().stream()
+        String expenseValues = data.getDataPoints().stream()
+                .map(dataPoint -> dataPoint.getExpense())
                 .map(v -> String.format("%.2f", v))
                 .collect(joining(","));
 
-        String labels = String.join("|", data.getLabels());
+        String labels = data.getDataPoints().stream()
+                .map(dataPoint -> dataPoint.getLabel())
+                .collect(joining("|"));
 
         String url =
                 "https://chart.googleapis.com/chart?" +
-                        "cht=lc&chs=700x300" +
+                        "cht=bvg&chs=700x300" +
                         "&chxt=x,y" +
+                        "&chbh=a" +
                         "&chd=t:" + incomeValues + "|" + expenseValues +
                         "&chco=0000FF,FF0000" + //green income, red expenses
                         "&chxl=0:|" + labels +
