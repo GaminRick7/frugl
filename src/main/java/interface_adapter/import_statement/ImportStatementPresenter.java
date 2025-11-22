@@ -9,20 +9,20 @@ import java.time.format.DateTimeFormatter;
 public class ImportStatementPresenter implements ImportStatementOutputBoundary {
 
     private final ViewManagerModel viewManagerModel;
-    private final ImportViewModel importViewModel;
+    private final ImportStatementViewModel importStatementViewModel;
     private final DashboardViewModel dashboardViewModel;
     private final TransactionsViewModel transactionsViewModel;
-    private final GoalsViewModel goalsViewModel;
+    private final SetGoalViewModel setGoalViewModel;
 
 
-    public ImportStatementPresenter(ViewManagerModel viewManagerModel, ImportViewModel importViewModel,
+    public ImportStatementPresenter(ViewManagerModel viewManagerModel, ImportStatementViewModel importViewModel,
                                     DashboardViewModel dashboardViewModel, TransactionsViewModel transactionsViewModel,
-                                    GoalsViewModel goalsViewModel ) {
+                                    SetGoalViewModel setGoalViewModel ) {
         this.viewManagerModel = viewManagerModel;
-        this.importViewModel = importViewModel;
+        this.importStatementViewModel = importViewModel;
         this.dashboardViewModel = dashboardViewModel;
         this.transactionsViewModel = transactionsViewModel;
-        this.goalsViewModel = goalsViewModel;
+        this.setGoalViewModel = setGoalViewModel;
     }
 
     @Override
@@ -32,18 +32,18 @@ public class ImportStatementPresenter implements ImportStatementOutputBoundary {
 
         String message = "Importing Successful for " + month.format(DateTimeFormatter.ofPattern("MMMM yyyy"));
         viewManagerModel.showPopup(message);
-        importViewModel.setState("");
-        importViewModel.firePropertyChange("filePath");
+        importStatementViewModel.setState("");
+        importStatementViewModel.firePropertyChange("filePath");
         dashboardViewModel.fireStatementAdded(month);
         transactionsViewModel.fireStatementAdded(month);
-        goalsViewModel.fireStatementAdded(month);
+        setGoalViewModel.fireStatementAdded(month);
     }
 
     @Override
     public void prepareFailView(String errorMessage) {
         String message = "Importing Unsuccessful: " + errorMessage;
         viewManagerModel.showPopup(message);
-        importViewModel.setState("");
-        importViewModel.firePropertyChange("filePath");
+        importStatementViewModel.setState("");
+        importStatementViewModel.firePropertyChange("filePath");
     }
 }
