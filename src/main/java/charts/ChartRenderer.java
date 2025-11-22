@@ -1,7 +1,8 @@
 package charts;
 
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 
-public interface ChartRenderer {
-    BufferedImage render() throws Exception;
+public interface ChartRenderer<T extends AbstractProcessedChartData> {
+
+    Image render(T data) throws Exception;
 }
