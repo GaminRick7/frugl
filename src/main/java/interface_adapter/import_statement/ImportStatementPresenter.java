@@ -10,19 +10,11 @@ public class ImportStatementPresenter implements ImportStatementOutputBoundary {
 
     private final ViewManagerModel viewManagerModel;
     private final ImportStatementViewModel importStatementViewModel;
-    private final DashboardViewModel dashboardViewModel;
-    private final TransactionsViewModel transactionsViewModel;
-    private final SetGoalViewModel setGoalViewModel;
 
 
-    public ImportStatementPresenter(ViewManagerModel viewManagerModel, ImportStatementViewModel importViewModel,
-                                    DashboardViewModel dashboardViewModel, TransactionsViewModel transactionsViewModel,
-                                    SetGoalViewModel setGoalViewModel ) {
+    public ImportStatementPresenter(ViewManagerModel viewManagerModel, ImportStatementViewModel importViewModel) {
         this.viewManagerModel = viewManagerModel;
         this.importStatementViewModel = importViewModel;
-        this.dashboardViewModel = dashboardViewModel;
-        this.transactionsViewModel = transactionsViewModel;
-        this.setGoalViewModel = setGoalViewModel;
     }
 
     @Override
@@ -34,9 +26,6 @@ public class ImportStatementPresenter implements ImportStatementOutputBoundary {
         viewManagerModel.showPopup(message);
         importStatementViewModel.setState("");
         importStatementViewModel.firePropertyChange("filePath");
-        dashboardViewModel.fireStatementAdded(month);
-        transactionsViewModel.fireStatementAdded(month);
-        setGoalViewModel.fireStatementAdded(month);
     }
 
     @Override
