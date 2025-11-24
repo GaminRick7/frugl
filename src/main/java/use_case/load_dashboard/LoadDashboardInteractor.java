@@ -23,14 +23,14 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
     public void execute(LoadDashboardInputData inputData) {
         TimeRange timeRange = inputData.getTimeRange();
 
-        List<Transaction> pieRawData = transactionDOA.getMonthlyTransactionData(); //TODO add method in DOA
-        List<Transaction> timeRawData = transactionDOA.getTimeRangeTransactions(timeRange); //TODO add method in DOA
-
-        ProcessedPieChartData pieChartData = processPieChartData(pieRawData);
-        ProcessedTimeChartData timeChartData = processTimeChartData(timeRawData, timeRange);
-
-        LoadDashboardOutputData outputData = new LoadDashboardOutputData(timeChartData, pieChartData);
-        presenter.present(outputData);
+//        List<Transaction> pieRawData = transactionDOA.getMonthlyTransactionData(); //TODO add method in DOA
+//        List<Transaction> timeRawData = transactionDOA.getTimeRangeTransactions(timeRange); //TODO add method in DOA
+//
+//        ProcessedPieChartData pieChartData = processPieChartData(pieRawData);
+//        ProcessedTimeChartData timeChartData = processTimeChartData(timeRawData, timeRange);
+//
+//        LoadDashboardOutputData outputData = new LoadDashboardOutputData(timeChartData, pieChartData);
+//        presenter.present(outputData);
     }
     private ProcessedPieChartData processPieChartData(List<Transaction> transactions) {
         Map<String, Double> categoryValues = transactions.stream()

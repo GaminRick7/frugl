@@ -1,5 +1,9 @@
 package interface_adapter.import_statement;
 
+import interface_adapter.ViewManagerModel;
+import use_case.import_statement.ImportStatementInputBoundary;
+import use_case.import_statement.ImportStatementInputData;
+
 /**
  * The controller for the Import Bank Statement Use Case.
  */
