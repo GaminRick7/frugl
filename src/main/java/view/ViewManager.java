@@ -26,8 +26,8 @@ public class ViewManager implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         switch (evt.getPropertyName()) {
             case "state":
-                String viewName = (String) evt.getNewValue();
-                cardLayout.show(views, viewName);
+                String newState = (String) evt.getNewValue();
+                cardLayout.show(views, newState);
                 break;
 
             case "popup":

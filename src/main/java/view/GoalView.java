@@ -41,7 +41,7 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
 
     private final SetGoalViewModel viewModel;
 
-    private final SetGoalController controller;
+    private SetGoalController controller;
 
 
     // Components
@@ -56,8 +56,7 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
 
     private BufferedImage deadImage;
 
-    public GoalView(SetGoalController controller, SetGoalViewModel viewModel) {
-        this.controller = controller;
+    public GoalView(SetGoalViewModel viewModel) {
         this.viewModel = viewModel;
         this.viewModel.addPropertyChangeListener(this);
 
@@ -203,5 +202,9 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
                         "Success", JOptionPane.INFORMATION_MESSAGE);
             }
         }
+    }
+
+    public void setGoalController(SetGoalController setGoalController) {
+        this.controller = setGoalController;
     }
 }
