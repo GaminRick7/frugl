@@ -2,19 +2,19 @@ package use_case.load_dashboard;
 
 import charts.ProcessedPieChartData;
 import charts.ProcessedTimeChartData;
-import data_access.TransactionDataAccessObject;
 import entity.Transaction;
 import charts.ProcessedTimeChartData.DataPoint;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
     private final LoadDashboardOutputBoundary presenter;
-    private final TransactionDataAccessObject transactionDOA;
+    private final LoadDashboardDataAccessInterface transactionDOA;
 
-    public LoadDashboardInteractor(LoadDashboardOutputBoundary presenter,  TransactionDataAccessObject transactionDOA) {
+    public LoadDashboardInteractor(LoadDashboardOutputBoundary presenter,  LoadDashboardDataAccessInterface transactionDOA) {
         this.presenter = presenter;
         this.transactionDOA = transactionDOA;
     }
@@ -22,15 +22,16 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
     @Override
     public void execute(LoadDashboardInputData inputData) {
         TimeRange timeRange = inputData.getTimeRange();
+        LocalDate currentDate = inputData.getCurrentDate();
 
-//        List<Transaction> pieRawData = transactionDOA.getMonthlyTransactionData(); //TODO add method in DOA
-//        List<Transaction> timeRawData = transactionDOA.getTimeRangeTransactions(timeRange); //TODO add method in DOA
-//
-//        ProcessedPieChartData pieChartData = processPieChartData(pieRawData);
-//        ProcessedTimeChartData timeChartData = processTimeChartData(timeRawData, timeRange);
-//
-//        LoadDashboardOutputData outputData = new LoadDashboardOutputData(timeChartData, pieChartData);
-//        presenter.present(outputData);
+        List<Transaction> pieRawData = transactionDOA.getByDateRange(inputData.getStartDate(), inputData.getEndDate());
+        List<Transaction> timeRawData = transactionDOA.getByDateRange(currentDate,inputData.getCurrentDate().minusMonths(timeRange.getValue()));
+
+        ProcessedPieChartData pieChartData = processPieChartData(pieRawData);
+        ProcessedTimeChartData timeChartData = processTimeChartData(timeRawData, timeRange);
+
+        LoadDashboardOutputData outputData = new LoadDashboardOutputData(timeChartData, pieChartData);
+        presenter.present(outputData);
     }
     private ProcessedPieChartData processPieChartData(List<Transaction> transactions) {
         Map<String, Double> categoryValues = transactions.stream()
@@ -43,13 +44,7 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
     }
 
     private ProcessedTimeChartData processTimeChartData(List<Transaction> transactions, TimeRange timeRange) {
-        int monthRange = 0;
-        switch (timeRange) {
-            case THREE_MONTHS: monthRange = 3; break;
-            case SIX_MONTHS: monthRange = 6; break;
-            case TWELVE_MONTHS: monthRange = 12; break;
-            default: monthRange = 1;
-        }
+        int monthRange = timeRange.getValue();
 
         List<String> labels = new ArrayList<>();
         Map<String, Integer> labelToIndex = new HashMap<>();
