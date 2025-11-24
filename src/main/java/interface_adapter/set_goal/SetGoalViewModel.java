@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import entity.Category;
+import entity.GoalTree;
 
 
 
@@ -29,6 +30,8 @@ public class SetGoalViewModel {
     private String successMessage = null;
 
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
+
+    private List<GoalTree> forest = new ArrayList<>();
 
     // getters and setters
 
@@ -64,6 +67,13 @@ public class SetGoalViewModel {
         return successMessage;
     }
 
+    public List<GoalTree> getForest() {
+        return forest;
+    }
+
+    public void setForest(List<GoalTree> forest) {
+        this.forest = forest;
+    }
     // handling property change
 
     public void setSuccess(String message) {

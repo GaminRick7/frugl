@@ -14,6 +14,7 @@ public class SetGoalPresenter implements SetGoalOutputBoundary {
     @Override
     public void prepareSuccessView(SetGoalOutputData outputData) {
         System.out.println(outputData.getMessage() + " at " + outputData.getTimestamp());
+        viewModel.setForest(outputData.getForest());
         viewModel.setSuccess(outputData.getMessage());
     }
 
