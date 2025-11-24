@@ -14,7 +14,4 @@ public interface ImportStatementDataAccessInterface {
     void addTransaction(Transaction transaction);
 
     boolean sourceExists(String sourceName);
-
-    //If the newly-imported statement is the latest one, update the record.
-    void updateLatestStatementMonth(YearMonth month);
 }
