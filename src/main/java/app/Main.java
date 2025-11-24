@@ -9,6 +9,8 @@ public class Main {
         JFrame application = appBuilder
                 .addAutosaveView()
                 .addAutosaveUseCase()
+                .addImportStatementView()
+                .addImportStatementUseCase()
                 .build();
 
         application.pack();

@@ -13,11 +13,16 @@ import interface_adapter.autosave.AutosavePresenter;
 import interface_adapter.autosave.AutosaveViewModel;
 import interface_adapter.import_statement.ImportStatementController;
 import interface_adapter.import_statement.ImportStatementPresenter;
+import interface_adapter.import_statement.ImportStatementViewModel;
 import use_case.autosave.AutosaveInputBoundary;
 import use_case.autosave.AutosaveInteractor;
 import use_case.autosave.AutosaveOutputBoundary;
+import use_case.import_statement.ImportStatementInputBoundary;
+import use_case.import_statement.ImportStatementInteractor;
+import use_case.import_statement.ImportStatementOutputBoundary;
 import view.AutosaveView;
 import view.ImportStatementView;
+import view.ViewManager;
 
 public class AppBuilder {
 
@@ -68,7 +73,7 @@ public class AppBuilder {
 
     public AppBuilder addImportStatementUseCase() {
         final ImportStatementOutputBoundary importStatementOutputBoundary = new ImportStatementPresenter(viewManagerModel,
-                importStatementViewModel, dashboardViewModel, transactionsViewModel, goalsViewModel);
+                importStatementViewModel);
         final ImportStatementInputBoundary importStatementInputBoundary = new ImportStatementInteractor(transactionDataAccessObject, importStatementOutputBoundary);
         ImportStatementController importStatementController = new ImportStatementController(importStatementInputBoundary, viewManagerModel);
 
@@ -84,7 +89,7 @@ public class AppBuilder {
         JFrame frame = new JFrame("Frugl");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setContentPane(cardPanel);
-        cardLayout.show(cardPanel, getAutosaveViewName());
+        cardLayout.show(cardPanel, getImportStatementViewName());
         frame.pack();
         frame.setLocationRelativeTo(null);
         return frame;
@@ -93,6 +98,7 @@ public class AppBuilder {
     private String getAutosaveViewName() {
         return autosaveView.getClass().getSimpleName();
     }
+    private String getImportStatementViewName() {return importStatementView.getViewName();}
 }
 
 
