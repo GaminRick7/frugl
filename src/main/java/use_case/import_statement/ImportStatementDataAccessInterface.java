@@ -1,5 +1,6 @@
 package use_case.import_statement;
 
+import entity.Category;
 import entity.Transaction;
 
 import java.time.YearMonth;
@@ -14,4 +15,6 @@ public interface ImportStatementDataAccessInterface {
     void addTransaction(Transaction transaction);
 
     boolean sourceExists(String sourceName);
+
+    Category getSourceCategory(String sourceName);
 }

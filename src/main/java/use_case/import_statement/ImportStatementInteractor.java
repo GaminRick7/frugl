@@ -4,9 +4,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import entity.Category;
+import entity.Source;
+import entity.Transaction;
 
 import java.io.File;
 import java.io.FileReader;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,11 +22,11 @@ import java.util.Set;
  */
 public class ImportStatementInteractor implements ImportStatementInputBoundary {
 
-    private final ImportStatementDataAccessInterface userDataAccessObject;
+    private final ImportStatementDataAccessInterface transactionsDataAccessObject;
     private final ImportStatementOutputBoundary presenter;
 
-    public ImportStatementInteractor(ImportStatementDataAccessInterface userDataAccessObject, ImportStatementOutputBoundary presenter) {
-        this.userDataAccessObject = userDataAccessObject;
+    public ImportStatementInteractor(ImportStatementDataAccessInterface transactionsDataAccessObject, ImportStatementOutputBoundary presenter) {
+        this.transactionsDataAccessObject = transactionsDataAccessObject;
         this.presenter = presenter;
     }
 
@@ -34,9 +38,9 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
            presenter.prepareFailView("Import unsuccessful: file does not exist");
        }
 
-       JsonArray array;
+       JsonArray transactionsJsonArray;
         try {
-            array = readArrayFromFile(inputData.getFilePath());
+            transactionsJsonArray = readArrayFromFile(inputData.getFilePath());
         } catch (Exception e) {
             presenter.prepareFailView("Import unsuccessful: unsupported file");
             return;
@@ -46,7 +50,7 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
         List<JsonObject> uncategorized = new ArrayList<>();
 
         try {
-            separateTransactions(transactions, categorized, uncategorized);
+            separateTransactions(transactionsJsonArray, categorized, uncategorized);
         } catch (Exception e) {
             presenter.prepareFailView("Import unsuccessful: unsupported file");
             return;
@@ -59,11 +63,10 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
             return;
         }
 
-
+        YearMonth ym = extractYearMonth(transactionsJsonArray);
+        presenter.prepareSuccessView(new ImportStatementOutputData(ym));
 
     }
-
-
 
     private JsonArray readArrayFromFile(String filePath) throws Exception {
         try (FileReader reader = new FileReader(filePath)) {
@@ -78,5 +81,47 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
         }
     }
 
+    private void separateTransactions(JsonArray array,
+                                      List<JsonObject> categorized,
+                                      List<JsonObject> uncategorized) throws Exception {
+
+        for (JsonElement element : array) {
+
+            if (!element.isJsonObject()) {
+                throw new Exception("Array elements must be JSON objects");
+            }
+
+            JsonObject tx = element.getAsJsonObject();
+
+            String source = tx.get("source").getAsString();
+
+            if (transactionsDataAccessObject.sourceExists(source)) {
+                categorized.add(tx);
+            }
+            else {
+                uncategorized.add(tx);
+            }
+        }
+    }
+
+    private void addTransactions(List<JsonObject> transactions){
+
+        for (JsonObject tx : transactions) {
+            String sourceName = tx.get("source").getAsString();
+            double amount = tx.get("amount").getAsDouble();
+            String dateString = tx.get("date").getAsString();
+            Category sourceCategory = transactionsDataAccessObject.getSourceCategory(sourceName);
+            Transaction transaction = new Transaction(new Source(sourceName, sourceCategory), amount, LocalDate.parse(dateString));
+            transactionsDataAccessObject.addTransaction(transaction);
+        }
+    }
+
+    private YearMonth extractYearMonth(JsonArray array) {
+
+        JsonObject first = array.get(0).getAsJsonObject();
+        String dateString = first.get("date").getAsString();
+        return YearMonth.parse(dateString.substring(0, 7));
+
+    }
 
 }
