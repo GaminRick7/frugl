@@ -6,14 +6,23 @@ import use_case.load_dashboard.TimeRange;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class DashboardView extends JPanel{
     private final DashboardController controller;
     private final DashboardViewModel viewModel;
 
+    //UI Components
     private JComboBox<TimeRange> timeRangeDropdown;
-    private JPanel chartPanel;
+    private JSpinner startDateSpinner;
+    private JSpinner endDateSpinner;
+
+    private JLabel pieChartLabel;
+    private JLabel timeChartLabel;
 
     public DashboardView(DashboardController controller, DashboardViewModel viewModel) {
         this.controller = controller;
@@ -26,20 +35,65 @@ public class DashboardView extends JPanel{
     private void setupUI() {
         this.setLayout(new BorderLayout());
 
-        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        controlPanel.add(new JLabel("Time Range:"));
+        JPanel splitPanel = new JPanel(new BorderLayout());
+        splitPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // ---- LEFT SIDE: TIME CHART PANEL ----
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        leftPanel.setBorder(BorderFactory.createTitledBorder("Time Chart"));
+
+        // 1. Left: Time Chart Controls
+        JPanel timeControlsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        timeControlsPanel.add(new JLabel("Time Range:"));
         timeRangeDropdown = new JComboBox<>(TimeRange.values());
-        controlPanel.add(timeRangeDropdown);
+        timeControlsPanel.add(timeRangeDropdown);
 
-        JButton refreshButton = new JButton("Refresh");
+        leftPanel.add(timeControlsPanel, BorderLayout.NORTH);
+
+        // 2. Left: Time Chart Display
+        timeChartLabel = new JLabel("Loading Time Chart...", SwingConstants.CENTER);
+        leftPanel.add(timeChartLabel, BorderLayout.CENTER);
+
+        // ---- RIGHT SIDE: PIE CHART PANEL ----
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        rightPanel.setBorder(BorderFactory.createTitledBorder("Pie Chart"));
+
+        // 1. Right: Pie Chart Controls
+        JPanel pieControlsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        Calendar calendar =  Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, -30);
+        Date defaultStartDate = calendar.getTime();
+        Date defaultEndDate = new Date();
+
+        startDateSpinner = createDateSpinner(defaultStartDate);
+        endDateSpinner = createDateSpinner(defaultEndDate);
+
+        pieControlsPanel.add(new JLabel("Start Date:"));
+        pieControlsPanel.add(startDateSpinner);
+        pieControlsPanel.add(new JLabel("End Date:"));
+        pieControlsPanel.add(endDateSpinner);
+
+        rightPanel.add(pieControlsPanel, BorderLayout.NORTH);
+
+        //2. Right: Pie Chart Display
+        pieChartLabel = new JLabel("Loading Pie Chart...", SwingConstants.CENTER);
+        rightPanel.add(pieChartLabel, BorderLayout.CENTER);
+
+        // BOTTOM PANEL
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton refreshButton = new JButton("Refresh Dashboard");
         refreshButton.addActionListener(e -> onRefreshClicked());
-        controlPanel.add(refreshButton);
+        bottomPanel.add(refreshButton);
+        this.add(bottomPanel, BorderLayout.SOUTH);
+    }
 
-        this.add(controlPanel, BorderLayout.NORTH);
-
-        chartPanel = new JPanel();
-        chartPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-        this.add(chartPanel, BorderLayout.CENTER);
+    private JSpinner createDateSpinner(Date defaultDate){
+        SpinnerDateModel model = new SpinnerDateModel();
+        model.setValue(defaultDate);
+        JSpinner spinner = new JSpinner(model);
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "yyyy-MM-dd");
+        spinner.setEditor(editor);
+        return spinner;
     }
 
     private void loadInitialData() {
@@ -48,23 +102,43 @@ public class DashboardView extends JPanel{
 
     private void onRefreshClicked() {
         TimeRange selectedTimeRange = (TimeRange) timeRangeDropdown.getSelectedItem();
-        controller.loadDashboard(selectedTimeRange);
+
+        Date legacyStartDate = (Date) startDateSpinner.getValue();
+        Date legacyEndDate = (Date) endDateSpinner.getValue();
+
+        LocalDate startDate = convertToLocalDate(legacyStartDate);
+        LocalDate endDate = convertToLocalDate(legacyEndDate);
+
+        LocalDate currentDate = LocalDate.ofEpochDay(System.currentTimeMillis());
+
+        controller.loadDashboard(currentDate, selectedTimeRange, startDate, endDate);
         updateChartDisplay();
     }
 
-    private void updateChartDisplay() {
-        chartPanel.removeAll();
+    // Helper to convert Date to LocalDate
+    private LocalDate convertToLocalDate(Date dateToConvert) {
+        return dateToConvert.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+    }
 
+    private void updateChartDisplay() {
         List<Image> chartImages = viewModel.getChartImages();
+
         if (chartImages == null || chartImages.isEmpty()){
-            chartPanel.add(new JLabel("No chart data available"));
+            pieChartLabel.setText("No Data");
+            pieChartLabel.setIcon(null);
+            timeChartLabel.setText("No Data");
+            timeChartLabel.setIcon(null);
         } else {
-            chartPanel.setLayout(new GridLayout(1, chartImages.size(), 10, 10));
-            for (Image image : chartImages) {
-                chartPanel.add(new JLabel(new ImageIcon(image)));
+            if (chartImages.size() > 0 ){
+                timeChartLabel.setText("");
+                timeChartLabel.setIcon(new ImageIcon(chartImages.get(0)));
+            }
+            if (chartImages.size() > 1){
+                pieChartLabel.setText("");
+                pieChartLabel.setIcon(new ImageIcon(chartImages.get(1)));
             }
         }
-        chartPanel.revalidate();
-        chartPanel.repaint();
     }
 }
