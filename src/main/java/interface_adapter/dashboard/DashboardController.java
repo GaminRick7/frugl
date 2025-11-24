@@ -4,6 +4,8 @@ import use_case.load_dashboard.LoadDashboardInputBoundary;
 import use_case.load_dashboard.LoadDashboardInputData;
 import use_case.load_dashboard.TimeRange;
 
+import java.time.LocalDate;
+
 public class DashboardController {
     private final LoadDashboardInputBoundary useCase;
 
@@ -11,8 +13,8 @@ public class DashboardController {
         this.useCase = useCase;
     }
 
-    public void loadDashboard(TimeRange timeRange){
-        LoadDashboardInputData input = new LoadDashboardInputData(timeRange);
+    public void loadDashboard(LocalDate currentDate, TimeRange timeRange, LocalDate startDate, LocalDate endDate) {
+        LoadDashboardInputData input = new LoadDashboardInputData(currentDate, timeRange, startDate, endDate);
         useCase.execute(input);
     }
 }
