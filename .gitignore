@@ -35,5 +35,7 @@ build/
 ### VS Code ###
 .vscode/
 
+transactions.json
+
 ### Mac OS ###
 .DS_Store

@@ -14,27 +14,25 @@ public class Transaction {
 
 
     //create transaction class with category
-    public Transaction(Source source, double amount, LocalDate date){
+    public Transaction(Source source, double amount, LocalDate date) {
         this.date = date;
         this.source = source;
-        this.amount =  amount;
+        this.amount = amount;
 
     }
-
-
 
     public double getAmount(){
         return this.amount;
     }
 
-
     public Source getSource(){
         return this.source;
     }
 
-    public LocalDate getDate(){
+    public LocalDate getDate() {
         return this.date;
     }
 
+    public Category getCategory(){return source.getCategory();}
 
 }

@@ -1,10 +1,5 @@
 package data_access;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import entity.Transaction;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -14,9 +9,19 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransactionDataAccessObject {
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import entity.Transaction;
+import use_case.autosave.AutosaveDataAccessInterface;
+import use_case.load_dashboard.LoadDashboardDataAccessInterface;
+
+public class TransactionDataAccessObject implements AutosaveDataAccessInterface, LoadDashboardDataAccessInterface {
     private final File jsonFile;
+
     private final Gson gson;
+
     private List<Transaction> transactions;
 
     public TransactionDataAccessObject(String jsonFilePath) {
@@ -35,7 +40,8 @@ public class TransactionDataAccessObject {
     public void load() {
         if (jsonFile.exists() && jsonFile.length() > 0) {
             try (FileReader reader = new FileReader(jsonFile)) {
-                Type listType = new TypeToken<List<Transaction>>(){}.getType();
+                Type listType = new TypeToken<List<Transaction>>() {
+                }.getType();
                 this.transactions = gson.fromJson(reader, listType);
                 if (this.transactions == null) {
                     this.transactions = new ArrayList<>();
@@ -49,6 +55,7 @@ public class TransactionDataAccessObject {
         }
     }
 
+    @Override
     public void save() {
         try {
             if (jsonFile.getParentFile() != null && !jsonFile.getParentFile().exists()) {
@@ -64,7 +71,7 @@ public class TransactionDataAccessObject {
         }
     }
 
-    public void add(Transaction transaction) {
+    public void addTransaction(Transaction transaction) {
         transactions.add(transaction);
         save();
     }
@@ -75,12 +82,12 @@ public class TransactionDataAccessObject {
 
     public List<Transaction> getByDateRange(LocalDate startDate, LocalDate endDate) {
         List<Transaction> result = new ArrayList<>();
-        for (Transaction transaction : transactions) {
-            LocalDate date = transaction.getDate();
-            if (!date.isBefore(startDate) && !date.isAfter(endDate)) {
-                result.add(transaction);
-            }
-        }
+//        for (Transaction transaction : transactions) {
+//            LocalDate date = transaction.getDate();
+//            if (!date.isBefore(startDate) && !date.isAfter(endDate)) {
+//                result.add(transaction);
+//            }
+//        }
         return result;
     }
 

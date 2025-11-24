@@ -1,9 +1,9 @@
 package entity;
 
-import java.util.List;
-
 public class User {
+
     private String id;
+
     private String name;
 
     public User(String id, String name) {

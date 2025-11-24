@@ -1,4 +1,5 @@
 package entity;
+
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +7,9 @@ import java.util.List;
 public class Goal {
 
     private YearMonth yearMonth;
+
     private List<Category> categories;
+
     private float goalAmount;
 
 
