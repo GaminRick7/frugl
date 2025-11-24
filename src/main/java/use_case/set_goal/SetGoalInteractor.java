@@ -1,24 +1,23 @@
 package use_case.set_goal;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import entity.Goal;
 import entity.GoalTree;
 import entity.Transaction;
-import use_case.autosave.AutosaveDataAccessInterface;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class SetGoalInteractor implements SetGoalInputBoundary {
 
     private final SetGoalDataAccessInterface goalDataAccess;
 
-    private final AutosaveDataAccessInterface transactionDataAccess;
+    private final ForestDataAccessInterface transactionDataAccess;
 
     private final SetGoalOutputBoundary presenter;
 
-    public SetGoalInteractor(SetGoalDataAccessInterface goalDataAccess, AutosaveDataAccessInterface transactionDataAccess,
+    public SetGoalInteractor(SetGoalDataAccessInterface goalDataAccess, ForestDataAccessInterface transactionDataAccess,
                              SetGoalOutputBoundary presenter) {
         this.goalDataAccess = goalDataAccess;
         this.transactionDataAccess = transactionDataAccess;

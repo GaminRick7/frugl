@@ -15,8 +15,9 @@ import com.google.gson.reflect.TypeToken;
 
 import entity.Transaction;
 import use_case.autosave.AutosaveDataAccessInterface;
+import use_case.set_goal.ForestDataAccessInterface;
 
-public class TransactionDataAccessObject implements AutosaveDataAccessInterface {
+public class TransactionDataAccessObject implements AutosaveDataAccessInterface, ForestDataAccessInterface {
     private final File jsonFile;
 
     private final Gson gson;
