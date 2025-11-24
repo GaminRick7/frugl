@@ -2,7 +2,6 @@ package use_case.load_dashboard;
 
 import charts.ProcessedPieChartData;
 import charts.ProcessedTimeChartData;
-import data_access.TransactionDataAccessObject;
 import entity.Transaction;
 import charts.ProcessedTimeChartData.DataPoint;
 
@@ -13,9 +12,9 @@ import java.util.stream.Collectors;
 
 public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
     private final LoadDashboardOutputBoundary presenter;
-    private final TransactionDataAccessObject transactionDOA;
+    private final LoadDashboardDataAccessInterface transactionDOA;
 
-    public LoadDashboardInteractor(LoadDashboardOutputBoundary presenter,  TransactionDataAccessObject transactionDOA) {
+    public LoadDashboardInteractor(LoadDashboardOutputBoundary presenter,  LoadDashboardDataAccessInterface transactionDOA) {
         this.presenter = presenter;
         this.transactionDOA = transactionDOA;
     }
