@@ -89,7 +89,7 @@ public class AppBuilder {
         JFrame frame = new JFrame("Frugl");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setContentPane(cardPanel);
-        cardLayout.show(cardPanel, getAutosaveViewName());
+        cardLayout.show(cardPanel, getImportStatementViewName());
         frame.pack();
         frame.setLocationRelativeTo(null);
         return frame;
@@ -98,6 +98,7 @@ public class AppBuilder {
     private String getAutosaveViewName() {
         return autosaveView.getClass().getSimpleName();
     }
+    private String getImportStatementViewName() {return importStatementView.getViewName();}
 }
 
 
