@@ -1,5 +1,9 @@
 package interface_adapter.import_statement;
 
+import interface_adapter.ViewManagerModel;
+import use_case.import_statement.ImportStatementOutputBoundary;
+import use_case.import_statement.ImportStatementOutputData;
+
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 
@@ -10,19 +14,10 @@ public class ImportStatementPresenter implements ImportStatementOutputBoundary {
 
     private final ViewManagerModel viewManagerModel;
     private final ImportStatementViewModel importStatementViewModel;
-    private final DashboardViewModel dashboardViewModel;
-    private final TransactionsViewModel transactionsViewModel;
-    private final SetGoalViewModel setGoalViewModel;
 
-
-    public ImportStatementPresenter(ViewManagerModel viewManagerModel, ImportStatementViewModel importViewModel,
-                                    DashboardViewModel dashboardViewModel, TransactionsViewModel transactionsViewModel,
-                                    SetGoalViewModel setGoalViewModel ) {
+    public ImportStatementPresenter(ViewManagerModel viewManagerModel, ImportStatementViewModel importStatementViewModel) {
         this.viewManagerModel = viewManagerModel;
-        this.importStatementViewModel = importViewModel;
-        this.dashboardViewModel = dashboardViewModel;
-        this.transactionsViewModel = transactionsViewModel;
-        this.setGoalViewModel = setGoalViewModel;
+        this.importStatementViewModel = importStatementViewModel;
     }
 
     @Override
@@ -34,9 +29,6 @@ public class ImportStatementPresenter implements ImportStatementOutputBoundary {
         viewManagerModel.showPopup(message);
         importStatementViewModel.setState("");
         importStatementViewModel.firePropertyChange("filePath");
-        dashboardViewModel.fireStatementAdded(month);
-        transactionsViewModel.fireStatementAdded(month);
-        setGoalViewModel.fireStatementAdded(month);
     }
 
     @Override

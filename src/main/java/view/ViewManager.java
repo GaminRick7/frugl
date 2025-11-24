@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import interface_adapter.ViewManagerModel;
 
 /**
  * The View Manager for  FRUGL. It listens for property change events
