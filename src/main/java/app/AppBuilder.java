@@ -88,7 +88,6 @@ public class AppBuilder {
 
         importStatementView.setImportStatementController(importStatementController);
         return this;
-
     }
 
     public AppBuilder addSetGoalView() {
