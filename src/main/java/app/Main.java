@@ -13,6 +13,8 @@ public class Main {
                 .addImportStatementUseCase()
                 .addSetGoalView()
                 .addGoalUseCase()
+                .addDashboardView()
+                .addDashboardUseCase()
                 .build();
 
         application.pack();

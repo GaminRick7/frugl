@@ -5,14 +5,14 @@ import java.awt.CardLayout;
 import javax.swing.*;
 
 import charts.PieChartRenderer;
-import charts.ProcessedPieChartData;
+import charts.TimeChartRenderer;
 import data_access.GoalDataAccessObject;
 import data_access.TransactionDataAccessObject;
-import entity.Goal;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.autosave.AutosaveController;
 import interface_adapter.autosave.AutosavePresenter;
 import interface_adapter.autosave.AutosaveViewModel;
+import interface_adapter.dashboard.DashboardController;
 import interface_adapter.dashboard.DashboardPresenter;
 import interface_adapter.dashboard.DashboardViewModel;
 import interface_adapter.import_statement.ImportStatementController;
@@ -124,12 +124,18 @@ public class AppBuilder {
     }
 
     public AppBuilder addDashboardUseCase() {
-        //TODO: add Dashboard Use Case to AppBuilder
+        PieChartRenderer pieChartRenderer = new PieChartRenderer();
+        TimeChartRenderer timeChartRenderer = new TimeChartRenderer();
+        final LoadDashboardOutputBoundary loadDashboardOutputBoundary =  new DashboardPresenter(dashboardViewModel, pieChartRenderer, timeChartRenderer);
+        final LoadDashboardInputBoundary loadDashboardInputBoundary = new LoadDashboardInteractor(loadDashboardOutputBoundary, transactionDataAccessObject);
+        DashboardController dashboardController = new DashboardController(loadDashboardInputBoundary);
+
+        dashboardView.setDashboardController(dashboardController);
         return this;
     }
 
     public JFrame build() {
-        JFrame application = new JFrame("Frugl");
+        JFrame application = new JFrame("frugl.");
 
         application.add(cardPanel);
         viewManagerModel.setState(goalView.viewName);
