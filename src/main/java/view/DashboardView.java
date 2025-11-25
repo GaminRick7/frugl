@@ -134,13 +134,10 @@ public class DashboardView extends JPanel{
         } else {
             timeChartLabel.setText("");
             timeChartLabel.setIcon(new ImageIcon(chartImages.get(0)));
-
-            if (chartImages.size() > 1){
-                pieChartLabel.setText("");
-                pieChartLabel.setIcon(new ImageIcon(chartImages.get(1)));
+            pieChartLabel.setText("");
+            pieChartLabel.setIcon(new ImageIcon(chartImages.get(1)));
             }
         }
-    }
 
     public void setDashboardController(DashboardController controller) {
         this.controller = controller;
