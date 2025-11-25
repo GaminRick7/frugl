@@ -132,10 +132,9 @@ public class DashboardView extends JPanel{
             timeChartLabel.setText("No Data");
             timeChartLabel.setIcon(null);
         } else {
-            if (chartImages.size() > 0 ){
-                timeChartLabel.setText("");
-                timeChartLabel.setIcon(new ImageIcon(chartImages.get(0)));
-            }
+            timeChartLabel.setText("");
+            timeChartLabel.setIcon(new ImageIcon(chartImages.get(0)));
+
             if (chartImages.size() > 1){
                 pieChartLabel.setText("");
                 pieChartLabel.setIcon(new ImageIcon(chartImages.get(1)));
