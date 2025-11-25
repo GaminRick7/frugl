@@ -1,27 +1,20 @@
 package use_case.view_transactions;
 
 import entity.Transaction;
-
+import java.time.YearMonth;
 import java.util.ArrayList;
-
-import java.time.LocalDate;
-
 
 public class ViewTransactionInputData {
 
-private static ArrayList<Transaction> monthlyTransactions;
-private static String month = "11";
+        private final YearMonth yearMonth;
 
-    public ViewTransactionInputData(ArrayList<Transaction> monthlyTransactions, String month) {
-        this.monthlyTransactions = monthlyTransactions;
-        this.month = month;
+
+    public ViewTransactionInputData(YearMonth yearMonth) {
+        this.yearMonth = yearMonth;
     }
 
-    static String getMonth(){
-        return month; //TODO: validate
-    }
-    static ArrayList<Transaction> getTransactionList(){
-        return monthlyTransactions;
+    public YearMonth getYearMonth(){
+        return yearMonth;
     }
 
 }

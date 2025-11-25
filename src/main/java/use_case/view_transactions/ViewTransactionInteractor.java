@@ -1,37 +1,28 @@
 package use_case.view_transactions;
 
 import entity.Transaction;
-import entity.User;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.YearMonth;
+
 
 import java.util.List;
 
-public class ViewTransactionInteractor {
-    private final ViewTransactionDataAccessInterface userDataAccessObject;
-    private final ViewTransactionOutputBoundary viewTransactionOutputBoundary;
+public class ViewTransactionInteractor implements ViewTransactionInputBoundary {
+    private final ViewTransactionDataAccessInterface viewDataAccessObject;
+    private final ViewTransactionOutputBoundary viewTransactionPresenter;
 
-    public ViewTransactionInteractor(ViewTransactionDataAccessInterface userDataAccessObject,ViewTransactionOutputBoundary viewTransactionOutputBoundary) {
-        this.userDataAccessObject = userDataAccessObject;
-        this.viewTransactionOutputBoundary = viewTransactionOutputBoundary;
+    public ViewTransactionInteractor(ViewTransactionDataAccessInterface viewDataAccessObject,
+                                     ViewTransactionOutputBoundary viewTransactionPresenter) {
+        this.viewDataAccessObject = viewDataAccessObject;
+        this.viewTransactionPresenter = viewTransactionPresenter;
     }
 
 
-    public void execute(ViewTransactionInputData transactionInputData) {
-        final String month = ViewTransactionInputData.getMonth();
-        final List<Transaction> trans = ViewTransactionInputData.getTransactionList();
-        List<HashMap<String, Object>> proccessed_transactions = convert_transaction_toString(trans);
+        private ArrayList<HashMap<String, Object>> convert_transaction_toString(List<Transaction> trans) {
 
-
-        //final ViewTransactionOutputputData = ()
-
-
-        }
-
-        private List<HashMap<String, Object>> convert_transaction_toString(List<Transaction> trans) {
-
-            List<HashMap<String, Object>> proccessed_transactions = new ArrayList<>();
+            ArrayList<HashMap<String, Object>> proccessed_transactions = new ArrayList<>();
 
             for (int i = 0; i< trans.size() ; i++) {
 
@@ -47,10 +38,29 @@ public class ViewTransactionInteractor {
 
             }
             return proccessed_transactions;
+        }
+
+
+    public void execute(ViewTransactionInputData transactionInputData) {
+        final YearMonth yearMonth = transactionInputData.getYearMonth();
+        final ArrayList<Transaction> trans = viewDataAccessObject.chooseMontlyTransactions(yearMonth);
+        ArrayList<HashMap<String, Object>> proccessed_transactions = convert_transaction_toString(trans);
+
+
+        if (!proccessed_transactions.isEmpty()){
+            final ViewTransactionOutputData viewTransactionOutputData= new ViewTransactionOutputData(yearMonth.toString(),proccessed_transactions );
+            viewTransactionPresenter.prepareSuccessView(  viewTransactionOutputData);
+        }
+        else{
+            viewTransactionPresenter.prepareFailView(yearMonth.toString() + " has no data availiable");
+
+
+        }
+
 
     }
 
-    }
+}
 
 
 

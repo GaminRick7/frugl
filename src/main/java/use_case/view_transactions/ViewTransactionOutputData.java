@@ -1,32 +1,37 @@
 package use_case.view_transactions;
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.List;
+
 
 public class ViewTransactionOutputData {
 
     /// Convert list into string
 
-    private final String month;
-    private List<HashMap<String, Object>> total_transaction;
+    private final String yearMonthStr;
+    private ArrayList<HashMap<String, Object>> monthlyTransactions;
 
-    public ViewTransactionOutputData(String month, List<HashMap<String, Object>> total_transaction) {
-        this.month = month;
-        this.total_transaction = total_transaction;
+    public ViewTransactionOutputData(String yearMonthStr, ArrayList<HashMap<String, Object>> monthlyTransactions) {
+        this.yearMonthStr = yearMonthStr;
+        this.monthlyTransactions = monthlyTransactions;
     }
 
-    public List<HashMap<String, Object>> getAllTransactions() {
-        return total_transaction;
+    public ArrayList<HashMap<String, Object>> getMonthTransactions() {
+        return monthlyTransactions;
     }
 
+    public String getYearMonth() { return yearMonthStr; }
+
+
+    /**
+     * This is a function to extract each tile (transaction object) from the String
+     * @param tileNum
+     * @return
+     */
     public HashMap<String, Object> getTransactionByIndex(int tileNum) {
-        if (!total_transaction.isEmpty() && tileNum < total_transaction.size()) {
-            return total_transaction.get(tileNum);
+        if (!monthlyTransactions.isEmpty() && tileNum < monthlyTransactions.size()) {
+            return monthlyTransactions.get(tileNum);
         }
         return null;
 
-
-
-
-
-}}
+    }
+}

@@ -1,20 +1,20 @@
 package view;
-
-import interface_adapter.autosave.AutosaveController;
-import interface_adapter.autosave.AutosaveViewModel;
-import interface_adapter.transactions.TransactionsViewModel;
-import interface_adapter.transactions.ViewTransactionsController;
+import interface_adapter.dashboard.DashboardState;
+import interface_adapter.view_transaction.ViewTransactionController;
+import interface_adapter.view_transaction.ViewTransactionState;
+import interface_adapter.view_transaction.ViewTransactionViewModel;
+import use_case.load_dashboard.TimeRange;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import java.util.*;
 
 
 import java.awt.BorderLayout;
@@ -27,228 +27,264 @@ import java.util.ArrayList;
 import javax.swing.SwingUtilities;
 import javax.swing.*;
 
-public class TransactionsView implements ActionListener, PropertyChangeListener {
-    private ViewTransactionsController controller;
+public class TransactionsView extends JPanel implements ActionListener, PropertyChangeListener {
 
-    private final TransactionsViewModel viewModel;
+    //initialize all the compoents in CA
+    private final String viewName = "view transaction";
+    private final ViewTransactionViewModel viewTransactionViewModel;
+
+    private ViewTransactionController viewTransactionController;
+
+    //master Frame made up of all JPanel
+    private final JFrame parentFrame;
+
+    //componets for my view
+    private final JPanel transactionTilesBlock = new JPanel();
+    private JComboBox<String> dropdownMonth;
+    private JComboBox<String> dropdownYear;
 
 
-//    private final JButton saveNowButton = new JButton("Save Now");
+    //dropDown data
+    private final Map<String, String> dropdownMonthLabels = new LinkedHashMap<>(); //searched up online for Reference
+    private final String[] dropdownYearList = {"2025", "2024", "2023"};
 
 
-    public TransactionsView(TransactionsViewModel viewModel) {
-        this.viewModel = viewModel;
-}
+    public TransactionsView (ViewTransactionViewModel viewTransactionViewModel, JFrame parentFrame) {
+        this.viewTransactionViewModel= viewTransactionViewModel;
+        this.parentFrame = parentFrame;
+        this.viewTransactionViewModel.addPropertyChangeListener(this);
+        this.setLayout(new BorderLayout());
 
-//    @Override
-//    public void propertyChange(PropertyChangeEvent evt) {
-//        if (!"autosaveState".equals(evt.getPropertyName())) {
-//            return;
-///
-//        }
-//    }
+        populateDropDown();
 
-    public void setTransactionController(ViewTransactionsController viewTrnasactionsController) {
-        this.controller = viewTrnasactionsController;
+        buildContainer();
+       // ClickedMonth(); TODo: set inital Nove-2025
+
     }
 
 
-    static final int ROWS = 4;
-    static final int COLS = 2;
-    static final int WIDTH = 850;
-    static final int HEIGHT = 500;
+    public void populateDropDown(){
+        // Using LinkedHashMap to preserve insertion order (Jan -> Dec)
+        dropdownMonthLabels.put("January", "01");
+        dropdownMonthLabels.put("February", "02");
+        dropdownMonthLabels.put("March", "03");
+        dropdownMonthLabels.put("April", "04");
+        dropdownMonthLabels.put("May", "05");
+        dropdownMonthLabels.put("June", "06");
+        dropdownMonthLabels.put("July", "07");
+        dropdownMonthLabels.put("August", "08");
+        dropdownMonthLabels.put("September", "09");
+        dropdownMonthLabels.put("October", "10");
+        dropdownMonthLabels.put("November", "11");
+        dropdownMonthLabels.put("December", "12");
+    }
+
+    /**
+     * We will build the basic default container where total transactions is stored
+     */
+    private void buildContainer() {
+
+        //Create dropdown
+        JPanel selctDatePanel = new JPanel();
+
+        //fill dropdowns
+        String[] months = dropdownMonthLabels.keySet().toArray(new String[0]);
+        dropdownMonth = new JComboBox<>(months);
+        dropdownYear = new JComboBox<>(dropdownYearList);
+
+        JLabel monthTitle = new JLabel("Month:");
+        JLabel yearTitle = new JLabel("Year:");
+        //Creatiing okay buttons
+
+        JButton dateButton = new JButton("Okay");
+        dateButton.addActionListener(e -> ClickedMonth());
+
+        selctDatePanel.add(yearTitle);
+        selctDatePanel.add(dropdownYear);
+        selctDatePanel.add(monthTitle);
+        selctDatePanel.add(dropdownMonth);
+        selctDatePanel.add(dateButton);
+
+        this.add(selctDatePanel, BorderLayout.NORTH);
 
 
-// utility methods that take care of setting up each JPanel to be displayed
-// in our GUI
-private static JPanel createDefaultCard() {
-    final JPanel defaultCard = new JPanel();
-    defaultCard.setLayout(new BoxLayout(defaultCard, BoxLayout.Y_AXIS));
+        //loading the data
+        transactionTilesBlock.setLayout(new BoxLayout(transactionTilesBlock, BoxLayout.Y_AXIS));
+        JScrollPane scrollPane = new JScrollPane(transactionTilesBlock);
 
-    defaultCard.add( new JLabel("Home Page"));
-    defaultCard.add( new JLabel("Welcome! "));
+        this.add(scrollPane, BorderLayout.CENTER);
 
-    return defaultCard;
-}
-
-private static JPanel createGetTransactionCard(JFrame jFrame) {
-    final int ROWS = 4;
-    final int COLS = 2;
-    final int WIDTH = 850;
-    final int HEIGHT = 500;
+    }
 
 
-    //Testing the transactions using a hashmps
-    final JPanel getTransactionCard = new JPanel();
-    getTransactionCard.setLayout(new BorderLayout(ROWS, COLS));
-
-    ArrayList<HashMap<String, Object>> transaction_test_data = new ArrayList<>();
-
-
- //TODO: Convert to trnsaction Object
-//    HashMap<String, Object> trans1 = new HashMap<>();
-//    trans1.put("date", "2025-11-01");
-//    trans1.put("source", "Employer");
-//    trans1.put("category", "Income");
-//    trans1.put("amount", 3500.00);
-//    transaction_test_data.add(trans1);
-
-    JPanel tileBlock = new JPanel();
-    tileBlock.setLayout(new GridLayout(0, 1));
+    private void loadMonthlyTransaction(){
+        ArrayList<HashMap<String, Object>> transaction_test_data = new ArrayList<>(); //ouput object
+        // get the drop_down
+    }
 
 
-    // building the UI as a function.
-    //Create a container for the tiles
-    rebuildTiles(tileBlock, jFrame, transaction_test_data);
+    private void rebuildTiles(ArrayList<HashMap<String, Object>> monthlyTransactions) { //monthly transactions
 
-    getTransactionCard.add(tileBlock, BorderLayout.NORTH);
-
-//        JButton okayButton = new JButton("Okay");
-//        okayButton.addActionListener(cancelEvent -> {
-//            dialog.dispose();
-//        });
-
-//        getTransactionCard.add(okayButton, BorderLayout.SOUTH);
+        transactionTilesBlock.removeAll();
 
 
 
-    return getTransactionCard;
+        if (monthlyTransactions == null || monthlyTransactions.isEmpty()) {
+            transactionTilesBlock.add(new JLabel("No transactions found for this month."));
+        } else {
+            // Header
+            JPanel header = new JPanel(new GridLayout(1, 5));
+            header.add(new JLabel("Date"));
+            header.add(new JLabel("Source"));
+            header.add(new JLabel("Category"));
+            header.add(new JLabel("Amount"));
+            header.add(new JLabel("Action"));
+            header.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+            transactionTilesBlock.add(header);
+
+            for (int i = 0; i < monthlyTransactions.size(); i++) {
+                HashMap<String, Object> t = monthlyTransactions.get(i);
+                JPanel row = new JPanel(new GridLayout(1, 5));
+                row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
+
+                row.add(new JLabel(String.valueOf(t.get("date"))));
+                row.add(new JLabel(String.valueOf(t.get("source"))));
+                row.add(new JLabel(String.valueOf(t.get("category"))));
+                row.add(new JLabel(String.format("%.2f", (Double) t.get("amount"))));
+
+                JButton editBtn = new JButton("Edit");
+                // Add action listener logic here...
+                row.add(editBtn);
+
+                row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+                transactionTilesBlock.add(row);
+            }
+        }
 
 
-}
-private static void rebuildTiles(JPanel tileBlock, JFrame jFrame,
-                                 ArrayList<HashMap<String, Object>> transaction_test_data) {
-
-    tileBlock.removeAll();
-
-    final JButton editButton = new JButton("edit");
 
 
-    //transaction panel
-    JPanel transactionTile = new JPanel();
-    transactionTile.setLayout(new GridLayout(1, 6));
-
-    transactionTile.add(new JLabel("Date"));
-    transactionTile.add(new JLabel("Source"));
-    transactionTile.add(new JLabel("Category"));
-    transactionTile.add(new JLabel("Amount"));
-    JButton placeholderButton = new JButton("Edit");
 
 
-    placeholderButton.setEnabled(false); // Makes it look like a label
-    transactionTile.add(placeholderButton);
-    transactionTile.add(new JLabel("                             "));
-
-    tileBlock.setLayout(new GridLayout(0, 1));
-    tileBlock.add(transactionTile);
-    tileBlock.add(new JLabel("   ")); //sepeartor btw tiles
-
-
-// Create tiles
-    int num_trans = transaction_test_data.size();
-
-    for (int i = 0; i < num_trans; i++) {
-        HashMap<String, Object> transaction = transaction_test_data.get(i);
-
-        JPanel tile = new JPanel();
-        tile.setLayout(new GridLayout(1, 5));
-
-        tile.add(new JLabel((String) transaction.get("date")));
-        tile.add(new JLabel((String) transaction.get("source")));
-        tile.add(new JLabel((String) transaction.get("category")));
-        tile.add(new JLabel(String.format("%.2f", (Double) transaction.get("amount")))); // *********
-
-
-        JButton editBtn = new JButton("edit");
+        /// ////////////////////////
 
         //set the number of the buttons be the name
-        editBtn.setName(String.valueOf(i));
-        editBtn.addActionListener(e -> {
-
-
-            // create a daiglof as a pop-up
-            JDialog dialog = new JDialog(jFrame, "Edit category", true); // modal
-            dialog.setSize(400, 300);
-            dialog.setLayout(new BorderLayout());
-
-            //edit the button
-            JButton btn = (JButton) e.getSource();
-            int tile_num = Integer.parseInt(btn.getName());
-
-            //debuggin try
-            System.out.println(tile_num);
-
-            //Creatte a panel to put inside the drop_down
-            JPanel popUpPanel = new JPanel();
-            popUpPanel.setLayout(new GridLayout(0, 2));
-
-            //create a drop_down
-            String[] categories = {"Income", "Rent_Utilities", "Food", "Transportation", "Shopping", "Other"};
-            JComboBox<String> categoryCombo = new JComboBox<>(categories);
-            categoryCombo.setSelectedItem(transaction_test_data.get(tile_num).get("category"));
-            dialog.add(new JLabel("Category:"));
-            dialog.add(categoryCombo);
-            transaction_test_data.get(tile_num).put("category", categoryCombo.getSelectedItem());
-
-            //add the drop_down to the popUpPanel
-            popUpPanel.add(new JLabel("Category:"));
-            popUpPanel.add(categoryCombo);
-
-
-            //create save and cancel buttons
-            JPanel buttonPanel = new JPanel();
-            JButton saveButton = new JButton("Save");
-            JButton cancelButton = new JButton("Cancel");
-
-            saveButton.addActionListener(save_cat -> {
-
-                //TODO: add the function that connects with transaction Java
-                transaction_test_data.get(tile_num).put("category", categoryCombo.getSelectedItem());
-                System.out.println(categoryCombo.getSelectedItem());
-                JOptionPane.showMessageDialog(dialog, " Category updated!");
-                dialog.dispose();
-
-                rebuildTiles(tileBlock, jFrame, transaction_test_data);
+//        editBtn.setName(String.valueOf(i));
 
 
 
-            });
+
+//        editBtn.addActionListener(e -> {
+//
+//
+//            // create a daiglof as a pop-up
+//            JDialog dialog = new JDialog(jFrame, "Edit category", true); // modal
+//            dialog.setSize(400, 300);
+//            dialog.setLayout(new BorderLayout());
+//
+//            //edit the button
+//            JButton btn = (JButton) e.getSource();
+//            int tile_num = Integer.parseInt(btn.getName());
+//
+//            //debuggin try
+//            System.out.println(tile_num);
+//
+//            //Creatte a panel to put inside the drop_down
+//            JPanel popUpPanel = new JPanel();
+//            popUpPanel.setLayout(new GridLayout(0, 2));
+//
+//            //create a drop_down
+//            String[] categories = {"Income", "Rent_Utilities", "Food", "Transportation", "Shopping", "Other"};
+//            JComboBox<String> categoryCombo = new JComboBox<>(categories);
+//            categoryCombo.setSelectedItem(monthlyTransactions.get(tile_num).get("category"));
+//            dialog.add(new JLabel("Category:"));
+//            dialog.add(categoryCombo);
+//            monthlyTransactions.get(tile_num).put("category", categoryCombo.getSelectedItem());
+//
+//            //add the drop_down to the popUpPanel
+//            popUpPanel.add(new JLabel("Category:"));
+//            popUpPanel.add(categoryCombo);
+//
+//
+//            //create save and cancel buttons
+//            JPanel buttonPanel = new JPanel();
+//            JButton saveButton = new JButton("Save");
+//            JButton cancelButton = new JButton("Cancel");
+//
+//            saveButton.addActionListener(save_cat -> {
+//
+//                //TODO: add the function that connects with transaction Java
+//                monthlyTransactions.get(tile_num).put("category", categoryCombo.getSelectedItem()); ///output data
+//                System.out.println(categoryCombo.getSelectedItem());
+//                JOptionPane.showMessageDialog(dialog, " Category updated!");
+//                dialog.dispose();
+//
+//                rebuildTiles(tileBlock, jFrame, monthlyTransactions); //convert to use case
+//            });
+//
+//
+//            //when you cancel
+//            cancelButton.addActionListener(cancelEvent -> {
+//                dialog.dispose();
+//            });
+//
+//            buttonPanel.add(saveButton);
+//            buttonPanel.add(cancelButton);
+//            dialog.add(popUpPanel, BorderLayout.CENTER);
+//            dialog.add(buttonPanel, BorderLayout.SOUTH);
+//            dialog.setVisible(true); //makes sure to turn on dialog
+//
+//
+//        });
+//
+//        tile.add(editBtn);
+//        tile.add(new JLabel("   "));
+//        tileBlock.add(tile);
 
 
-            //when you cancel
-            cancelButton.addActionListener(cancelEvent -> {
-                dialog.dispose();
-            });
-
-            buttonPanel.add(saveButton);
-            buttonPanel.add(cancelButton);
-            dialog.add(popUpPanel, BorderLayout.CENTER);
-            dialog.add(buttonPanel, BorderLayout.SOUTH);
-            dialog.setVisible(true); //makes sure to turn on dialog
-
-
-        });
-
-        tile.add(editBtn);
-        tile.add(new JLabel("   "));
-
-        tileBlock.add(tile);
-    }
-
-    tileBlock.revalidate();
-    tileBlock.repaint();
+        transactionTilesBlock.revalidate();
+        transactionTilesBlock.repaint();
 
 
 
 }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
 
+    private void ClickedMonth() {
+        String selectedMonth = (String) dropdownMonth.getSelectedItem();
+        String selectedYear = (String) dropdownYear.getSelectedItem();
+        String monthNumber = dropdownMonthLabels.get(selectedMonth);
+        String yearMonthString = selectedYear + "-" + monthNumber;
+
+        viewTransactionController.execute(yearMonthString);
+//        ArrayList<HashMap<String, Object>> monthlyTransaction =returnMonthTransactions();
+//        rebuildTiles(transactionTilesBlock, jFrame, monthlyTransaction);
+
+    }
+
+    /**
+     * React to a button click that results in evt.
+     * @param evt the ActionEvent to react to
+     * Class Code**
+     */
+    public void actionPerformed(ActionEvent evt) {
+        System.out.println("Click " + evt.getActionCommand());
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+        if ("state".equals(evt.getPropertyName())) {
+            ViewTransactionState state = (ViewTransactionState) evt.getNewValue();
+            rebuildTiles(state.getMonthlyTransactions());
+        }}
 
+    public String getViewName() {
+        return viewName;
     }
+
+    public void setViewTransactionController(ViewTransactionController viewTransactionController) {
+        this.viewTransactionController = viewTransactionController;
+    }
+
+
 }
