@@ -1,6 +1,7 @@
 package view;
 
 import interface_adapter.dashboard.DashboardController;
+import interface_adapter.dashboard.DashboardState;
 import interface_adapter.dashboard.DashboardViewModel;
 import use_case.load_dashboard.TimeRange;
 
@@ -13,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 public class DashboardView extends JPanel{
-    private final DashboardController controller;
+    private DashboardController controller;
     private final DashboardViewModel viewModel;
 
     //UI Components
@@ -24,8 +25,7 @@ public class DashboardView extends JPanel{
     private JLabel pieChartLabel;
     private JLabel timeChartLabel;
 
-    public DashboardView(DashboardController controller, DashboardViewModel viewModel) {
-        this.controller = controller;
+    public DashboardView(DashboardViewModel viewModel) {
         this.viewModel = viewModel;
 
         setupUI();
@@ -123,7 +123,8 @@ public class DashboardView extends JPanel{
     }
 
     private void updateChartDisplay() {
-        List<Image> chartImages = viewModel.getChartImages();
+        DashboardState state = viewModel.getState();
+        List<Image> chartImages = state.getChartImages();
 
         if (chartImages == null || chartImages.isEmpty()){
             pieChartLabel.setText("No Data");
@@ -140,5 +141,9 @@ public class DashboardView extends JPanel{
                 pieChartLabel.setIcon(new ImageIcon(chartImages.get(1)));
             }
         }
+    }
+
+    public void setDashboardController(DashboardController controller) {
+        this.controller = controller;
     }
 }

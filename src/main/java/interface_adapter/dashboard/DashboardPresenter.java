@@ -33,7 +33,8 @@ public class DashboardPresenter implements LoadDashboardOutputBoundary {
            //TODO handle exceptions w error message
         }
 
-        viewModel.setChartImages(images);
+        DashboardState state = viewModel.getState();
+        state.setChartImages(images);
     }
 
 }
