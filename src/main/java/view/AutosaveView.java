@@ -12,18 +12,16 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import interface_adapter.autosave.AutosaveController;
+import interface_adapter.autosave.AutosaveState;
 import interface_adapter.autosave.AutosaveViewModel;
 
 public class AutosaveView extends JPanel implements PropertyChangeListener {
 
+
     private AutosaveController controller;
-
     private final AutosaveViewModel viewModel;
-
     private final JLabel statusLabel = new JLabel();
-
     private final JButton saveNowButton = new JButton("Save Now");
-
     private final Timer autosaveTimer;
 
     public AutosaveView(AutosaveViewModel viewModel) {
@@ -33,8 +31,9 @@ public class AutosaveView extends JPanel implements PropertyChangeListener {
         add(Box.createHorizontalStrut(8));
         add(saveNowButton);
 
-        statusLabel.setText(labelText(this.viewModel.getStatusMessage(), this.viewModel.getLastSavedAt(),
-                this.viewModel.getErrorMessage()));
+        AutosaveState state = viewModel.getState();
+        statusLabel.setText(labelText(state.getStatusMessage(), state.getLastSavedAt(),
+                state.getErrorMessage()));
 
         this.viewModel.addPropertyChangeListener(this);
         saveNowButton.addActionListener(e -> controller.autosaveNow());
@@ -46,11 +45,10 @@ public class AutosaveView extends JPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (!"autosaveState".equals(evt.getPropertyName())) {
-            return;
-        }
-
-        AutosaveViewModel state = (AutosaveViewModel) evt.getNewValue();
+//        if (!"autosaveState".equals(evt.getPropertyName())) {
+//            return;
+//        }
+        AutosaveState state = (AutosaveState) evt.getNewValue();
         statusLabel.setText(labelText(state.getStatusMessage(), state.getLastSavedAt(), state.getErrorMessage()));
     }
 
@@ -64,9 +62,14 @@ public class AutosaveView extends JPanel implements PropertyChangeListener {
         return statusMessage;
     }
 
-    public void setupAutosaveConntroller(AutosaveController controller) {
+    public void setupAutosaveController(AutosaveController controller) {
         this.controller = controller;
     }
+
+    public String getViewName() {
+        return viewModel.getViewName();
+    }
+
 }
 
 

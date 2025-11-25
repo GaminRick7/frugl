@@ -4,12 +4,12 @@ import java.awt.*;
 import java.util.List;
 
 public class DashboardState {
-    private List<Image> chartImages;
+    private java.util.List<Image> chartImages;
 
+    public java.util.List<Image> getChartImages() {
+        return chartImages;
+    }
     public void setChartImages(List<Image> chartImages) {
         this.chartImages = chartImages;
-    }
-    public List<Image> getChartImages() {
-        return chartImages;
     }
 }

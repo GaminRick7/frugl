@@ -1,5 +1,6 @@
 package view;
 
+import interface_adapter.ViewManagerModel;
 import interface_adapter.import_statement.ImportStatementController;
 import interface_adapter.import_statement.ImportStatementViewModel;
 
@@ -14,15 +15,16 @@ public class ImportStatementView extends JPanel implements ActionListener, Prope
 
     private final String viewName = "import statement";
     private final ImportStatementViewModel importStatementViewModel;
-
+    private final ViewManagerModel viewManagerModel;
     private ImportStatementController importStatementController = null;
 
     private final JTextField filePathField;
     private final JButton importButton;
     private final JButton backButton;
 
-    public ImportStatementView(ImportStatementViewModel viewModel) {
+    public ImportStatementView(ImportStatementViewModel viewModel, ViewManagerModel viewManagerModel) {
         this.importStatementViewModel = viewModel;
+        this.viewManagerModel = viewManagerModel;
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -65,7 +67,8 @@ public class ImportStatementView extends JPanel implements ActionListener, Prope
             importStatementController.execute(filePath);
         }
         else if (e.getSource() == backButton) {
-            importStatementController.backToDashboard();
+            viewManagerModel.setState("autosave");
+            viewManagerModel.firePropertyChange();
         }
     }
 

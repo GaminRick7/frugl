@@ -32,6 +32,7 @@ import javax.swing.SwingConstants;
 import entity.Category;
 import entity.GoalTree;
 import interface_adapter.set_goal.SetGoalController;
+import interface_adapter.set_goal.SetGoalState;
 import interface_adapter.set_goal.SetGoalViewModel;
 
 public class GoalView extends JPanel implements ActionListener, PropertyChangeListener {
@@ -41,7 +42,7 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
 
     private final SetGoalViewModel viewModel;
 
-    private final SetGoalController controller;
+    private SetGoalController controller;
 
 
     // Components
@@ -56,8 +57,7 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
 
     private BufferedImage deadImage;
 
-    public GoalView(SetGoalController controller, SetGoalViewModel viewModel) {
-        this.controller = controller;
+    public GoalView(SetGoalViewModel viewModel) {
         this.viewModel = viewModel;
         this.viewModel.addPropertyChangeListener(this);
 
@@ -65,7 +65,7 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
 
         this.setLayout(new BorderLayout());
 
-        JLabel title = new JLabel(SetGoalViewModel.TITLE_LABEL, SwingConstants.CENTER);
+        JLabel title = new JLabel(SetGoalState.TITLE_LABEL, SwingConstants.CENTER);
         title.setFont(new Font("Serif", Font.BOLD, 24));
         title.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         this.add(title, BorderLayout.NORTH);
@@ -76,7 +76,7 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
 
         // Add the button for new goals
         JPanel buttons = new JPanel();
-        setGoalButton = new JButton(SetGoalViewModel.SET_GOAL_BUTTON_LABEL);
+        setGoalButton = new JButton(SetGoalState.SET_GOAL_BUTTON_LABEL);
         setGoalButton.addActionListener(this);
         buttons.add(setGoalButton);
         this.add(buttons, BorderLayout.SOUTH);
@@ -103,7 +103,9 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
             Graphics2D g2d = (Graphics2D) g;
 
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            List<GoalTree> forest = viewModel.getForest();
+
+            SetGoalState state = viewModel.getState();
+            List<GoalTree> forest = state.getForest();
 
             // Iterate through each tree to render all of them
             if (forest != null) {
@@ -195,13 +197,18 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
         if ("state".equals(evt.getPropertyName())) {
             forestPanel.repaint();
 
-            if (viewModel.getErrorMessage() != null) {
-                JOptionPane.showMessageDialog(this, viewModel.getErrorMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            SetGoalState state = viewModel.getState();
+            if (state.getErrorMessage() != null) {
+                JOptionPane.showMessageDialog(this, state.getErrorMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-            if (viewModel.getSuccessMessage() != null) {
-                JOptionPane.showMessageDialog(this, viewModel.getSuccessMessage(),
+            if (state.getSuccessMessage() != null) {
+                JOptionPane.showMessageDialog(this, state.getSuccessMessage(),
                         "Success", JOptionPane.INFORMATION_MESSAGE);
             }
         }
+    }
+
+    public void setGoalController(SetGoalController setGoalController) {
+        this.controller = setGoalController;
     }
 }

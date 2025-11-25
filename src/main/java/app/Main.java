@@ -11,8 +11,8 @@ public class Main {
                 .addAutosaveUseCase()
                 .addImportStatementView()
                 .addImportStatementUseCase()
-                .addDashboardView()
-                .addDashboardUseCase()
+                .addSetGoalView()
+                .addGoalUseCase()
                 .build();
 
         application.pack();

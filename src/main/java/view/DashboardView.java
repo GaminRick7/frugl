@@ -142,4 +142,8 @@ public class DashboardView extends JPanel{
     public void setDashboardController(DashboardController controller) {
         this.controller = controller;
     }
+
+    public void setDashboardController(DashboardController controller){
+        this.controller = controller;
+    }
 }

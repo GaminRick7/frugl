@@ -14,13 +14,17 @@ public class SetGoalPresenter implements SetGoalOutputBoundary {
     @Override
     public void prepareSuccessView(SetGoalOutputData outputData) {
         System.out.println(outputData.getMessage() + " at " + outputData.getTimestamp());
-        viewModel.setForest(outputData.getForest());
-        viewModel.setSuccess(outputData.getMessage());
+        SetGoalState state = viewModel.getState();
+        state.setForest(outputData.getForest());
+        state.setSuccess(outputData.getMessage());
+        viewModel.firePropertyChange();
     }
 
     @Override
     public void prepareFailView(String errorMessage) {
         System.out.println(errorMessage);
-        viewModel.setFailure(errorMessage);
+        SetGoalState state = viewModel.getState();
+        state.setFailure(errorMessage);
+        viewModel.firePropertyChange();
     }
 }
