@@ -1,6 +1,7 @@
 package entity;
 
 import java.time.YearMonth;
+import java.util.List;
 
 public class GoalTree {
 
@@ -54,26 +55,24 @@ public class GoalTree {
         this.yCoordinate = yCoordinate;
     }
 
-    public void updateStatus() {
+    public void updateStatus(List<Transaction> transactions) {
         YearMonth currentMonth = YearMonth.now();
         YearMonth goalMonth = goal.getMonth();
-        int spent = 0;
+        double spent = 0;
+        float goalAmount = goal.getGoalAmount();
 
-        for (Category category : goal.getCategories()) {
-            spent += 0;
-        }
-        // this loop will be updated based on later implementations
-        // TODO: Implement loop
-
-        if (currentMonth.equals(goalMonth)) {
-            status = "sapling";
-            return;
+        for (Transaction transaction : transactions) {
+            spent += transaction.getAmount();
         }
 
-        if (spent > goal.getGoalAmount()) {
-            status = "rotten";
-        } else {
-            status = "healthy";
+        if (currentMonth.isAfter(goalMonth) || currentMonth.equals(goalMonth)) {
+            if (spent <= goalAmount) {
+                this.status = "healthy"; // Goal achieved
+            } else {
+                this.status = "dead"; // Goal failed
+            }
+        } else if (currentMonth.isBefore(goalMonth)) {
+            this.status = "sapling";
         }
     }
 }

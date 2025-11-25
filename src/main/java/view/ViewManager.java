@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import interface_adapter.ViewManagerModel;
 
 /**
  * The View Manager for  FRUGL. It listens for property change events
@@ -27,8 +28,8 @@ public class ViewManager implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         switch (evt.getPropertyName()) {
             case "state":
-                String viewName = (String) evt.getNewValue();
-                cardLayout.show(views, viewName);
+                String newState = (String) evt.getNewValue();
+                cardLayout.show(views, newState);
                 break;
 
             case "popup":

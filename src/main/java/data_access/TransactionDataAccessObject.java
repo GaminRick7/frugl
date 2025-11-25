@@ -13,10 +13,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import entity.Category;
 import entity.Transaction;
 import use_case.autosave.AutosaveDataAccessInterface;
+import use_case.set_goal.ForestDataAccessInterface;
+import use_case.import_statement.ImportStatementDataAccessInterface;
+import use_case.load_dashboard.LoadDashboardDataAccessInterface;
 
-public class TransactionDataAccessObject implements AutosaveDataAccessInterface {
+public class TransactionDataAccessObject implements AutosaveDataAccessInterface, LoadDashboardDataAccessInterface, ImportStatementDataAccessInterface, ForestDataAccessInterface {
     private final File jsonFile;
 
     private final Gson gson;
@@ -106,5 +110,15 @@ public class TransactionDataAccessObject implements AutosaveDataAccessInterface 
             save();
         }
         return removed;
+    }
+
+    public boolean sourceExists(String source) {
+        //TODO
+        return true;
+    }
+
+    public Category getSourceCategory(String source) {
+        //TODO
+        return transactions.get(0).getCategory();
     }
 }

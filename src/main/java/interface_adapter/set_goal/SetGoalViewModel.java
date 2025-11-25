@@ -1,5 +1,10 @@
 package interface_adapter.set_goal;
 
-public class SetGoalViewModel {
-    //TODO: Implement the ViewModel
+import interface_adapter.ViewModel;
+
+public class SetGoalViewModel extends ViewModel<SetGoalState> {
+    public SetGoalViewModel() {
+        super("set goal");
+        this.setState(new SetGoalState());
+    }
 }

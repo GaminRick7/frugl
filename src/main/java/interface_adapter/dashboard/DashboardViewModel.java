@@ -1,11 +1,14 @@
 package interface_adapter.dashboard;
 
+import interface_adapter.ViewModel;
+import interface_adapter.autosave.AutosaveState;
+
 import java.awt.*;
 import java.util.List;
 
-public class DashboardViewModel {
-    private List<Image> chartImages;
-
-    public List<Image> getChartImages() {return chartImages;}
-    public void setChartImages(List<Image> chartImages) {this.chartImages = chartImages;}
+public class DashboardViewModel extends ViewModel<DashboardState> {
+    public DashboardViewModel() {
+        super("dashboard");
+        this.setState(new DashboardState());
+    }
 }
