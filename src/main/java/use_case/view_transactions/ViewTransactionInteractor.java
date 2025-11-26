@@ -1,8 +1,10 @@
 package use_case.view_transactions;
 
 import entity.Transaction;
-import java.util.HashMap;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.time.YearMonth;
 
@@ -20,9 +22,9 @@ public class ViewTransactionInteractor implements ViewTransactionInputBoundary {
     }
 
 
-        private ArrayList<HashMap<String, Object>> convert_transaction_toString(List<Transaction> trans) {
+        private List<HashMap<String, Object>> convert_transaction_toString(List<Transaction> trans) {
 
-            ArrayList<HashMap<String, Object>> proccessed_transactions = new ArrayList<>();
+            List<HashMap<String, Object>> proccessed_transactions = new ArrayList<>();
 
             for (int i = 0; i< trans.size() ; i++) {
 
@@ -42,17 +44,25 @@ public class ViewTransactionInteractor implements ViewTransactionInputBoundary {
 
 
     public void execute(ViewTransactionInputData transactionInputData) {
-        final YearMonth yearMonth = transactionInputData.getYearMonth();
-        final ArrayList<Transaction> trans = viewDataAccessObject.chooseMontlyTransactions(yearMonth);
-        ArrayList<HashMap<String, Object>> proccessed_transactions = convert_transaction_toString(trans);
+        System.out.println("2. Interactor executing.");
+
+        LocalDate start = transactionInputData.getStartDate();
+        LocalDate end = transactionInputData.getEndDate();
+        final List<Transaction> trans =viewDataAccessObject.getByDateRange(start, end);
+        List<HashMap<String, Object>> proccessed_transactions = convert_transaction_toString(trans);
+
+        YearMonth yearMonth = YearMonth.from(start);
 
 
         if (!proccessed_transactions.isEmpty()){
+            System.out.println("2b. Interactor calling success view.");
             final ViewTransactionOutputData viewTransactionOutputData= new ViewTransactionOutputData(yearMonth.toString(),proccessed_transactions );
             viewTransactionPresenter.prepareSuccessView(  viewTransactionOutputData);
         }
         else{
-            viewTransactionPresenter.prepareFailView(yearMonth.toString() + " has no data availiable");
+            System.out.println("2a. Interactor calling fail view.");
+            viewTransactionPresenter.prepareFailView( "No data available.");
+
 
 
         }

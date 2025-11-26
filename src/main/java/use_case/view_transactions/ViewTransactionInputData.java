@@ -1,20 +1,27 @@
 package use_case.view_transactions;
 
 import entity.Transaction;
-import java.time.YearMonth;
-import java.util.ArrayList;
+
+import java.time.LocalDate;
 
 public class ViewTransactionInputData {
 
-        private final YearMonth yearMonth;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
 
+    public ViewTransactionInputData(LocalDate startDate, LocalDate endDate) {
+        this.startDate = startDate;
+        this.endDate = endDate;
 
-    public ViewTransactionInputData(YearMonth yearMonth) {
-        this.yearMonth = yearMonth;
     }
 
-    public YearMonth getYearMonth(){
-        return yearMonth;
+
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
 }

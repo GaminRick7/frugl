@@ -4,6 +4,7 @@ import entity.Transaction;
 import use_case.view_transactions.ViewTransactionInputBoundary;
 import use_case.view_transactions.ViewTransactionInputData;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 
@@ -17,10 +18,16 @@ public class ViewTransactionController {
 
     public void execute(String monthString)
     {
+        System.out.println("1. Controller executing for: " + monthString);
         YearMonth yearMonth;
             yearMonth = YearMonth.parse(monthString); // Expects "YYYY-MM"
 
-        ViewTransactionInputData inputData = new ViewTransactionInputData(yearMonth);
+
+        // get the first and last dates of the month
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+
+        ViewTransactionInputData inputData = new ViewTransactionInputData(startDate, endDate);
         viewTransactionInteractor.execute(inputData);
     }
 }

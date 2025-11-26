@@ -7,7 +7,6 @@ import use_case.load_dashboard.TimeRange;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -17,13 +16,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.List;
 import javax.swing.SwingUtilities;
 import javax.swing.*;
 
@@ -117,13 +112,13 @@ public class TransactionsView extends JPanel implements ActionListener, Property
     }
 
 
-    private void loadMonthlyTransaction(){
-        ArrayList<HashMap<String, Object>> transaction_test_data = new ArrayList<>(); //ouput object
-        // get the drop_down
-    }
+//    private void loadMonthlyTransaction(){
+//        List<HashMap<String, Object>> transaction_test_data = new ArrayList<>();
+//        // get the drop_down
+//    }
 
 
-    private void rebuildTiles(ArrayList<HashMap<String, Object>> monthlyTransactions) { //monthly transactions
+    private void rebuildTiles(List<HashMap<String, Object>> monthlyTransactions) { //monthly transactions
 
         transactionTilesBlock.removeAll();
 
@@ -151,10 +146,10 @@ public class TransactionsView extends JPanel implements ActionListener, Property
                 row.add(new JLabel(String.valueOf(t.get("source"))));
                 row.add(new JLabel(String.valueOf(t.get("category"))));
                 row.add(new JLabel(String.format("%.2f", (Double) t.get("amount"))));
-
-                JButton editBtn = new JButton("Edit");
-                // Add action listener logic here...
-                row.add(editBtn);
+//
+//                JButton editBtn = new JButton("Edit");
+//                row.add(editBtn);
+//                row.add(editBtn);
 
                 row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
                 transactionTilesBlock.add(row);
@@ -213,7 +208,6 @@ public class TransactionsView extends JPanel implements ActionListener, Property
 //
 //            saveButton.addActionListener(save_cat -> {
 //
-//                //TODO: add the function that connects with transaction Java
 //                monthlyTransactions.get(tile_num).put("category", categoryCombo.getSelectedItem()); ///output data
 //                System.out.println(categoryCombo.getSelectedItem());
 //                JOptionPane.showMessageDialog(dialog, " Category updated!");
@@ -288,3 +282,4 @@ public class TransactionsView extends JPanel implements ActionListener, Property
 
 
 }
+

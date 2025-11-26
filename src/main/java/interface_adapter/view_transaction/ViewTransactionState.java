@@ -13,15 +13,15 @@ public class ViewTransactionState {
     private String yearMonthDisplay = "2025-11";
     private YearMonth selectedMonth;
     private String noDataError;
-    private ArrayList<HashMap<String, Object>> monthlyTransactions;
+    private List<HashMap<String, Object>> monthlyTransactions;
 
     public String getYearMonthDisplay() {return yearMonthDisplay;}
 
     public YearMonth getSelectedMonth() {return selectedMonth;}
 
-    public ArrayList<HashMap<String, Object>>  getMonthlyTransactions() {return monthlyTransactions;}
+    public List<HashMap<String, Object>>  getMonthlyTransactions() {return monthlyTransactions;}
 
-    public void  setMonthlyTransactions(ArrayList<HashMap<String, Object>> monthlyTransactions) {this.monthlyTransactions = monthlyTransactions;}
+    public void  setMonthlyTransactions(List<HashMap<String, Object>> monthlyTransactions) {this.monthlyTransactions = monthlyTransactions;}
 
 
     public String getDataError() {return noDataError;}

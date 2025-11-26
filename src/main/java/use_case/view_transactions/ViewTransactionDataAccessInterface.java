@@ -1,18 +1,21 @@
 package use_case.view_transactions;
 import entity.Transaction;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public interface ViewTransactionDataAccessInterface {
 
     /**
-     * Give the
-     * @param yearMonth
+     *
      * @return the trnsations in the given year and month
+     * @param startDate start of month
+     * @param endDate end of month
      */
-    ArrayList<Transaction> chooseMontlyTransactions(YearMonth yearMonth);
+    List<Transaction> getByDateRange(LocalDate startDate, LocalDate endDate);
 
 
 }

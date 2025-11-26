@@ -1,6 +1,6 @@
 package use_case.view_transactions;
 import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.List;
 
 
 public class ViewTransactionOutputData {
@@ -8,14 +8,14 @@ public class ViewTransactionOutputData {
     /// Convert list into string
 
     private final String yearMonthStr;
-    private ArrayList<HashMap<String, Object>> monthlyTransactions;
+    private List<HashMap<String, Object>> monthlyTransactions;
 
-    public ViewTransactionOutputData(String yearMonthStr, ArrayList<HashMap<String, Object>> monthlyTransactions) {
+    public ViewTransactionOutputData(String yearMonthStr, List<HashMap<String, Object>> monthlyTransactions) {
         this.yearMonthStr = yearMonthStr;
         this.monthlyTransactions = monthlyTransactions;
     }
 
-    public ArrayList<HashMap<String, Object>> getMonthTransactions() {
+    public List<HashMap<String, Object>> getMonthTransactions() {
         return monthlyTransactions;
     }
 

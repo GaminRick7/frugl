@@ -22,6 +22,7 @@ public class ViewTransactionPresenter implements ViewTransactionOutputBoundary {
     public void prepareSuccessView(ViewTransactionOutputData result) {
         final ViewTransactionState viewTransactionState = viewTransactionViewModel.getState();
         viewTransactionState.setMonth(result.getYearMonth());
+        viewTransactionState.setDataError(null); // Clear any old error
 
         this.viewTransactionViewModel.setState(viewTransactionState);
 
@@ -34,9 +35,16 @@ public class ViewTransactionPresenter implements ViewTransactionOutputBoundary {
 
     @Override
     public void prepareFailView(String error) {
+        System.out.println("3. Presenter updating state with error: " + error);
         final ViewTransactionState viewTransactionState = viewTransactionViewModel.getState();
         viewTransactionState.setDataError(error);
+
+        viewTransactionState.setMonthlyTransactions(null);
+
+        this.viewTransactionViewModel.setState(viewTransactionState);
+
         viewTransactionViewModel.firePropertyChange();
+        System.out.println("3a. Presenter fired property change.");
     }
 
 
