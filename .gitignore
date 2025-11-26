@@ -36,6 +36,7 @@ build/
 .vscode/
 
 transactions.json
+source_categories.json
 
 ### Mac OS ###
 .DS_Store

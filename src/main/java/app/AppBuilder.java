@@ -132,7 +132,7 @@ public class AppBuilder {
         JFrame application = new JFrame("Frugl");
 
         application.add(cardPanel);
-        viewManagerModel.setState(goalView.viewName);
+        viewManagerModel.setState(importStatementViewModel.getViewName());
         viewManagerModel.firePropertyChange();
         return application;
     }

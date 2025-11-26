@@ -5,7 +5,7 @@ public class Category {
 
     private String name;
 
-    public Category(String name, String description) {
+    public Category(String name) {
         this.name = name;
     }
 
@@ -14,7 +14,7 @@ public class Category {
     }
 
 
-    public void rename(String newName) {
+    public void setName(String newName) {
         this.name = newName;
     }
 

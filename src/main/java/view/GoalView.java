@@ -180,7 +180,7 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
                 List<Category> categories = new ArrayList<>();
                 for (String name : catNames) {
                     if (!name.trim().isEmpty()) {
-                        categories.add(new Category(name.trim(), ""));
+                        categories.add(new Category(name.trim()));
                     }
                 }
                 controller.setGoal(yearMonth, amount, categories);

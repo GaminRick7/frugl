@@ -13,9 +13,7 @@ import java.io.FileReader;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * The Import Bank Statement Interactor.
@@ -93,9 +91,9 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
 
             JsonObject tx = element.getAsJsonObject();
 
-            String source = tx.get("source").getAsString();
+            String sourceName = tx.get("source").getAsString();
 
-            if (transactionsDataAccessObject.sourceExists(source)) {
+            if (transactionsDataAccessObject.sourceExists(new Source(sourceName))) {
                 categorized.add(tx);
             }
             else {
@@ -110,8 +108,7 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
             String sourceName = tx.get("source").getAsString();
             double amount = tx.get("amount").getAsDouble();
             String dateString = tx.get("date").getAsString();
-            Category sourceCategory = transactionsDataAccessObject.getSourceCategory(sourceName);
-            Transaction transaction = new Transaction(new Source(sourceName, sourceCategory), amount, LocalDate.parse(dateString));
+            Transaction transaction = new Transaction(new Source(sourceName), amount, LocalDate.parse(dateString));
             transactionsDataAccessObject.addTransaction(transaction);
         }
     }

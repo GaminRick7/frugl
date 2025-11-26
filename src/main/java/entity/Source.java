@@ -2,21 +2,26 @@ package entity;
 
 public class Source {
     private final String name;
-    private Category category;
 
-    public Source(String name, Category category) {
+    public Source(String name) {
         this.name = name;
-        this.category = category;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public String getName() {
+        return name;
     }
 
-    public Category getCategory() {
-        return category;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Source other = (Source) obj;
+        return name.equals(other.name);
     }
 
-    public String getName() {return name;
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
+
 }

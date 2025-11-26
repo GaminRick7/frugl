@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 
 public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
     private final LoadDashboardOutputBoundary presenter;
-    private final LoadDashboardDataAccessInterface transactionDOA;
+    private final LoadDashboardDataAccessInterface transactionDAO;
 
     public LoadDashboardInteractor(LoadDashboardOutputBoundary presenter,  LoadDashboardDataAccessInterface transactionDOA) {
         this.presenter = presenter;
-        this.transactionDOA = transactionDOA;
+        this.transactionDAO = transactionDOA;
     }
 
     @Override
@@ -24,8 +24,8 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
         TimeRange timeRange = inputData.getTimeRange();
         LocalDate currentDate = inputData.getCurrentDate();
 
-        List<Transaction> pieRawData = transactionDOA.getByDateRange(inputData.getStartDate(), inputData.getEndDate());
-        List<Transaction> timeRawData = transactionDOA.getByDateRange(currentDate,inputData.getCurrentDate().minusMonths(timeRange.getValue()));
+        List<Transaction> pieRawData = transactionDAO.getByDateRange(inputData.getStartDate(), inputData.getEndDate());
+        List<Transaction> timeRawData = transactionDAO.getByDateRange(currentDate,inputData.getCurrentDate().minusMonths(timeRange.getValue()));
 
         ProcessedPieChartData pieChartData = processPieChartData(pieRawData);
         ProcessedTimeChartData timeChartData = processTimeChartData(timeRawData, timeRange);
@@ -37,7 +37,7 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
         Map<String, Double> categoryValues = transactions.stream()
                 .filter(t -> t.getAmount() < 0) //filter for expenses only
                 .collect(Collectors.groupingBy(
-                        t -> t.getCategory().getName(),
+                        t -> transactionDAO.getSourceCategory(t.getSource()).getName(),
                         Collectors.summingDouble(t -> Math.abs(t.getAmount()))
         ));
         return new ProcessedPieChartData(categoryValues);
