@@ -134,6 +134,10 @@ public class AppBuilder {
         return this;
     }
 
+    public DashboardView getDashboardView() {
+        return this.dashboardView;
+    }
+
     public JFrame build() {
         JFrame application = new JFrame("frugl");
 
