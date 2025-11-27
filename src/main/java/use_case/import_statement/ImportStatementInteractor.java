@@ -7,7 +7,6 @@ import com.google.gson.JsonParser;
 import entity.Category;
 import entity.Source;
 import entity.Transaction;
-
 import java.io.File;
 import java.io.FileReader;
 import java.time.LocalDate;
@@ -22,21 +21,26 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
 
     private final ImportStatementDataAccessInterface transactionsDataAccessObject;
     private final ImportStatementOutputBoundary presenter;
+    private final GeminiCategorySuggestionService categorySuggestionService;
 
-    public ImportStatementInteractor(ImportStatementDataAccessInterface transactionsDataAccessObject, ImportStatementOutputBoundary presenter) {
+    public ImportStatementInteractor(ImportStatementDataAccessInterface transactionsDataAccessObject,
+                                     ImportStatementOutputBoundary presenter,
+                                     GeminiCategorySuggestionService categorySuggestionService) {
         this.transactionsDataAccessObject = transactionsDataAccessObject;
         this.presenter = presenter;
+        this.categorySuggestionService = categorySuggestionService;
     }
 
 
     @Override
     public void execute(ImportStatementInputData inputData) {
-       File file = new File(inputData.getFilePath());
-       if (!file.exists()){
-           presenter.prepareFailView("Import unsuccessful: file does not exist");
-       }
+        File file = new File(inputData.getFilePath());
+        if (!file.exists()) {
+            presenter.prepareFailView("Import unsuccessful: file does not exist");
+            return;
+        }
 
-       JsonArray transactionsJsonArray;
+        JsonArray transactionsJsonArray;
         try {
             transactionsJsonArray = readArrayFromFile(inputData.getFilePath());
         } catch (Exception e) {
@@ -44,11 +48,11 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
             return;
         }
 
+        YearMonth statementMonth = extractYearMonth(transactionsJsonArray);
         List<JsonObject> categorized = new ArrayList<>();
-        List<JsonObject> uncategorized = new ArrayList<>();
 
         try {
-            separateTransactions(transactionsJsonArray, categorized, uncategorized);
+            categorizeTransactions(transactionsJsonArray, categorized);
         } catch (Exception e) {
             presenter.prepareFailView("Import unsuccessful: unsupported file");
             return;
@@ -57,13 +61,11 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
         try {
             addTransactions(categorized);
         } catch (Exception e) {
-            presenter.prepareFailView("failed to save categorized transactions");
+            presenter.prepareFailView("Failed to save categorized transactions");
             return;
         }
 
-        YearMonth ym = extractYearMonth(transactionsJsonArray);
-        presenter.prepareSuccessView(new ImportStatementOutputData(ym));
-
+        presenter.prepareSuccessView(new ImportStatementOutputData(statementMonth));
     }
 
     private JsonArray readArrayFromFile(String filePath) throws Exception {
@@ -79,9 +81,8 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
         }
     }
 
-    private void separateTransactions(JsonArray array,
-                                      List<JsonObject> categorized,
-                                      List<JsonObject> uncategorized) throws Exception {
+    private void categorizeTransactions(JsonArray array,
+                                        List<JsonObject> categorized) throws Exception {
 
         for (JsonElement element : array) {
 
@@ -92,12 +93,26 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
             JsonObject tx = element.getAsJsonObject();
 
             String sourceName = tx.get("source").getAsString();
+            double amount = tx.get("amount").getAsDouble();
+            LocalDate transactionDate = LocalDate.parse(tx.get("date").getAsString());
+            Source source = new Source(sourceName);
 
-            if (transactionsDataAccessObject.sourceExists(new Source(sourceName))) {
+            if (transactionsDataAccessObject.sourceExists(source)) {
                 categorized.add(tx);
-            }
-            else {
-                uncategorized.add(tx);
+            } else {
+                String suggestion = null;
+                if (categorySuggestionService != null) {
+                    suggestion = categorySuggestionService.suggestCategory(sourceName, amount, transactionDate);
+                }
+
+                String resolvedCategory;
+                if (suggestion != null) {
+                    resolvedCategory = suggestion;
+                } else {
+                    resolvedCategory = "Uncategorized";
+                }
+                transactionsDataAccessObject.addSourceCategory(source, new Category(resolvedCategory));
+                categorized.add(tx);
             }
         }
     }
