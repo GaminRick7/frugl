@@ -37,6 +37,7 @@ build/
 
 transactions.json
 source_categories.json
+.env
 
 ### Mac OS ###
 .DS_Store

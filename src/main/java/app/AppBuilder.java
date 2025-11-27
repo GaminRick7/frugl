@@ -4,16 +4,12 @@ import java.awt.CardLayout;
 
 import javax.swing.*;
 
-import charts.PieChartRenderer;
-import charts.ProcessedPieChartData;
 import data_access.GoalDataAccessObject;
 import data_access.TransactionDataAccessObject;
-import entity.Goal;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.autosave.AutosaveController;
 import interface_adapter.autosave.AutosavePresenter;
 import interface_adapter.autosave.AutosaveViewModel;
-import interface_adapter.dashboard.DashboardPresenter;
 import interface_adapter.dashboard.DashboardViewModel;
 import interface_adapter.import_statement.ImportStatementController;
 import interface_adapter.import_statement.ImportStatementPresenter;
@@ -24,16 +20,16 @@ import interface_adapter.set_goal.SetGoalViewModel;
 import use_case.autosave.AutosaveInputBoundary;
 import use_case.autosave.AutosaveInteractor;
 import use_case.autosave.AutosaveOutputBoundary;
+import use_case.import_statement.GeminiCategorySuggestionService;
 import use_case.import_statement.ImportStatementInputBoundary;
 import use_case.import_statement.ImportStatementInteractor;
 import use_case.import_statement.ImportStatementOutputBoundary;
-import use_case.load_dashboard.LoadDashboardInputBoundary;
-import use_case.load_dashboard.LoadDashboardInteractor;
-import use_case.load_dashboard.LoadDashboardOutputBoundary;
 import use_case.set_goal.SetGoalInputBoundary;
 import use_case.set_goal.SetGoalInteractor;
 import use_case.set_goal.SetGoalOutputBoundary;
 import view.*;
+
+import java.util.List;
 
 public class AppBuilder {
 
@@ -90,8 +86,13 @@ public class AppBuilder {
     public AppBuilder addImportStatementUseCase() {
         final ImportStatementOutputBoundary importStatementOutputBoundary = new ImportStatementPresenter(viewManagerModel,
                 importStatementViewModel);
-        final ImportStatementInputBoundary importStatementInputBoundary = new ImportStatementInteractor(transactionDataAccessObject, importStatementOutputBoundary);
-        ImportStatementController importStatementController = new ImportStatementController(importStatementInputBoundary, viewManagerModel);
+        List<String> allowedCategories = List.of("Food & Drink", "Transportation", "Retail", "Services", "Entertainment");
+        String geminiApiKey = System.getenv("GEMINI_API_KEY");
+        GeminiCategorySuggestionService categorySuggestionService =
+                new GeminiCategorySuggestionService(geminiApiKey, allowedCategories);
+        final ImportStatementInputBoundary importStatementInputBoundary = new ImportStatementInteractor(transactionDataAccessObject,
+                importStatementOutputBoundary, categorySuggestionService);
+        ImportStatementController importStatementController = new ImportStatementController(importStatementInputBoundary);
 
         importStatementView.setImportStatementController(importStatementController);
         return this;

@@ -1,6 +1,5 @@
 package interface_adapter.import_statement;
 
-import interface_adapter.ViewManagerModel;
 import use_case.import_statement.ImportStatementInputBoundary;
 import use_case.import_statement.ImportStatementInputData;
 
@@ -9,11 +8,9 @@ import use_case.import_statement.ImportStatementInputData;
  */
 public class ImportStatementController {
     private final ImportStatementInputBoundary importStatementInteractor;
-    private final ViewManagerModel viewManagerModel;
 
-    public ImportStatementController(ImportStatementInputBoundary interactor, ViewManagerModel viewManagerModel) {
+    public ImportStatementController(ImportStatementInputBoundary interactor) {
         this.importStatementInteractor = interactor;
-        this.viewManagerModel = viewManagerModel;
     }
     
     /**
