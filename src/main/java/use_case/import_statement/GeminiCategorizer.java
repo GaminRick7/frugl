@@ -15,7 +15,7 @@ public class GeminiCategorizer {
     private final String apiKey;
 
     private static final String API_URL =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=";;
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=";;
 
     private static final Gson gson = new Gson();
 
@@ -36,7 +36,10 @@ public class GeminiCategorizer {
 
         String jsonResponse = callGeminiApi(prompt);
 
+        System.out.println(parseResponse(jsonResponse, sources));
+
         return parseResponse(jsonResponse, sources);
+
     }
 
     /**
@@ -95,14 +98,13 @@ public class GeminiCategorizer {
 
         JsonObject root = JsonParser.parseString(jsonResponse).getAsJsonObject();
 
-        // Path: candidates[].content.parts[].text
         JsonArray candidates = root.getAsJsonArray("candidates");
-
         if (candidates == null || candidates.isEmpty()) {
             throw new Exception("Gemini returned no candidates");
         }
 
-        JsonObject content = candidates.get(0).getAsJsonObject()
+        JsonObject content = candidates.get(0)
+                .getAsJsonObject()
                 .getAsJsonObject("content");
 
         JsonArray parts = content.getAsJsonArray("parts");
@@ -110,9 +112,13 @@ public class GeminiCategorizer {
             throw new Exception("Gemini returned no parts");
         }
 
-        String modelText = parts.get(0).getAsJsonObject().get("text").getAsString();
+        String modelText = parts.get(0)
+                .getAsJsonObject()
+                .get("text")
+                .getAsString();
 
-        // Now modelText SHOULD be a JSON string like: { "Uber": "Transportation", ... }
+        modelText = stripMarkdownCodeFence(modelText);
+
         JsonObject parsedCategories;
         try {
             parsedCategories = JsonParser.parseString(modelText).getAsJsonObject();
@@ -120,21 +126,34 @@ public class GeminiCategorizer {
             throw new Exception("Gemini response was not valid JSON: " + modelText);
         }
 
-        // Convert to our Category objects
         Map<String, Category> result = new HashMap<>();
 
         for (String source : originalSources) {
-
             if (!parsedCategories.has(source)) {
                 throw new Exception("Missing category for: " + source);
             }
 
             String categoryName = parsedCategories.get(source).getAsString();
-
             result.put(source, new Category(categoryName));
         }
 
         return result;
     }
 
+    private String stripMarkdownCodeFence(String text) {
+        // Remove leading ```json or ``` (any language tag)
+        if (text.startsWith("```")) {
+            int firstNewline = text.indexOf('\n');
+            if (firstNewline != -1) {
+                text = text.substring(firstNewline + 1);
+            }
+        }
+
+        // Remove trailing ```
+        if (text.endsWith("```")) {
+            text = text.substring(0, text.lastIndexOf("```")).trim();
+        }
+
+        return text.trim();
+    }
 }

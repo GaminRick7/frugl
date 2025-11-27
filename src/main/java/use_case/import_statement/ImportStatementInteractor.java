@@ -151,7 +151,6 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
         for (String sourceName : sourcesToCategorize) {
             Category category = categorizedSources.get(sourceName);
 
-            // If for some reason a specific source is missing a category, fail
             if (category == null) {
                 throw new Exception("Missing category for source: " + sourceName);
             }
