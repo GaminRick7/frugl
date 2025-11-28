@@ -15,7 +15,8 @@ public class ImportStatementPresenter implements ImportStatementOutputBoundary {
     private final ViewManagerModel viewManagerModel;
     private final ImportStatementViewModel importStatementViewModel;
 
-    public ImportStatementPresenter(ViewManagerModel viewManagerModel, ImportStatementViewModel importStatementViewModel) {
+    public ImportStatementPresenter(ViewManagerModel viewManagerModel,
+                                    ImportStatementViewModel importStatementViewModel) {
         this.viewManagerModel = viewManagerModel;
         this.importStatementViewModel = importStatementViewModel;
     }

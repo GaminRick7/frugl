@@ -6,7 +6,7 @@ import entity.Transaction;
 
 
 /**
- * The DAO interface for the Import Bank Statement Use Case.
+ * The DataAccess interface for the Import Bank Statement Use Case.
  */
 
 public interface ImportStatementDataAccessInterface {

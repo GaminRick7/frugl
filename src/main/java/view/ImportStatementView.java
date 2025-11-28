@@ -3,16 +3,18 @@ package view;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.import_statement.ImportStatementController;
 import interface_adapter.import_statement.ImportStatementViewModel;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.*;
 
+
+/**
+ * The Import Bank Statement View.
+ */
 public class ImportStatementView extends JPanel implements ActionListener, PropertyChangeListener {
-
     private final String viewName = "import statement";
     private final ImportStatementViewModel importStatementViewModel;
     private final ViewManagerModel viewManagerModel;
@@ -67,7 +69,7 @@ public class ImportStatementView extends JPanel implements ActionListener, Prope
             importStatementController.execute(filePath);
         }
         else if (e.getSource() == backButton) {
-            viewManagerModel.setState("autosave");
+            viewManagerModel.setState("dashboard");
             viewManagerModel.firePropertyChange();
         }
     }

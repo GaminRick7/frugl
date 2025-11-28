@@ -1,9 +1,7 @@
 package app;
 
 import java.awt.CardLayout;
-
 import javax.swing.*;
-
 import charts.PieChartRenderer;
 import charts.ProcessedPieChartData;
 import data_access.GoalDataAccessObject;
@@ -89,14 +87,14 @@ public class AppBuilder {
     }
 
     public AppBuilder addImportStatementUseCase() {
-        final ImportStatementOutputBoundary importStatementOutputBoundary = new ImportStatementPresenter(viewManagerModel,
-                importStatementViewModel);
+        final ImportStatementOutputBoundary importStatementOutputBoundary =
+                new ImportStatementPresenter(viewManagerModel, importStatementViewModel);
         final GeminiCategorizer geminiCategorizer = new GeminiCategorizer(System.getenv("API_KEY"));
         final ImportStatementInputBoundary importStatementInputBoundary =
                 new ImportStatementInteractor(transactionDataAccessObject, importStatementOutputBoundary,
                         geminiCategorizer);
-        ImportStatementController importStatementController = new ImportStatementController(importStatementInputBoundary,
-                viewManagerModel);
+        ImportStatementController importStatementController =
+                new ImportStatementController(importStatementInputBoundary, viewManagerModel);
 
         importStatementView.setImportStatementController(importStatementController);
         return this;

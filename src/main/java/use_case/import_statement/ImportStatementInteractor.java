@@ -7,7 +7,6 @@ import com.google.gson.JsonParser;
 import entity.Category;
 import entity.Source;
 import entity.Transaction;
-
 import java.io.File;
 import java.io.FileReader;
 import java.time.LocalDate;
