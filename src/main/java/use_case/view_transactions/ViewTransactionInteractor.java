@@ -32,7 +32,7 @@ public class ViewTransactionInteractor implements ViewTransactionInputBoundary {
                 t1.put("date", transac.getDate());
                 t1.put("source", transac.getSource().getName());
                 t1.put("amount", String.valueOf(transac.getAmount()));
-                t1.put("category", viewDataAccessObject.getSourceCategory(transac.getSource()));
+                t1.put("category", viewDataAccessObject.getSourceCategory(transac.getSource()).getName());
 
                 proccessed_transactions.add(t1);
 
