@@ -9,8 +9,6 @@ import java.util.List;
 import java.time.YearMonth;
 
 
-import java.util.List;
-
 public class ViewTransactionInteractor implements ViewTransactionInputBoundary {
     private final ViewTransactionDataAccessInterface viewDataAccessObject;
     private final ViewTransactionOutputBoundary viewTransactionPresenter;
@@ -34,7 +32,7 @@ public class ViewTransactionInteractor implements ViewTransactionInputBoundary {
                 t1.put("date", transac.getDate());
                 t1.put("source", transac.getSource().getName());
                 t1.put("amount", String.valueOf(transac.getAmount()));
-                t1.put("category", transac.getCategory().getName());
+                t1.put("category", viewDataAccessObject.getSourceCategory(transac.getSource()).getName());
 
                 proccessed_transactions.add(t1);
 
