@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import javax.swing.*;
 
 
@@ -23,6 +24,7 @@ public class ImportStatementView extends JPanel implements ActionListener, Prope
     private final JTextField filePathField;
     private final JButton importButton;
     private final JButton backButton;
+    private final JButton browseButton;
 
     public ImportStatementView(ImportStatementViewModel viewModel, ViewManagerModel viewManagerModel) {
         this.importStatementViewModel = viewModel;
@@ -42,10 +44,16 @@ public class ImportStatementView extends JPanel implements ActionListener, Prope
 
         JLabel filePathLabel = new JLabel("File path: ");
         filePathField = new JTextField(20);
+        filePathField.setEditable(false);
+
+        browseButton = new JButton("Browse");
+        browseButton.addActionListener(this);
 
         pathPanel.add(filePathLabel);
         pathPanel.add(Box.createRigidArea(new Dimension(10, 0)));
         pathPanel.add(filePathField);
+        pathPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        pathPanel.add(browseButton);
 
         importButton = new JButton("Import");
         importButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -62,11 +70,22 @@ public class ImportStatementView extends JPanel implements ActionListener, Prope
         this.add(importButton);
         this.add(Box.createRigidArea(new Dimension(0, 10)));
         this.add(backButton);
+
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == importButton) {
+        if (e.getSource() == browseButton) {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Select Bank Statement JSON File");
+
+            int result = chooser.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = chooser.getSelectedFile();
+                filePathField.setText(selectedFile.getAbsolutePath());
+            }
+        }
+        else if (e.getSource() == importButton) {
             String filePath = filePathField.getText().trim();
             importStatementController.execute(filePath);
         }
@@ -92,3 +111,5 @@ public class ImportStatementView extends JPanel implements ActionListener, Prope
     }
 
 }
+
+
