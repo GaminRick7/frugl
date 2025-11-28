@@ -2,8 +2,8 @@ package use_case.view_transactions;
 import entity.Transaction;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.ArrayList;
+import entity.Category;
+import entity.Source;
 import java.util.List;
 
 
@@ -16,6 +16,8 @@ public interface ViewTransactionDataAccessInterface {
      * @param endDate end of month
      */
     List<Transaction> getByDateRange(LocalDate startDate, LocalDate endDate);
+
+    Category getSourceCategory(Source source);
 
 
 }

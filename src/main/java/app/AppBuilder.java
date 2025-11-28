@@ -21,6 +21,7 @@ import interface_adapter.import_statement.ImportStatementViewModel;
 import interface_adapter.set_goal.SetGoalController;
 import interface_adapter.set_goal.SetGoalPresenter;
 import interface_adapter.set_goal.SetGoalViewModel;
+import interface_adapter.view_transaction.ViewTransactionPresenter;
 import interface_adapter.view_transaction.ViewTransactionViewModel;
 import use_case.autosave.AutosaveInputBoundary;
 import use_case.autosave.AutosaveInteractor;
@@ -34,6 +35,7 @@ import use_case.load_dashboard.LoadDashboardOutputBoundary;
 import use_case.set_goal.SetGoalInputBoundary;
 import use_case.set_goal.SetGoalInteractor;
 import use_case.set_goal.SetGoalOutputBoundary;
+import use_case.view_transactions.*;
 import view.*;
 
 public class AppBuilder {
@@ -133,18 +135,21 @@ public class AppBuilder {
     }
 
 
-    public AppBuilder addSetTransactionView() {
+    public AppBuilder addTransactionsView() {
         viewTransactionViewModel = new ViewTransactionViewModel();
-        viewTransactionView = new TransactionsView(ViewTransactionViewModel);
+        viewTransactionView = new TransactionsView(viewTransactionViewModel);
 
-        cardPanel.add(goalView, setGoalViewModel.getViewName());
+        cardPanel.add(viewTransactionView, viewTransactionViewModel.getViewName());
         return this;
     }
 
-    public AppBuilder addGoalUseCase() {
-        final SetGoalOutputBoundary setGoalOutputBoundary = new SetGoalPresenter(setGoalViewModel);
-        final SetGoalInputBoundary setGoalInputBoundary = new SetGoalInteractor(goalDataAccessObject,
-                transactionDataAccessObject, setGoalOutputBoundary);
+    public AppBuilder TransactionViewUseCase() {
+
+
+        final ViewTransactionOutputBoundary viewTransactionOutputBoundary = new ViewTransactionPresenter(viewManagerModel, viewTransactionViewModel);
+        ViewTransactionInteractor interactor = new ViewTransactionInteractor(transactionDataAccessObject, viewTransactionOutputBoundary);
+
+        final ViewTransactionInputBoundary viewTransactionInputBoundary = new ViewTransactionInteractor( ViewTransactionDataAccessInterface);
         SetGoalController setGoalController = new SetGoalController(setGoalInputBoundary);
         goalView.setGoalController(setGoalController);
 
