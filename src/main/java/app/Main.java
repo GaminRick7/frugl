@@ -24,11 +24,6 @@ public class Main {
         application.pack();
         application.setLocationRelativeTo(null);
         application.setVisible(true);
-
-        DashboardView dashboardView = appBuilder.getDashboardView();
-        if (dashboardView != null) {
-            dashboardView.loadInitialData();
-        }
     }
 }
 
