@@ -44,11 +44,12 @@ public class ViewTransactionInteractor implements ViewTransactionInputBoundary {
 
 
     public void execute(ViewTransactionInputData transactionInputData) {
-        System.out.println("2. Interactor executing.");
+        System.out.println("2. Interactor: Asking DAO for data..."); // ADD THIS
 
         LocalDate start = transactionInputData.getStartDate();
         LocalDate end = transactionInputData.getEndDate();
         final List<Transaction> trans =viewDataAccessObject.getByDateRange(start, end);
+        System.out.println("2a. Interactor: DAO returned " + trans.size() + " transactions."); // ADD THIS
         List<HashMap<String, Object>> proccessed_transactions = convert_transaction_toString(trans);
 
         YearMonth yearMonth = YearMonth.from(start);

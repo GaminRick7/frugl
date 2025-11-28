@@ -1,83 +1,84 @@
 package use_case.view_transactions;
-import entity.Source;
-import entity.Category;
 
+import entity.Category;
+import entity.Source;
 import entity.Transaction;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-// Inside your TransactionsViewTest.java file
-
- class MockTransactionDAO implements ViewTransactionDataAccessInterface {
+public class MockTransactionDAO implements ViewTransactionDataAccessInterface {
 
     @Override
-    public List<Transaction> getByDateRange(LocalDate start, LocalDate end) {
-        // 1. Create the list we will return
-        List<Transaction> result = new ArrayList<>();
+    public List<Transaction> getByDateRange(LocalDate startDate, LocalDate endDate) {
+        // 1. LOGGING: This proves the Controller -> Interactor -> DAO connection worked!
+        System.out.println("DAO: getByDateRange called for " + startDate + " to " + endDate);
 
-        // 2. HAND-CODE LOGIC: Based on the requested start date
+        List<Transaction> transactions = new ArrayList<>();
 
-        // CASE A: Requesting January 2025 (FORCE EMPTY)
-        if (start.getMonthValue() == 1 && start.getYear() == 2025) {
-            return result; // Empty list -> "No Data" error
+        // Use the startDate from your Controller to figure out what data to show
+        int year = startDate.getYear();
+        int month = startDate.getMonthValue();
+
+        // SCENARIO 1: January 2025 -> Return Empty List (Simulate "No Data")
+        if (year == 2025 && month == 1) {
+            System.out.println("DAO: Returning empty list for Jan 2025.");
+            return transactions;
         }
 
-        // CASE B: Requesting November 2025 (FORCE DATA)
-        if (start.getMonthValue() == 11 && start.getYear() == 2025) {
-
-            // Create helpers (Sources/Categories) locally
-            Category food = new Category("Food", "Dining");
-            Category transport = new Category("Transportation", "Rides");
-            Category income = new Category("Income", "Salary");
-
-            Source starbucks = new Source("Starbucks", food);
-            Source uber = new Source("Uber", transport);
-            Source job = new Source("Employer", income);
-
-            // Add transactions manually
-            result.add(new Transaction(starbucks, 15.50, LocalDate.of(2025, 11, 1)));
-            result.add(new Transaction(uber, 45.20, LocalDate.of(2025, 11, 5)));
-            result.add(new Transaction(job, 3500.00, LocalDate.of(2025, 11, 15)));
+        // SCENARIO 2: Other months in 2025 -> Return Fixed Data
+        if (year == 2025) {
+            System.out.println("DAO: Generating fixed data for 2025.");
+            return generateFixedDataForMonth(year, month);
         }
 
-        // CASE C: Requesting April 2023 (FORCE DATA)
-        if (start.getMonthValue() == 4 && start.getYear() == 2023) {
-            Category shopping = new Category("Shopping", "Online");
-            Source amazon = new Source("Amazon", shopping);
-
-            result.add(new Transaction(amazon, 99.99, LocalDate.of(2023, 4, 10)));
+        // SCENARIO 3: 2023 or 2024 -> Return Random Data
+        if (year == 2023 || year == 2024) {
+            System.out.println("DAO: Generating random data.");
+            return generateRandomDataForMonth(year, month);
         }
 
-        return result;
+        return transactions;
+    }
+
+    // Helper to generate consistent data for testing
+    private List<Transaction> generateFixedDataForMonth(int year, int month) {
+        List<Transaction> list = new ArrayList<>();
+        String[] monthNames = {"", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
+        // 1. Income Transaction
+        LocalDate date1 = LocalDate.of(year, month, 15);
+        Source source1 = new Source("Monthly Salary", new Category("Income", ""));
+        list.add(new Transaction(source1, 3000.00 + (month * 10), date1));
+
+        // 2. Expense Transaction
+        LocalDate date2 = LocalDate.of(year, month, 20);
+        Source source2 = new Source(monthNames[month] + " Grocery Run", new Category("Food", ""));
+        list.add(new Transaction(source2, -150.00, date2));
+
+        return list;
+    }
+
+    // Helper to generate random data
+    private List<Transaction> generateRandomDataForMonth(int year, int month) {
+        List<Transaction> list = new ArrayList<>();
+        Random rand = new Random();
+        int numTransactions = rand.nextInt(5) + 1;
+
+        for (int i = 0; i < numTransactions; i++) {
+            int day = rand.nextInt(28) + 1; // Avoid end-of-month complexity for mock
+            LocalDate date = LocalDate.of(year, month, day);
+
+            boolean isExpense = rand.nextBoolean();
+            String categoryStr = isExpense ? "Shopping" : "Income";
+            double amount = (rand.nextDouble() * 100);
+            if (isExpense) amount *= -1;
+
+            Source source = new Source("Random Store " + rand.nextInt(100), new Category(categoryStr, ""));
+            list.add(new Transaction(source, amount, date));
+        }
+        return list;
     }
 }
-
-
-//// --- FORCE DATA Mock DAO ---
-//class MockTransactionDAO implements ViewTransactionDataAccessInterface {
-//    // In TransactionsViewTest.java -> MockTransactionDAO
-//
-//    @Override
-//    public List<Transaction> getByDateRange(LocalDate start, LocalDate end) {
-//        System.out.println("DAO: Request for " + start);
-//        List<Transaction> result = new ArrayList<>();
-//
-//        // Case 1: January 2025 -> Return EMPTY list (Simulate Failure)
-//        if (start.getMonthValue() == 1 && start.getYear() == 2025) {
-//            System.out.println("DAO: Returning EMPTY list for Jan 2025");
-//            return result;
-//        }
-//
-//        // Case 2: All other dates -> Return FAKE data (Simulate Success)
-//        System.out.println("DAO: Returning FAKE data");
-//        Category food = new Category("Food", "Dining");
-//        Source starbucks = new Source("Starbucks", food);
-//
-//        result.add(new Transaction(starbucks, 10.00, start));
-//        result.add(new Transaction(starbucks, 20.00, start.plusDays(1)));
-//
-//        return result;
-//    }
-//}

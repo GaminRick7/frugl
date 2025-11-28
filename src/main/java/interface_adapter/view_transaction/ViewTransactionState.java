@@ -13,8 +13,7 @@ public class ViewTransactionState {
     private String yearMonthDisplay = "2025-11";
     private YearMonth selectedMonth;
     private String noDataError;
-    private List<HashMap<String, Object>> monthlyTransactions;
-
+    private List<HashMap<String, Object>> monthlyTransactions = new ArrayList<>();
     public String getYearMonthDisplay() {return yearMonthDisplay;}
 
     public YearMonth getSelectedMonth() {return selectedMonth;}
@@ -30,7 +29,9 @@ public class ViewTransactionState {
 
     public void setMonth(String yearMonthDisplay) {
         this.yearMonthDisplay = yearMonthDisplay;
-        this.selectedMonth = YearMonth.parse(yearMonthDisplay);
+        if (yearMonthDisplay != null && !yearMonthDisplay.isEmpty()) {
+            this.selectedMonth = YearMonth.parse(yearMonthDisplay);
+        };
     }
 
 }
