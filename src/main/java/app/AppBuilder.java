@@ -1,9 +1,7 @@
 package app;
 
 import java.awt.CardLayout;
-
 import javax.swing.*;
-
 import charts.PieChartRenderer;
 import charts.TimeChartRenderer;
 import data_access.GoalDataAccessObject;
@@ -24,6 +22,7 @@ import interface_adapter.set_goal.SetGoalViewModel;
 import use_case.autosave.AutosaveInputBoundary;
 import use_case.autosave.AutosaveInteractor;
 import use_case.autosave.AutosaveOutputBoundary;
+import use_case.import_statement.GeminiCategorizer;
 import use_case.import_statement.ImportStatementInputBoundary;
 import use_case.import_statement.ImportStatementInteractor;
 import use_case.import_statement.ImportStatementOutputBoundary;
@@ -88,10 +87,14 @@ public class AppBuilder {
     }
 
     public AppBuilder addImportStatementUseCase() {
-        final ImportStatementOutputBoundary importStatementOutputBoundary = new ImportStatementPresenter(viewManagerModel,
-                importStatementViewModel);
-        final ImportStatementInputBoundary importStatementInputBoundary = new ImportStatementInteractor(transactionDataAccessObject, importStatementOutputBoundary);
-        ImportStatementController importStatementController = new ImportStatementController(importStatementInputBoundary, viewManagerModel);
+        final ImportStatementOutputBoundary importStatementOutputBoundary =
+                new ImportStatementPresenter(viewManagerModel, importStatementViewModel);
+        final GeminiCategorizer geminiCategorizer = new GeminiCategorizer(System.getenv("API_KEY"));
+        final ImportStatementInputBoundary importStatementInputBoundary =
+                new ImportStatementInteractor(transactionDataAccessObject, importStatementOutputBoundary,
+                        geminiCategorizer);
+        ImportStatementController importStatementController =
+                new ImportStatementController(importStatementInputBoundary, viewManagerModel);
 
         importStatementView.setImportStatementController(importStatementController);
         return this;
