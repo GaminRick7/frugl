@@ -37,7 +37,7 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
     @Override
     public void execute(ImportStatementInputData inputData) {
 
-        if (inputData.getFilePath() == null || inputData.getFilePath().isBlank()) {
+        if (inputData.getFilePath().isBlank()) {
             presenter.prepareFailView("blank file path");
             return;
         }

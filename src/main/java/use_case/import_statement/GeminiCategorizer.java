@@ -71,9 +71,9 @@ public class GeminiCategorizer {
      * */
     private String buildPrompt(List<String> sources) {
         return "Classify each of the following vendor names into one of the categories:\n"
-            + "- Income\n- Transportation\n- Rent & Utilities\n- Food & Dining\n- Shopping\n- Other\n\n"
+            + "- Income\n- Transportation\n- Rent and Utilities\n- Food and Dining\n- Shopping\n- Other\n\n"
             + "Return ONLY a JSON object mapping vendor→category. Example:\n"
-            + "{ \"Uber\": \"Transportation\", \"McDonalds\": \"Food & Dining\" }\n\n"
+            + "{ \"Uber\": \"Transportation\", \"McDonalds\": \"Food and Dining\" }\n\n"
             + "Vendors:\n"
             + gson.toJson(sources);
     }
@@ -188,7 +188,6 @@ public class GeminiCategorizer {
     }
 
     private String stripMarkdownCodeFence(String txt) {
-        // Remove leading ```json or ``` (any language tag)
         final String leading = "```";
         String text = txt;
         if (text.startsWith(leading)) {
@@ -198,7 +197,6 @@ public class GeminiCategorizer {
             }
         }
 
-        // Remove trailing ```
         if (text.endsWith(leading)) {
             text = text.substring(0, text.lastIndexOf(leading)).trim();
         }
