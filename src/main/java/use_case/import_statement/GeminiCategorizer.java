@@ -1,23 +1,31 @@
 package use_case.import_statement;
 
-import com.google.gson.*;
-import entity.Category;
-import okhttp3.*;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import entity.Category;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * Wrapper class to categorize transaction sources using Gemini API.
  */
 public class GeminiCategorizer {
-
     private final OkHttpClient client = new OkHttpClient();
     private final String apiKey;
 
-    private static final String API_URL =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=";;
-
-    private static final Gson gson = new Gson();
+    private final String apiUrl =
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=";
+    private final Gson gson = new Gson();
 
     public GeminiCategorizer(String apiKey) {
         this.apiKey = apiKey;
@@ -32,22 +40,22 @@ public class GeminiCategorizer {
      */
     public Map<String, Category> categorizeSources(List<String> sources) throws Exception {
 
-        Map<String, Category> finalResult = new HashMap<>();
+        final Map<String, Category> finalResult = new HashMap<>();
 
-        int batchSize = 15;
+        final int batchSize = 15;
         for (int i = 0; i < sources.size(); i += batchSize) {
 
             // Create sub-list for this batch
-            List<String> batch = sources.subList(i, Math.min(i + batchSize, sources.size()));
+            final List<String> batch = sources.subList(i, Math.min(i + batchSize, sources.size()));
 
             // Build prompt just for this batch
-            String prompt = buildPrompt(batch);
+            final String prompt = buildPrompt(batch);
 
             // Make API call
-            String jsonResponse = callGeminiApi(prompt);
+            final String jsonResponse = callGeminiApi(prompt);
 
             // Parse and merge result
-            Map<String, Category> batchResult = parseResponse(jsonResponse, batch);
+            final Map<String, Category> batchResult = parseResponse(jsonResponse, batch);
             finalResult.putAll(batchResult);
         }
 
@@ -56,48 +64,58 @@ public class GeminiCategorizer {
 
     /**
      * Builds the classification prompt.
-     */
+     *
+     * @param sources the list of vendor names that need to be classified
+     * @return a formatted prompt string instructing the model to classify each vendor
+     * and return the results as a JSON object.
+     * */
     private String buildPrompt(List<String> sources) {
-        return "Classify each of the following vendor names into one of the categories:\n" +
-                "- Income\n- Transportation\n- Rent & Utilities\n- Food & Dining\n- Shopping\n- Other\n\n" +
-                "Return ONLY a JSON object mapping vendor→category. Example:\n" +
-                "{ \"Uber\": \"Transportation\", \"McDonalds\": \"Food & Dining\" }\n\n" +
-                "Vendors:\n" +
-                gson.toJson(sources);
+        return "Classify each of the following vendor names into one of the categories:\n"
+            + "- Income\n- Transportation\n- Rent & Utilities\n- Food & Dining\n- Shopping\n- Other\n\n"
+            + "Return ONLY a JSON object mapping vendor→category. Example:\n"
+            + "{ \"Uber\": \"Transportation\", \"McDonalds\": \"Food & Dining\" }\n\n"
+            + "Vendors:\n"
+            + gson.toJson(sources);
     }
 
     /**
      * Makes a HTTP POST request to Gemini using OkHttp.
+     *
+     * @param prompt the text prompt containing the vendor names and classification instructions
+     * @return the raw JSON response body returned by the Gemini API as a String
+     * @throws IOException if the request fails, the thread is interrupted, or the API returns an error response.
      */
-    private String callGeminiApi(String prompt) throws Exception {
+    private String callGeminiApi(String prompt) throws IOException {
 
         try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
+            final int sleepTime = 100;
+            Thread.sleep(sleepTime);
+        }
+        catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
         }
 
-        JsonObject requestJson = new JsonObject();
-        JsonArray contentsArray = new JsonArray();
-        JsonObject contentObj = new JsonObject();
-        JsonArray partsArray = new JsonArray();
-        JsonObject textObj = new JsonObject();
-
+        final JsonObject contentObj = new JsonObject();
+        final JsonArray partsArray = new JsonArray();
+        final JsonObject textObj = new JsonObject();
         textObj.addProperty("text", prompt);
         partsArray.add(textObj);
         contentObj.add("parts", partsArray);
+        final JsonArray contentsArray = new JsonArray();
         contentsArray.add(contentObj);
+
+        final JsonObject requestJson = new JsonObject();
         requestJson.add("contents", contentsArray);
 
-        RequestBody body = RequestBody.create(
-                requestJson.toString(),
-                MediaType.parse("application/json")
+        final RequestBody body = RequestBody.create(
+            requestJson.toString(),
+            MediaType.parse("application/json")
         );
 
-        Request request = new Request.Builder()
-                .url(API_URL + apiKey)
-                .post(body)
-                .build();
+        final Request request = new Request.Builder()
+            .url(apiUrl + apiKey)
+            .post(body)
+            .build();
 
         try (Response response = client.newCall(request).execute()) {
 
@@ -110,66 +128,79 @@ public class GeminiCategorizer {
     }
 
     /**
-     * Parses Gemini's JSON response into map of source → Category(name).
+     * Parses the JSON response returned by Gemini and extracts a mapping of vendor names
+     * to their corresponding spending categories. The method validates that the Gemini
+     * response contains valid JSON, properly formatted candidate and parts fields, and
+     * that each original source is present in the parsed output.
+     *
+     * @param jsonResponse    the raw JSON response body returned by the Gemini API
+     * @param originalSources the list of vendor names that were originally sent for classification
+     * @return a map where each vendor name maps to a {@code Category} object representing
+     * the category assigned by Gemini.
+     * @throws Exception if the response is missing required fields, contains invalid JSON,
+     * or does not provide a category for one of the original sources.
      */
     private Map<String, Category> parseResponse(String jsonResponse, List<String> originalSources) throws Exception {
 
-        JsonObject root = JsonParser.parseString(jsonResponse).getAsJsonObject();
+        final JsonObject root = JsonParser.parseString(jsonResponse).getAsJsonObject();
 
-        JsonArray candidates = root.getAsJsonArray("candidates");
+        final JsonArray candidates = root.getAsJsonArray("candidates");
         if (candidates == null || candidates.isEmpty()) {
             throw new Exception("Gemini returned no candidates");
         }
 
-        JsonObject content = candidates.get(0)
-                .getAsJsonObject()
-                .getAsJsonObject("content");
+        final JsonObject content = candidates.get(0)
+            .getAsJsonObject()
+            .getAsJsonObject("content");
 
-        JsonArray parts = content.getAsJsonArray("parts");
+        final JsonArray parts = content.getAsJsonArray("parts");
         if (parts == null || parts.isEmpty()) {
             throw new Exception("Gemini returned no parts");
         }
 
         String modelText = parts.get(0)
-                .getAsJsonObject()
-                .get("text")
-                .getAsString();
+            .getAsJsonObject()
+            .get("text")
+            .getAsString();
 
         modelText = stripMarkdownCodeFence(modelText);
 
-        JsonObject parsedCategories;
+        final JsonObject parsedCategories;
         try {
             parsedCategories = JsonParser.parseString(modelText).getAsJsonObject();
-        } catch (Exception e) {
+        }
+        catch (Exception exception) {
             throw new Exception("Gemini response was not valid JSON: " + modelText);
         }
 
-        Map<String, Category> result = new HashMap<>();
+        final Map<String, Category> result = new HashMap<>();
 
         for (String source : originalSources) {
             if (!parsedCategories.has(source)) {
                 throw new Exception("Missing category for: " + source);
             }
 
-            String categoryName = parsedCategories.get(source).getAsString();
+            final String categoryName = parsedCategories.get(source).getAsString();
             result.put(source, new Category(categoryName));
         }
 
         return result;
     }
 
-    private String stripMarkdownCodeFence(String text) {
+    private String stripMarkdownCodeFence(String txt) {
         // Remove leading ```json or ``` (any language tag)
-        if (text.startsWith("```")) {
-            int firstNewline = text.indexOf('\n');
+        final String leading = "```";
+        String text = txt;
+        if (text.startsWith(leading)) {
+            final int firstNewline = text.indexOf('\n');
             if (firstNewline != -1) {
                 text = text.substring(firstNewline + 1);
             }
         }
 
         // Remove trailing ```
-        if (text.endsWith("```")) {
-            text = text.substring(0, text.lastIndexOf("```")).trim();
+        if (text.endsWith(leading)) {
+            text = text.substring(0, text.lastIndexOf(leading)).trim();
         }
 
         return text.trim();
