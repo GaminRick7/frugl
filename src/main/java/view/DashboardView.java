@@ -1,5 +1,6 @@
 package view;
 
+import interface_adapter.ViewManagerModel;
 import interface_adapter.dashboard.DashboardController;
 import interface_adapter.dashboard.DashboardState;
 import interface_adapter.dashboard.DashboardViewModel;
@@ -16,6 +17,7 @@ import java.util.List;
 public class DashboardView extends JPanel{
     private DashboardController controller;
     private final DashboardViewModel viewModel;
+    private final ViewManagerModel viewManagerModel;
 
     //UI Components
     private JComboBox<TimeRange> timeRangeDropdown;
@@ -25,11 +27,11 @@ public class DashboardView extends JPanel{
     private JLabel pieChartLabel;
     private JLabel timeChartLabel;
 
-    public DashboardView(DashboardViewModel viewModel) {
+    public DashboardView(DashboardViewModel viewModel,  ViewManagerModel viewManagerModel) {
         this.viewModel = viewModel;
+        this.viewManagerModel = viewManagerModel;
 
         setupUI();
-        loadInitialData();
     }
 
     private void setupUI() {
@@ -84,6 +86,9 @@ public class DashboardView extends JPanel{
         JButton refreshButton = new JButton("Refresh Dashboard");
         refreshButton.addActionListener(e -> onRefreshClicked());
         bottomPanel.add(refreshButton);
+        JButton importStatementButton = new JButton("Import Statement");
+        importStatementButton.addActionListener(e -> onImportStatementClicked());
+        bottomPanel.add(importStatementButton);
         this.add(bottomPanel, BorderLayout.SOUTH);
     }
 
@@ -96,8 +101,13 @@ public class DashboardView extends JPanel{
         return spinner;
     }
 
-    private void loadInitialData() {
+    public void loadInitialData() {
         onRefreshClicked();
+    }
+
+    private void onImportStatementClicked() {
+        viewManagerModel.setState("import statement");
+        viewManagerModel.firePropertyChange();
     }
 
     private void onRefreshClicked() {
@@ -109,7 +119,7 @@ public class DashboardView extends JPanel{
         LocalDate startDate = convertToLocalDate(legacyStartDate);
         LocalDate endDate = convertToLocalDate(legacyEndDate);
 
-        LocalDate currentDate = LocalDate.ofEpochDay(System.currentTimeMillis());
+        LocalDate currentDate = LocalDate.now();
 
         controller.loadDashboard(currentDate, selectedTimeRange, startDate, endDate);
         updateChartDisplay();
@@ -132,18 +142,14 @@ public class DashboardView extends JPanel{
             timeChartLabel.setText("No Data");
             timeChartLabel.setIcon(null);
         } else {
-            if (chartImages.size() > 0 ){
-                timeChartLabel.setText("");
-                timeChartLabel.setIcon(new ImageIcon(chartImages.get(0)));
-            }
-            if (chartImages.size() > 1){
-                pieChartLabel.setText("");
-                pieChartLabel.setIcon(new ImageIcon(chartImages.get(1)));
+            timeChartLabel.setText("");
+            timeChartLabel.setIcon(new ImageIcon(chartImages.get(0)));
+            pieChartLabel.setText("");
+            pieChartLabel.setIcon(new ImageIcon(chartImages.get(1)));
             }
         }
-    }
 
-    public void setDashboardController(DashboardController controller){
+    public void setDashboardController(DashboardController controller) {
         this.controller = controller;
     }
 }

@@ -1,5 +1,7 @@
 package app;
 
+import view.DashboardView;
+
 import javax.swing.JFrame;
 
 public class Main {
@@ -13,11 +15,18 @@ public class Main {
                 .addImportStatementUseCase()
                 .addSetGoalView()
                 .addGoalUseCase()
+                .addDashboardView()
+                .addDashboardUseCase()
                 .build();
 
         application.pack();
         application.setLocationRelativeTo(null);
         application.setVisible(true);
+
+        DashboardView dashboardView = appBuilder.getDashboardView();
+        if (dashboardView != null) {
+            dashboardView.loadInitialData();
+        }
     }
 }
 
