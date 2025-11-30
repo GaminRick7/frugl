@@ -67,7 +67,7 @@ public class ImportStatementView extends JPanel implements ActionListener, Prope
             importStatementController.execute(filePath);
         }
         else if (e.getSource() == backButton) {
-            viewManagerModel.setState("autosave");
+            viewManagerModel.setState("dashboard");
             viewManagerModel.firePropertyChange();
         }
     }
