@@ -36,8 +36,12 @@ build/
 ### VS Code ###
 .vscode/
 
+test_source_categories.json
+test_transactions.json
 transactions.json
 source_categories.json
+goals.json
+test_goals.json
 
 ### Mac OS ###
 .DS_Store

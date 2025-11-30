@@ -43,6 +43,11 @@ import view.ImportStatementView;
 import view.ViewManager;
 
 public class AppBuilder {
+    private static final int BORDER_TOP = 5;
+    private static final int BORDER_LEFT = 10;
+    private static final int BORDER_BOTTOM = 5;
+    private static final int BORDER_RIGHT = 10;
+
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
     private final TransactionDataAccessObject transactionDataAccessObject = new TransactionDataAccessObject();
@@ -81,7 +86,7 @@ public class AppBuilder {
         
         autosaveView.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 0, 0, java.awt.Color.GRAY),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)
+                BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT)
         ));
         
         // it is not added to card panel since it will be added as a status bar in build()
@@ -96,7 +101,7 @@ public class AppBuilder {
     public AppBuilder addAutosaveUseCase() {
         final AutosaveOutputBoundary autosaveOutputBoundary = new AutosavePresenter(autosaveViewModel);
         final AutosaveInputBoundary autosaveInputBoundary =
-                new AutosaveInteractor(transactionDataAccessObject, autosaveOutputBoundary);
+                new AutosaveInteractor(transactionDataAccessObject, goalDataAccessObject, autosaveOutputBoundary);
         final AutosaveController controller = new AutosaveController(autosaveInputBoundary);
 
         autosaveView.setupAutosaveController(controller);
