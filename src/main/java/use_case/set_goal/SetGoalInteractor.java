@@ -1,5 +1,6 @@
 package use_case.set_goal;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -7,7 +8,6 @@ import java.util.Random;
 import entity.Goal;
 import entity.GoalTree;
 import entity.Transaction;
-
 
 public class SetGoalInteractor implements SetGoalInputBoundary {
 
@@ -27,46 +27,54 @@ public class SetGoalInteractor implements SetGoalInputBoundary {
     @Override
     public void execute(SetGoalInputData input) {
 
-        if (input.goalAmount < 0) {
-            presenter.prepareFailView("Goal amount must be at least 0.");
-            return;
+        boolean valid = true;
+        String errorMessage = null;
+
+        if (input.getGoalAmount() < 0) {
+            errorMessage = "Goal amount must be at least 0.";
+            valid = false;
+        }
+        else if (input.getCategories().isEmpty()) {
+            errorMessage = "At least one category must be provided.";
+            valid = false;
         }
 
-        if (input.categories.isEmpty()) {
-            presenter.prepareFailView("At least one category must be provided.");
-            return;
-        }
+        if (valid) {
+            final Goal goal = new Goal(input.getYearMonth(), input.getCategories(), input.getGoalAmount());
 
-        Goal goal = new Goal(input.yearMonth, input.categories, input.goalAmount);
+            try {
+                goalDataAccess.saveGoal(goal);
 
-        try {
-            goalDataAccess.saveGoal(goal);
+                final List<Goal> allGoals = goalDataAccess.getAll();
+                final List<Transaction> allTransactions = transactionDataAccess.getAll();
+                final List<GoalTree> forest = new ArrayList<>();
 
-            List<Goal> allGoals = goalDataAccess.getAll();
-            List<Transaction> allTransactions = transactionDataAccess.getAll();
-            List<GoalTree> forest = new ArrayList<>();
+                for (Goal g : allGoals) {
 
-            for (Goal g : allGoals) {
+                    // generate goal trees based on goals with deterministic coordinates
 
-                // generate goal trees based on goals with deterministic coordinates
+                    final int seed = 123;
+                    final Random rng = new Random(seed);
 
-                int seed = 123;
-                Random rng = new Random(seed);
+                    final int x = rng.nextInt(700);
+                    final int y = rng.nextInt(500);
+                    final GoalTree tree = new GoalTree(g, x, y);
 
-                int x = rng.nextInt(700);
-                int y = rng.nextInt(500);
-                // TODO: Adjust this so that it looks nice
-                // TODO: Add logic so that trees do not overlap
-                GoalTree tree = new GoalTree(g, x, y);
+                    tree.updateStatus(allTransactions);
 
-                tree.updateStatus(allTransactions);
+                    forest.add(tree);
+                }
 
-                forest.add(tree);
+                presenter.prepareSuccessView(new SetGoalOutputData(goal, forest, true, "Goal successfully saved."));
             }
-
-            presenter.prepareSuccessView(new SetGoalOutputData(goal, forest, true, "Goal successfully saved."));
-        } catch (Exception e) {
-            presenter.prepareFailView("An error occurred while saving goal: " + e.getMessage());
+            catch (IOException error) {
+                presenter.prepareFailView("An error occurred while saving goal: " + error.getMessage());
+            }
         }
+
+        else {
+            presenter.prepareFailView(errorMessage);
+        }
+
     }
 }
