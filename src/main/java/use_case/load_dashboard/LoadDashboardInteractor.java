@@ -20,7 +20,7 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
     }
 
     @Override
-    public void execute(LoadDashboardInputData inputData) {
+    public void execute(LoadDashboardInputData inputData) throws Exception {
         TimeRange timeRange = inputData.getTimeRange();
         LocalDate currentDate = inputData.getCurrentDate();
 

@@ -92,7 +92,13 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         // BOTTOM PANEL
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton refreshButton = new JButton("Refresh Dashboard");
-        refreshButton.addActionListener(e -> onRefreshClicked());
+        refreshButton.addActionListener(e -> {
+            try {
+                onRefreshClicked();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         bottomPanel.add(refreshButton);
         JButton importStatementButton = new JButton("Import Statement");
         importStatementButton.addActionListener(e -> onImportStatementClicked());
@@ -110,7 +116,7 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         return spinner;
     }
 
-    public void loadInitialData() {
+    public void loadInitialData() throws Exception {
         onRefreshClicked();
     }
 
@@ -119,7 +125,7 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         viewManagerModel.firePropertyChange();
     }
 
-    private void onRefreshClicked() {
+    private void onRefreshClicked() throws Exception {
         TimeRange selectedTimeRange = (TimeRange) timeRangeDropdown.getSelectedItem();
 
         Date legacyStartDate = (Date) startDateSpinner.getValue();
