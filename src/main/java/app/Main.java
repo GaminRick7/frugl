@@ -4,6 +4,8 @@ import javax.swing.JFrame;
 
 import view.DashboardView;
 
+import view.TransactionsView;
+
 /**
  * The Main class of the application.
  */
@@ -24,6 +26,8 @@ public class Main {
                 .addImportStatementUseCase()
                 .addSetGoalView()
                 .addGoalUseCase()
+                .addTransactionsView()
+                .addTransactionViewUseCase()
                 .build();
 
         application.pack();

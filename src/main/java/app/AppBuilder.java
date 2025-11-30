@@ -171,16 +171,17 @@ public class AppBuilder {
     public AppBuilder addTransactionsView() {
         viewTransactionViewModel = new ViewTransactionViewModel();
         viewTransactionView = new TransactionsView(viewTransactionViewModel);
-
         cardPanel.add(viewTransactionView, viewTransactionViewModel.getViewName());
-        return this;
+
+        // WAS: return viewTransactionView;
+        return this; // NOW: returns the builder so you can keep chaining
     }
 
     /**
      * Does transactionViewUseCase.
      * @return transactionViewUseCase
      */
-    public AppBuilder TransactionViewUseCase() {
+    public AppBuilder addTransactionViewUseCase() {
 
         final ViewTransactionOutputBoundary viewTransactionOutputBoundary =
             new ViewTransactionPresenter(viewManagerModel, viewTransactionViewModel);
