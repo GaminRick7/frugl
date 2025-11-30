@@ -73,10 +73,7 @@ public class AppBuilder {
         cardPanel.setLayout(cardLayout);
     }
 
-    /**
-     *  Somthing here.
-     * @return somthing
-     */
+
     public AppBuilder addAutosaveView() {
         autosaveViewModel = new AutosaveViewModel();
         autosaveView = new AutosaveView(autosaveViewModel);
@@ -85,10 +82,7 @@ public class AppBuilder {
         return this;
     }
 
-    /**
-     * Something here.
-     * @return something
-     */
+
     public AppBuilder addAutosaveUseCase() {
         final AutosaveOutputBoundary autosaveOutputBoundary = new AutosavePresenter(autosaveViewModel);
         final AutosaveInputBoundary autosaveInputBoundary =
@@ -99,10 +93,7 @@ public class AppBuilder {
         return this;
     }
 
-    /**
-     * Something here.
-     * @return something
-     */
+
     public AppBuilder addImportStatementView() {
         importStatementViewModel = new ImportStatementViewModel();
         importStatementView = new ImportStatementView(importStatementViewModel, viewManagerModel);
@@ -111,10 +102,7 @@ public class AppBuilder {
         return this;
     }
 
-    /**
-     * Something here.
-     * @return something
-     */
+
     public AppBuilder addImportStatementUseCase() {
         final ImportStatementOutputBoundary importStatementOutputBoundary =
                 new ImportStatementPresenter(viewManagerModel,
@@ -128,10 +116,7 @@ public class AppBuilder {
         return this;
     }
 
-    /**
-     * Something here.
-     * @return something
-     */
+
     public AppBuilder addSetGoalView() {
         setGoalViewModel = new SetGoalViewModel();
         goalView = new GoalView(setGoalViewModel);
@@ -140,10 +125,7 @@ public class AppBuilder {
         return this;
     }
 
-    /**
-     * Something here.
-     * @return something
-     */
+
     public AppBuilder addGoalUseCase() {
         final SetGoalOutputBoundary setGoalOutputBoundary = new SetGoalPresenter(setGoalViewModel);
         final SetGoalInputBoundary setGoalInputBoundary = new SetGoalInteractor(goalDataAccessObject,
@@ -154,10 +136,7 @@ public class AppBuilder {
         return this;
     }
 
-    /**
-     * Something here.
-     * @return something
-     */
+
     public AppBuilder addDashboardView() {
         dashboardViewModel = new DashboardViewModel();
         dashboardView = new DashboardView(dashboardViewModel, viewManagerModel);
@@ -166,10 +145,7 @@ public class AppBuilder {
         return this;
     }
 
-    /**
-     * Something here.
-     * @return something
-     */
+
     public AppBuilder addDashboardUseCase() {
         final PieChartRenderer pieChartRenderer = new PieChartRenderer();
         final TimeChartRenderer timeChartRenderer = new TimeChartRenderer();
@@ -183,10 +159,7 @@ public class AppBuilder {
         return this;
     }
 
-    /**
-     * Something here.
-     * @return something
-     */
+
     public DashboardView getDashboardView() {
         return this.dashboardView;
     }
@@ -207,7 +180,7 @@ public class AppBuilder {
      * Does transactionViewUseCase.
      * @return transactionViewUseCase
      */
-    public AppBuilder transactionViewUseCase() {
+    public AppBuilder TransactionViewUseCase() {
 
         final ViewTransactionOutputBoundary viewTransactionOutputBoundary =
             new ViewTransactionPresenter(viewManagerModel, viewTransactionViewModel);

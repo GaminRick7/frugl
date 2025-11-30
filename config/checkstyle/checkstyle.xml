@@ -5,10 +5,6 @@
 
 <module name="Checker">
 
-    <module name="SuppressionSingleFilter">
-        <property name="files" value=".*"/>
-    </module>
-
     <metadata name="org.checkstyle.principle" value="Practice What You Preach"/>
     <metadata name="org.checkstyle.principle.description"
               value="In our config we should use all Checks that Checkstyle has"/>

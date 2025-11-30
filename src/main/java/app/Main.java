@@ -13,19 +13,17 @@ public class Main {
      * Builds and runs the CA architecture application.
      * @param args unused command line arguments
      */
-    public static void main(String[] args) {
-        final AppBuilder appBuilder = new AppBuilder();
-        final JFrame application = appBuilder
+    public static void main(String[] args) throws Exception {
+        AppBuilder appBuilder = new AppBuilder();
+        JFrame application = appBuilder
+                .addDashboardView()
+                .addDashboardUseCase()
                 .addAutosaveView()
                 .addAutosaveUseCase()
                 .addImportStatementView()
                 .addImportStatementUseCase()
                 .addSetGoalView()
                 .addGoalUseCase()
-                .addDashboardView()
-                .addDashboardUseCase()
-                .addTransactionsView()
-                .transactionViewUseCase()
                 .build();
 
         application.pack();
