@@ -53,16 +53,16 @@ public class ViewModel<T> {
         this.support.firePropertyChange(propertyName, null, this.state);
     }
 
+    public void firePropertyChange(String propertyName, Object newValue) {
+        this.support.firePropertyChange(propertyName, null, newValue);
+    }
+
     /**
      * Adds a PropertyChangeListener to this ViewModel.
      * @param listener The PropertyChangeListener to be added
      */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         this.support.addPropertyChangeListener(listener);
-    }
-
-    public void firePropertyChange(String propertyName, Object newValue) {
-        this.support.firePropertyChange(propertyName, null, newValue);
     }
 
 }
