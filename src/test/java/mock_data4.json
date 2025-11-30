@@ -1,0 +1,21 @@
+[
+  {
+    "source": "Uber",
+    "amount": -12.50,
+    "date": "2024-03-05"
+  },
+  {
+    "source": "Starbucks",
+    "amount": -8.75,
+    "date": "2024-03-07"
+  },
+  {
+    "source": "Amazon",
+    "amount": -49.99,
+    "date": "2024-03-10"
+  },
+  {
+    "source": "Employer",
+    "amount": 100
+  }
+]
