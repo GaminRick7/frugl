@@ -94,7 +94,7 @@ public class AppBuilder {
                 new ImportStatementInteractor(transactionDataAccessObject, importStatementOutputBoundary,
                         geminiCategorizer);
         ImportStatementController importStatementController =
-                new ImportStatementController(importStatementInputBoundary, viewManagerModel);
+                new ImportStatementController(importStatementInputBoundary);
 
         importStatementView.setImportStatementController(importStatementController);
         return this;
