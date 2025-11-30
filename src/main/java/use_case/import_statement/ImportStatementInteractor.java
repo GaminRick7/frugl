@@ -1,5 +1,15 @@
 package use_case.import_statement;
 
+import java.io.File;
+import java.io.FileReader;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -7,11 +17,6 @@ import com.google.gson.JsonParser;
 import entity.Category;
 import entity.Source;
 import entity.Transaction;
-import java.io.File;
-import java.io.FileReader;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.*;
 
 /**
  * The Import Bank Statement Interactor.
@@ -29,7 +34,6 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
         this.geminiCategorizer = geminiCategorizer;
     }
 
-
     @Override
     public void execute(ImportStatementInputData inputData) {
 
@@ -38,16 +42,17 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
             return;
         }
 
-        File file = new File(inputData.getFilePath());
-        if (!file.exists()){
-           presenter.prepareFailView("file does not exist");
-           return;
+        final File file = new File(inputData.getFilePath());
+        if (!file.exists()) {
+            presenter.prepareFailView("file does not exist");
+            return;
         }
 
-        JsonArray transactionsJsonArray;
+        final JsonArray transactionsJsonArray;
         try {
             transactionsJsonArray = readArrayFromFile(inputData.getFilePath());
-        } catch (Exception e) {
+        }
+        catch (Exception exception) {
             presenter.prepareFailView("file does not contain a JSON array");
             return;
         }
@@ -57,39 +62,42 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
             return;
         }
 
-        List<JsonObject> categorized = new ArrayList<>();
-        List<JsonObject> uncategorized = new ArrayList<>();
+        final List<JsonObject> categorized = new ArrayList<>();
+        final List<JsonObject> uncategorized = new ArrayList<>();
 
         try {
             separateTransactions(transactionsJsonArray, categorized, uncategorized);
-        } catch (Exception e) {
+        }
+        catch (Exception exception) {
             presenter.prepareFailView("unsupported file");
             return;
         }
 
         try {
             addTransactions(categorized);
-        } catch (Exception e) {
+        }
+        catch (Exception exception) {
             presenter.prepareFailView("unsupported file");
             return;
         }
 
         try {
             categorizeSources(uncategorized);
-        } catch (Exception e) {
+        }
+        catch (Exception exception) {
             presenter.prepareFailView("could not categorize transactions");
             return;
         }
 
         try {
             addTransactions(uncategorized);
-        } catch (Exception e) {
+        }
+        catch (Exception exception) {
             presenter.prepareFailView("unsupported file");
             return;
         }
 
-
-        YearMonth ym = extractYearMonth(transactionsJsonArray);
+        final YearMonth ym = extractYearMonth(transactionsJsonArray);
         presenter.prepareSuccessView(new ImportStatementOutputData(ym));
 
     }
@@ -97,7 +105,7 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
     private JsonArray readArrayFromFile(String filePath) throws Exception {
         try (FileReader reader = new FileReader(filePath)) {
 
-            JsonElement element = JsonParser.parseReader(reader);
+            final JsonElement element = JsonParser.parseReader(reader);
 
             if (!element.isJsonArray()) {
                 throw new Exception("File does not contain a JSON array");
@@ -117,9 +125,9 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
                 throw new Exception("Array elements must be JSON objects");
             }
 
-            JsonObject tx = element.getAsJsonObject();
+            final JsonObject tx = element.getAsJsonObject();
 
-            String sourceName = tx.get("source").getAsString();
+            final String sourceName = tx.get("source").getAsString();
 
             if (transactionsDataAccessObject.sourceExists(new Source(sourceName))) {
                 categorized.add(tx);
@@ -132,23 +140,23 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
 
     private void categorizeSources(List<JsonObject> uncategorized) throws Exception {
 
-        Set<String> uniqueSourceNames = new HashSet<>();
+        final Set<String> uniqueSourceNames = new HashSet<>();
         for (JsonObject tx : uncategorized) {
             if (!tx.has("source")) {
                 throw new Exception("Transaction missing 'source' field");
             }
-            String sourceName = tx.get("source").getAsString();
+            final String sourceName = tx.get("source").getAsString();
             uniqueSourceNames.add(sourceName);
         }
         if (uniqueSourceNames.isEmpty()) {
             return;
         }
-        List<String> sourcesToCategorize = new ArrayList<>(uniqueSourceNames);
+        final List<String> sourcesToCategorize = new ArrayList<>(uniqueSourceNames);
 
-        Map<String, Category> categorizedSources = geminiCategorizer.categorizeSources(sourcesToCategorize);
+        final Map<String, Category> categorizedSources = geminiCategorizer.categorizeSources(sourcesToCategorize);
 
         for (String sourceName : sourcesToCategorize) {
-            Category category = categorizedSources.get(sourceName);
+            final Category category = categorizedSources.get(sourceName);
 
             if (category == null) {
                 throw new Exception("Missing category for source: " + sourceName);
@@ -158,8 +166,7 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
 
     }
 
-
-        private void addTransactions(List<JsonObject> transactions) throws Exception {
+    private void addTransactions(List<JsonObject> transactions) throws Exception {
 
         for (JsonObject tx : transactions) {
             if (!tx.has("source") || !tx.has("amount") || !tx.has("date")) {
@@ -167,22 +174,23 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
             }
         }
         for (JsonObject tx : transactions) {
-            String sourceName = tx.get("source").getAsString();
-            double amount = tx.get("amount").getAsDouble();
-            String dateString = tx.get("date").getAsString();
-            Transaction transaction = new Transaction(new Source(sourceName), amount, LocalDate.parse(dateString));
+            final String sourceName = tx.get("source").getAsString();
+            final double amount = tx.get("amount").getAsDouble();
+            final String dateString = tx.get("date").getAsString();
+            final Transaction transaction = new Transaction(new Source(sourceName), amount,
+                LocalDate.parse(dateString));
             transactionsDataAccessObject.addTransaction(transaction);
         }
-
     }
 
     private YearMonth extractYearMonth(JsonArray array) {
 
-        JsonObject first = array.get(0).getAsJsonObject();
-        String dateString = first.get("date").getAsString();
-        LocalDate date = LocalDate.parse(dateString);
+        final JsonObject first = array.get(0).getAsJsonObject();
+        final String dateString = first.get("date").getAsString();
+        final LocalDate date = LocalDate.parse(dateString);
         return YearMonth.from(date);
 
     }
 
 }
+

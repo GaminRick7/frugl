@@ -46,7 +46,7 @@ class ImportStatementInteractorTest {
         Map<String, Category> sourceToCategory;
 
         public MockCategorizer(Map<String, Category> sourceToCategory) {
-            super();
+            super("Fake_API_KEY");
             this.sourceToCategory = sourceToCategory;
         }
 
