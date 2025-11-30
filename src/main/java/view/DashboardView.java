@@ -8,13 +8,15 @@ import use_case.load_dashboard.TimeRange;
 
 import javax.swing.*;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class DashboardView extends JPanel{
+public class DashboardView extends JPanel implements PropertyChangeListener {
     private DashboardController controller;
     private final DashboardViewModel viewModel;
     private final ViewManagerModel viewManagerModel;
@@ -29,7 +31,9 @@ public class DashboardView extends JPanel{
 
     public DashboardView(DashboardViewModel viewModel,  ViewManagerModel viewManagerModel) {
         this.viewModel = viewModel;
+
         this.viewManagerModel = viewManagerModel;
+        this.viewModel.addPropertyChangeListener(this);
 
         setupUI();
     }
@@ -37,7 +41,7 @@ public class DashboardView extends JPanel{
     private void setupUI() {
         this.setLayout(new BorderLayout());
 
-        JPanel splitPanel = new JPanel(new BorderLayout());
+        JPanel splitPanel = new JPanel(new GridLayout(1, 2));
         splitPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // ---- LEFT SIDE: TIME CHART PANEL ----
@@ -81,6 +85,10 @@ public class DashboardView extends JPanel{
         pieChartLabel = new JLabel("Loading Pie Chart...", SwingConstants.CENTER);
         rightPanel.add(pieChartLabel, BorderLayout.CENTER);
 
+        splitPanel.add(leftPanel);
+        splitPanel.add(rightPanel);
+        this.add(splitPanel, BorderLayout.CENTER);
+
         // BOTTOM PANEL
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton refreshButton = new JButton("Refresh Dashboard");
@@ -89,6 +97,7 @@ public class DashboardView extends JPanel{
         JButton importStatementButton = new JButton("Import Statement");
         importStatementButton.addActionListener(e -> onImportStatementClicked());
         bottomPanel.add(importStatementButton);
+
         this.add(bottomPanel, BorderLayout.SOUTH);
     }
 
@@ -122,7 +131,6 @@ public class DashboardView extends JPanel{
         LocalDate currentDate = LocalDate.now();
 
         controller.loadDashboard(currentDate, selectedTimeRange, startDate, endDate);
-        updateChartDisplay();
     }
 
     // Helper to convert Date to LocalDate
@@ -143,13 +151,26 @@ public class DashboardView extends JPanel{
             timeChartLabel.setIcon(null);
         } else {
             timeChartLabel.setText("");
-            timeChartLabel.setIcon(new ImageIcon(chartImages.get(0)));
+            timeChartLabel.setIcon(new ImageIcon(chartImages.get(1)));
             pieChartLabel.setText("");
-            pieChartLabel.setIcon(new ImageIcon(chartImages.get(1)));
+            pieChartLabel.setIcon(new ImageIcon(chartImages.get(0)));
             }
         }
 
     public void setDashboardController(DashboardController controller) {
         this.controller = controller;
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        DashboardState state = (DashboardState)  evt.getNewValue();
+
+        SwingUtilities.invokeLater(() -> {
+            if (state.getChartImages() != null) {
+                updateChartDisplay();
+            }
+
+            this.revalidate();
+            this.repaint();
+        });
     }
 }

@@ -4,9 +4,9 @@ import java.awt.*;
 import java.util.List;
 
 public class DashboardState {
-    private java.util.List<Image> chartImages;
+    private List<Image> chartImages;
 
-    public java.util.List<Image> getChartImages() {
+    public List<Image> getChartImages() {
         return chartImages;
     }
     public void setChartImages(List<Image> chartImages) {

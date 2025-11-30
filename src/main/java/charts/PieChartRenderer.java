@@ -12,14 +12,18 @@ public class PieChartRenderer implements ChartRenderer<ProcessedPieChartData> {
     public Image render(ProcessedPieChartData data) throws Exception {
         Map<String, Double> categories = data.getCategoryTotals();
 
-        String values = categories.values().stream()
-                .map(v -> String.format("%.2f", v))
-                .collect(joining(","));
+        String values = "100";
+        String labels = "No%20Data";
 
-        String labels = categories.keySet().stream()
-                .collect(joining("|"));
+        if (categories != null && !categories.isEmpty()) {
+             values = categories.values().stream()
+                    .map(v -> String.format("%.2f", v))
+                    .collect(joining(","));
+             labels = categories.keySet().stream()
+                    .collect(joining("|"));
+        }
 
-        String url = "https://chart.googleapis.com/chart?" +
+        String url = "https://quickchart.io/chart?" +
                 "cht=p&chs=500x300" +
                 "&chd=t:" + values +
                 "&chl=" + labels;

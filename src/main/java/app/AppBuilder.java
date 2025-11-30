@@ -142,7 +142,7 @@ public class AppBuilder {
         JFrame application = new JFrame("frugl");
 
         application.add(cardPanel);
-        viewManagerModel.setState(importStatementViewModel.getViewName());
+        viewManagerModel.setState(dashboardViewModel.getViewName());
         viewManagerModel.firePropertyChange();
         return application;
     }
