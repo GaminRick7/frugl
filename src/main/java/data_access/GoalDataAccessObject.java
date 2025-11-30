@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +14,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import entity.Goal;
+import use_case.autosave.AutosaveDataAccessInterface;
 import use_case.set_goal.SetGoalDataAccessInterface;
 
-public class GoalDataAccessObject implements SetGoalDataAccessInterface {
+public class GoalDataAccessObject implements SetGoalDataAccessInterface, AutosaveDataAccessInterface {
     private final File jsonFile;
 
     private final Gson gson;
@@ -25,6 +27,7 @@ public class GoalDataAccessObject implements SetGoalDataAccessInterface {
     public GoalDataAccessObject(String jsonFilePath) {
         this.jsonFile = new File(jsonFilePath);
         this.gson = new GsonBuilder()
+                .registerTypeAdapter(YearMonth.class, new YearMonthAdapter())
                 .setPrettyPrinting()
                 .create();
         this.goals = new ArrayList<>();
@@ -54,7 +57,8 @@ public class GoalDataAccessObject implements SetGoalDataAccessInterface {
         }
     }
 
-    private void save() {
+    @Override
+    public void save() {
         try {
             if (jsonFile.getParentFile() != null && !jsonFile.getParentFile().exists()) {
                 jsonFile.getParentFile().mkdirs();

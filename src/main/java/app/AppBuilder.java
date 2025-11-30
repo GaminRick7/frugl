@@ -96,7 +96,7 @@ public class AppBuilder {
     public AppBuilder addAutosaveUseCase() {
         final AutosaveOutputBoundary autosaveOutputBoundary = new AutosavePresenter(autosaveViewModel);
         final AutosaveInputBoundary autosaveInputBoundary =
-                new AutosaveInteractor(transactionDataAccessObject, autosaveOutputBoundary);
+                new AutosaveInteractor(transactionDataAccessObject, goalDataAccessObject, autosaveOutputBoundary);
         final AutosaveController controller = new AutosaveController(autosaveInputBoundary);
 
         autosaveView.setupAutosaveController(controller);

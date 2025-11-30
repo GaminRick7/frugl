@@ -4,13 +4,16 @@ import java.time.LocalDateTime;
 
 public class AutosaveInteractor implements AutosaveInputBoundary {
 
-    private final AutosaveDataAccessInterface autosaveDataAccessObject;
+    private final AutosaveDataAccessInterface transactionDataAccessObject;
+    private final AutosaveDataAccessInterface goalDataAccessObject;
 
     private final AutosaveOutputBoundary autosaveOutputBoundary;
 
-    public AutosaveInteractor(AutosaveDataAccessInterface autosaveDataAccessObject,
+    public AutosaveInteractor(AutosaveDataAccessInterface transactionDataAccessObject,
+                              AutosaveDataAccessInterface goalDataAccessObject,
                               AutosaveOutputBoundary autosaveOutputBoundary) {
-        this.autosaveDataAccessObject = autosaveDataAccessObject;
+        this.transactionDataAccessObject = transactionDataAccessObject;
+        this.goalDataAccessObject = goalDataAccessObject;
         this.autosaveOutputBoundary = autosaveOutputBoundary;
     }
 
@@ -22,7 +25,8 @@ public class AutosaveInteractor implements AutosaveInputBoundary {
     @Override
     public void execute(AutosaveInputData inputData) {
         try {
-            autosaveDataAccessObject.save();
+            transactionDataAccessObject.save();
+            goalDataAccessObject.save();
             final AutosaveOutputData outputData = new AutosaveOutputData(
                     "Autosave completed successfully",
                     LocalDateTime.now());

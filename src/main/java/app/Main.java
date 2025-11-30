@@ -6,6 +6,11 @@ import view.DashboardView;
 
 public class Main {
 
+    /**
+     * Main entry point for the application.
+     *
+     * @param args command line arguments (not used)
+     */
     public static void main(String[] args) {
         final AppBuilder appBuilder = new AppBuilder();
         final JFrame application = appBuilder
