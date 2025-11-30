@@ -13,10 +13,10 @@ public class GoalTree {
 
     private int yCoordinate;
 
-    public GoalTree(Goal goal, int x, int y) {
+    public GoalTree(Goal goal, int x_coordinate, int y_coordinate) {
         this.goal = goal;
-        this.xCoordinate = x;
-        this.yCoordinate = y;
+        this.xCoordinate = x_coordinate;
+        this.yCoordinate = y_coordinate;
         this.status = "sapling";
     }
 
@@ -33,33 +33,64 @@ public class GoalTree {
     }
 
     // we don't want to change goal so it will not have a setter
-
-    public int getXCoordinate() {
+    /**
+     * Returns the x-coordinate of this point.
+     *
+     * @return the x-coordinate
+     */
+    public int getxCoordinate() {
         return xCoordinate;
     }
 
-    public int getYCoordinate() {
+    /**
+     * Returns the y-coordinate of this point.
+     *
+     * @return the y-coordinate
+     */
+    public int getyCoordinate() {
         return yCoordinate;
     }
 
-    public void setCoordinates(int xCoordinate, int yCoordinate) {
-        this.xCoordinate = xCoordinate;
-        this.yCoordinate = yCoordinate;
+    /**
+     * Sets the coordinates of this point.
+     *
+     * @param newxCoordinate the new x-coordinate
+     * @param newyCoordinate the new y-coordinate
+     */
+
+    public void setCoordinates(int newxCoordinate, int newyCoordinate) {
+        this.xCoordinate = newxCoordinate;
+        this.yCoordinate = newyCoordinate;
+    }
+    /**
+     * Sets the x-coordinate.
+     *
+     * @param newxCoordinate the new x-coordinate
+     */
+
+    public void setxCoordiante(int newxCoordinate) {
+        this.xCoordinate = newxCoordinate;
     }
 
-    public void setXCoordinate(int xCoordinate) {
-        this.xCoordinate = xCoordinate;
-    }
+    /**
+     * Sets the y-coordinate.
+     *
+     * @param newyCoordinate the new y-coordinate
+     */
 
-    public void setYCoordinate(int yCoordinate) {
-        this.yCoordinate = yCoordinate;
+    public void setyCoordinate(int newyCoordinate) {
+        this.yCoordinate = newyCoordinate;
     }
+    /**
+     * Updates the status of this goal based on a list of transactions.
+     * @param transactions the list of transactions to evaluate against the goal
+     */
 
     public void updateStatus(List<Transaction> transactions) {
-        YearMonth currentMonth = YearMonth.now();
-        YearMonth goalMonth = goal.getMonth();
+        final YearMonth currentMonth = YearMonth.now();
+        final YearMonth goalMonth = goal.getMonth();
         double spent = 0;
-        float goalAmount = goal.getGoalAmount();
+        final float goalAmount = goal.getGoalAmount();
 
         for (Transaction transaction : transactions) {
             spent += transaction.getAmount();
@@ -67,11 +98,15 @@ public class GoalTree {
 
         if (currentMonth.isAfter(goalMonth) || currentMonth.equals(goalMonth)) {
             if (spent <= goalAmount) {
-                this.status = "healthy"; // Goal achieved
-            } else {
-                this.status = "dead"; // Goal failed
+                this.status = "healthy";
+                // Goal achieved
             }
-        } else if (currentMonth.isBefore(goalMonth)) {
+            else {
+                this.status = "dead";
+                // Goal failed
+            }
+        }
+        else if (currentMonth.isBefore(goalMonth)) {
             this.status = "sapling";
         }
     }

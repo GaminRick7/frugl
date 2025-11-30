@@ -10,21 +10,27 @@ public class TimeChartRenderer implements ChartRenderer<ProcessedTimeChartData> 
     @Override
     public Image render(ProcessedTimeChartData data) throws Exception {
         String incomeValues = data.getDataPoints().stream()
-                .map(dataPoint -> dataPoint.getIncome())
+                .map(ProcessedTimeChartData.DataPoint::getIncome)
                 .map(v -> String.format("%.2f", v))
                 .collect(joining(","));
 
         String expenseValues = data.getDataPoints().stream()
-                .map(dataPoint -> dataPoint.getExpense())
+                .map(ProcessedTimeChartData.DataPoint::getExpense)
                 .map(v -> String.format("%.2f", v))
                 .collect(joining(","));
 
         String labels = data.getDataPoints().stream()
-                .map(dataPoint -> dataPoint.getLabel())
+                .map(ProcessedTimeChartData.DataPoint::getLabel)
                 .collect(joining("|"));
 
+        if (labels.isEmpty()) {
+            labels = "No%20Data";
+            incomeValues = "0.0";
+            expenseValues = "0.0";
+        }
+
         String url =
-                "https://chart.googleapis.com/chart?" +
+                "https://quickchart.io/chart?" +
                         "cht=bvg&chs=700x300" +
                         "&chxt=x,y" +
                         "&chbh=a" +

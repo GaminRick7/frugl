@@ -14,6 +14,15 @@ public class Main {
     /**
      * Builds and runs the CA architecture application.
      * @param args unused command line arguments
+
+import view.DashboardView;
+
+public class Main {
+
+    /**
+     * Main entry point for the application.
+     *
+     * @param args command line arguments (not used)
      */
     public static void main(String[] args) throws Exception {
         AppBuilder appBuilder = new AppBuilder();

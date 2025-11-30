@@ -5,17 +5,28 @@ import java.util.List;
 
 import entity.Category;
 
-
 public class SetGoalInputData {
-    public final YearMonth yearMonth;
+    private final YearMonth yearMonth;
 
-    public final float goalAmount;
+    private final float goalAmount;
 
-    public final List<Category> categories;
+    private final List<Category> categories;
 
     public SetGoalInputData(YearMonth yearMonth, float goalAmount, List<Category> categories) {
         this.yearMonth = yearMonth;
         this.goalAmount = goalAmount;
         this.categories = categories;
+    }
+
+    public YearMonth getYearMonth() {
+        return yearMonth;
+    }
+
+    public float getGoalAmount() {
+        return goalAmount;
+    }
+
+    public List<Category> getCategories() {
+        return categories;
     }
 }

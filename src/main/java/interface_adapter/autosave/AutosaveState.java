@@ -11,6 +11,12 @@ public class AutosaveState {
         this.statusMessage = "Autosave not run yet";
     }
 
+    /**
+     * Marks the autosave as successful and records the returned values.
+     *
+     * @param message   text describing the success outcome
+     * @param timestamp moment the autosave finished
+     */
     public void setSuccess(String message, LocalDateTime timestamp) {
         this.statusMessage = message;
         this.lastSavedAt = timestamp;

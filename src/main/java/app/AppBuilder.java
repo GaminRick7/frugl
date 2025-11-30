@@ -1,7 +1,9 @@
 package app;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -45,8 +47,13 @@ import view.DashboardView;
 import view.GoalView;
 import view.ImportStatementView;
 import view.TransactionsView;
+import view.ViewManager;
 
 public class AppBuilder {
+    private static final int BORDER_TOP = 5;
+    private static final int BORDER_LEFT = 10;
+    private static final int BORDER_BOTTOM = 5;
+    private static final int BORDER_RIGHT = 10;
 
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
@@ -54,6 +61,8 @@ public class AppBuilder {
     private final GoalDataAccessObject goalDataAccessObject = new GoalDataAccessObject();
 
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
+    private final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
+
     private AutosaveView autosaveView;
     private AutosaveViewModel autosaveViewModel;
 
@@ -69,16 +78,29 @@ public class AppBuilder {
     private TransactionsView viewTransactionView;
     private ViewTransactionViewModel viewTransactionViewModel;
 
+    /**
+     * Creates a new builder.
+     */
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
     }
 
 
+    /**
+     * Initializes the autosave view as a status bar.
+     *
+     * @return this builder
+     */
     public AppBuilder addAutosaveView() {
         autosaveViewModel = new AutosaveViewModel();
         autosaveView = new AutosaveView(autosaveViewModel);
-
-        cardPanel.add(autosaveView, autosaveView.getViewName());
+        
+        autosaveView.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, java.awt.Color.GRAY),
+                BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT)
+        ));
+        
+        // it is not added to card panel since it will be added as a status bar in build()
         return this;
     }
 
@@ -87,6 +109,15 @@ public class AppBuilder {
         final AutosaveOutputBoundary autosaveOutputBoundary = new AutosavePresenter(autosaveViewModel);
         final AutosaveInputBoundary autosaveInputBoundary =
                 new AutosaveInteractor(transactionDataAccessObject, autosaveOutputBoundary);
+    /**
+     * Creates the autosave use case and connects it to the autosave view.
+     *
+     * @return this builder
+     */
+    public AppBuilder addAutosaveUseCase() {
+        final AutosaveOutputBoundary autosaveOutputBoundary = new AutosavePresenter(autosaveViewModel);
+        final AutosaveInputBoundary autosaveInputBoundary =
+                new AutosaveInteractor(transactionDataAccessObject, goalDataAccessObject, autosaveOutputBoundary);
         final AutosaveController controller = new AutosaveController(autosaveInputBoundary);
 
         autosaveView.setupAutosaveController(controller);
@@ -94,6 +125,11 @@ public class AppBuilder {
     }
 
 
+    /**
+     * Initializes the import statement view .
+     *
+     * @return this builder
+     */
     public AppBuilder addImportStatementView() {
         importStatementViewModel = new ImportStatementViewModel();
         importStatementView = new ImportStatementView(importStatementViewModel, viewManagerModel);
@@ -107,6 +143,14 @@ public class AppBuilder {
         final ImportStatementOutputBoundary importStatementOutputBoundary =
                 new ImportStatementPresenter(viewManagerModel,
                 importStatementViewModel);
+    /**
+     * Creates the import statement use case and connects it to the view.
+     *
+     * @return this builder
+     */
+    public AppBuilder addImportStatementUseCase() {
+        final ImportStatementOutputBoundary importStatementOutputBoundary =
+                new ImportStatementPresenter(viewManagerModel, importStatementViewModel);
         final ImportStatementInputBoundary importStatementInputBoundary =
                 new ImportStatementInteractor(transactionDataAccessObject, importStatementOutputBoundary);
         final ImportStatementController importStatementController =
@@ -117,6 +161,11 @@ public class AppBuilder {
     }
 
 
+    /**
+     * Initializes goal-setting view.
+     *
+     * @return this builder
+     */
     public AppBuilder addSetGoalView() {
         setGoalViewModel = new SetGoalViewModel();
         goalView = new GoalView(setGoalViewModel);
@@ -126,6 +175,11 @@ public class AppBuilder {
     }
 
 
+    /**
+     * Creates the goal use case and connects it to the goal view.
+     *
+     * @return this builder
+     */
     public AppBuilder addGoalUseCase() {
         final SetGoalOutputBoundary setGoalOutputBoundary = new SetGoalPresenter(setGoalViewModel);
         final SetGoalInputBoundary setGoalInputBoundary = new SetGoalInteractor(goalDataAccessObject,
@@ -137,6 +191,11 @@ public class AppBuilder {
     }
 
 
+    /**
+     * Initializes the dashboard view.
+     *
+     * @return this builder
+     */
     public AppBuilder addDashboardView() {
         dashboardViewModel = new DashboardViewModel();
         dashboardView = new DashboardView(dashboardViewModel, viewManagerModel);
@@ -146,6 +205,11 @@ public class AppBuilder {
     }
 
 
+    /**
+     * Creates the dashboard use case and connects it to the dashboard view.
+     *
+     * @return this builder for chaining additional configuration
+     */
     public AppBuilder addDashboardUseCase() {
         final PieChartRenderer pieChartRenderer = new PieChartRenderer();
         final TimeChartRenderer timeChartRenderer = new TimeChartRenderer();
@@ -160,6 +224,11 @@ public class AppBuilder {
     }
 
 
+    /**
+     * Getter for the  dashboard view.
+     *
+     * @return the dashboard view instance
+     */
     public DashboardView getDashboardView() {
         return this.dashboardView;
     }
@@ -204,6 +273,23 @@ public class AppBuilder {
 
         application.add(cardPanel);
         viewManagerModel.setState(goalView.viewName);
+     * Builds the application frame, shows the initial view, and returns it.
+     *
+     * @return a JFrame application frame ready to display
+     */
+    public JFrame build() {
+        JFrame application = new JFrame("frugl");
+        final JPanel mainPanel = new JPanel(new BorderLayout());
+
+        mainPanel.add(cardPanel, BorderLayout.CENTER);
+        
+        // autosave view is added as a status bar
+        if (autosaveView != null) {
+            mainPanel.add(autosaveView, BorderLayout.SOUTH);
+        }
+
+        application.add(mainPanel);
+        viewManagerModel.setState(dashboardViewModel.getViewName());
         viewManagerModel.firePropertyChange();
         return application;
     }

@@ -22,19 +22,16 @@ public class DashboardPresenter implements LoadDashboardOutputBoundary {
     }
 
     @Override
-    public void present(LoadDashboardOutputData outputData){
+    public void present(LoadDashboardOutputData outputData) throws Exception {
         List<Image> images = new ArrayList<>();
-
-        try{
-            images.add(pieChartRenderer.render(outputData.getPieChartData()));
-            images.add(timeChartRenderer.render(outputData.getTimeChartData()));
-        } catch (Exception e){
-           e.printStackTrace();
-           //TODO handle exceptions w error message
-        }
+        images.add(pieChartRenderer.render(outputData.getPieChartData()));
+        images.add(timeChartRenderer.render(outputData.getTimeChartData()));
 
         DashboardState state = viewModel.getState();
         state.setChartImages(images);
+
+        this.viewModel.setState(state);
+        this.viewModel.firePropertyChange();
     }
 
 }
