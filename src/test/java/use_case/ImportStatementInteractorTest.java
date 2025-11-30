@@ -78,7 +78,7 @@ class ImportStatementInteractorTest {
         MockPresenter presenter = new MockPresenter(message);
         ImportStatementInteractor interactor = new ImportStatementInteractor(dao, presenter,
             new GeminiCategorizer(api_key));
-        ImportStatementInputData input = new ImportStatementInputData("")
+        ImportStatementInputData input = new ImportStatementInputData("");
 
         interactor.execute(input);
         assertEquals("blank file path", message.message);
