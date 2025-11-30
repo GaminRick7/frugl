@@ -1,3 +1,5 @@
 package charts;
 
-public abstract class AbstractProcessedChartData {}
+public abstract class AbstractProcessedChartData {
+
+}

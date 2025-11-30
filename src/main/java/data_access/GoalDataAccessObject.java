@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,9 +13,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import entity.Goal;
+import use_case.autosave.AutosaveDataAccessInterface;
 import use_case.set_goal.SetGoalDataAccessInterface;
 
-public class GoalDataAccessObject implements SetGoalDataAccessInterface {
+public class GoalDataAccessObject implements SetGoalDataAccessInterface, AutosaveDataAccessInterface {
     private final File jsonFile;
 
     private final Gson gson;
@@ -24,6 +26,7 @@ public class GoalDataAccessObject implements SetGoalDataAccessInterface {
     public GoalDataAccessObject(String jsonFilePath) {
         this.jsonFile = new File(jsonFilePath);
         this.gson = new GsonBuilder()
+                .registerTypeAdapter(YearMonth.class, new YearMonthAdapter())
                 .setPrettyPrinting()
                 .create();
         this.goals = new ArrayList<>();
@@ -45,8 +48,8 @@ public class GoalDataAccessObject implements SetGoalDataAccessInterface {
                     this.goals = new ArrayList<>();
                 }
             }
-            catch (IOException error) {
-                System.err.println("Error loading goals from JSON: " + error.getMessage());
+            catch (IOException ex) {
+                System.err.println("Error loading goals from JSON: " + ex.getMessage());
                 this.goals = new ArrayList<>();
             }
         }
@@ -55,19 +58,26 @@ public class GoalDataAccessObject implements SetGoalDataAccessInterface {
         }
     }
 
-    private void save() throws IOException {
+    @Override
+    public void save() {
+        try {
+            if (jsonFile.getParentFile() != null && !jsonFile.getParentFile().exists()) {
+                jsonFile.getParentFile().mkdirs();
+            }
 
-        if (jsonFile.getParentFile() != null && !jsonFile.getParentFile().exists()) {
-            jsonFile.getParentFile().mkdirs();
+            try (FileWriter writer = new FileWriter(jsonFile)) {
+                gson.toJson(goals, writer);
+            }
         }
-        try (FileWriter writer = new FileWriter(jsonFile)) {
-            gson.toJson(goals, writer);
+        catch (IOException ex) {
+            System.err.println("Error saving goals to JSON: " + ex.getMessage());
+            throw new RuntimeException("Failed to save goals", ex);
         }
     }
 
     @Override
-    public void saveGoal(Goal goal) throws IOException {
-        goals.removeIf(existing_goal -> existing_goal.getMonth().equals(goal.getMonth()));
+    public void saveGoal(Goal goal) {
+        goals.removeIf(geo -> geo.getMonth().equals(goal.getMonth()));
         goals.add(goal);
         save();
     }

@@ -349,7 +349,6 @@
             <property name="illegalClassNames"
                       value="java.lang.Exception,
                        java.lang.Throwable,
-                       java.lang.RuntimeException,
                        java.lang.NullPointerException"/>
         </module>
         <module name="IllegalInstantiation">
@@ -654,41 +653,6 @@
         <module name="BooleanExpressionComplexity">
             <property name="max" value="7"/>
         </module>
-        <module name="ClassDataAbstractionCoupling">
-            <!-- Default classes are also listed -->
-            <property name="excludedClasses"
-                      value="boolean, byte, char, double, float, int, long, short, void,
-                       Boolean, Byte, Character, Double, Float, Integer, Long, Short, Void,
-                       Object, Class, String, StringBuffer, StringBuilder,
-                       ArrayIndexOutOfBoundsException, Exception, RuntimeException,
-                       IllegalArgumentException, IllegalStateException,
-                       IndexOutOfBoundsException, NullPointerException, Throwable,
-                       SecurityException, UnsupportedOperationException, List, ArrayList,
-                       Deque, Queue, LinkedList, Set, HashSet, SortedSet, TreeSet, Map,
-                       HashMap, SortedMap, TreeMap, DetailsAST, CheckstyleException,
-                       UnsupportedEncodingException, BuildException, ConversionException,
-                       FileNotFoundException, TestException"/>
-        </module>
-        <module name="ClassFanOutComplexity">
-            <property name="max" value="25"/>
-            <!-- Default classes are also listed -->
-            <property name="excludedClasses"
-                      value="boolean, byte, char, double, float, int, long, short,
-                       void, Boolean, Byte, Character, Double, Float, Integer,
-                       Long, Short, Void, Object, Class, String, StringBuffer,
-                       StringBuilder, ArrayIndexOutOfBoundsException, Exception,
-                       RuntimeException, IllegalArgumentException, IllegalStateException,
-                       IndexOutOfBoundsException, NullPointerException, Throwable,
-                       SecurityException, UnsupportedOperationException, List, ArrayList,
-                       Deque, Queue, LinkedList, Set, HashSet, SortedSet, TreeSet, Map,
-                       HashMap, SortedMap, TreeMap, DetailsAST, CheckstyleException,
-                       UnsupportedEncodingException, BuildException, ConversionException,
-                       FileNotFoundException, TestException, Log, Sets, Multimap,
-                       TokenStreamRecognitionException, RecognitionException,
-                       TokenStreamException, IOException, Override, Deprecated, SafeVarargs,
-                       SuppressWarnings, FunctionalInterface, NoSuchMethodException,
-                       InvocationTargetException, IllegalAccessException"/>
-        </module>
         <module name="CyclomaticComplexity">
             <property name="switchBlockAsSingleDecisionPoint" value="true"/>
         </module>
@@ -756,7 +720,9 @@
         </module>
         <module name="MethodName"/>
         <module name="MethodTypeParameterName"/>
-        <module name="PackageName"/>
+        <module name="PackageName">
+            <property name="format" value="^[a-z_]+(\.[a-zA-Z_]\w*)*$"/>
+        </module>
         <module name="ParameterName">
             <property name="format" value="^(id)|([a-z][a-z0-9][a-zA-Z0-9]+)$"/>
             <property name="ignoreOverridden" value="true"/>
