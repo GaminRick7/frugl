@@ -14,10 +14,6 @@ import interface_adapter.autosave.AutosaveController;
 import interface_adapter.autosave.AutosaveState;
 import interface_adapter.autosave.AutosaveViewModel;
 
-/**
- * Swing view component for displaying autosave status and managing periodic saves.
- *
- */
 public class AutosaveView extends JPanel implements PropertyChangeListener {
 
     private static final long serialVersionUID = 1L;
