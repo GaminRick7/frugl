@@ -1,14 +1,18 @@
 package use_case.view_transactions;
 
-import entity.Transaction;
-
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.time.YearMonth;
+import java.util.Map;
 
+import entity.Transaction;
 
+/**
+ * Interactor for the View Transactions Use Case.
+ * Orchestrates the flow between the DAO and the Presenter.
+ */
 public class ViewTransactionInteractor implements ViewTransactionInputBoundary {
     private final ViewTransactionDataAccessInterface viewDataAccessObject;
     private final ViewTransactionOutputBoundary viewTransactionPresenter;
@@ -19,64 +23,42 @@ public class ViewTransactionInteractor implements ViewTransactionInputBoundary {
         this.viewTransactionPresenter = viewTransactionPresenter;
     }
 
+    private List<Map<String, Object>> convertTransactionToString(final List<Transaction> trans) {
+        final List<Map<String, Object>> processedTransactions = new ArrayList<>();
 
-        private List<HashMap<String, Object>> convert_transaction_toString(List<Transaction> trans) {
+        for (final Transaction transaction : trans) {
+            final Map<String, Object> transactionMap = new HashMap<>();
 
-            List<HashMap<String, Object>> proccessed_transactions = new ArrayList<>();
+            transactionMap.put("date", transaction.getDate());
+            transactionMap.put("source", transaction.getSource().getName());
+            transactionMap.put("amount", String.valueOf(transaction.getAmount()));
+            transactionMap.put("category", viewDataAccessObject.getSourceCategory(transaction.getSource()).getName());
 
-            for (int i = 0; i< trans.size() ; i++) {
-
-                Transaction transac = trans.get(i);
-                HashMap<String, Object> t1 = new HashMap<>();
-
-                t1.put("date", transac.getDate());
-                t1.put("source", transac.getSource().getName());
-                t1.put("amount", String.valueOf(transac.getAmount()));
-                t1.put("category", viewDataAccessObject.getSourceCategory(transac.getSource()).getName());
-
-                proccessed_transactions.add(t1);
-
-            }
-            return proccessed_transactions;
+            processedTransactions.add(transactionMap);
         }
-
-
-    public void execute(ViewTransactionInputData transactionInputData) {
-
-        LocalDate start = transactionInputData.getStartDate();
-        LocalDate end = transactionInputData.getEndDate();
-        final List<Transaction> trans =viewDataAccessObject.getByDateRange(start, end);
-        List<HashMap<String, Object>> proccessed_transactions = convert_transaction_toString(trans);
-
-        YearMonth yearMonth = YearMonth.from(start);
-
-
-        if (!proccessed_transactions.isEmpty()){
-            final ViewTransactionOutputData viewTransactionOutputData= new ViewTransactionOutputData(yearMonth.toString(),proccessed_transactions );
-            viewTransactionPresenter.prepareSuccessView(  viewTransactionOutputData);
-        }
-        else{
-            viewTransactionPresenter.prepareFailView( "No data available.");
-
-
-
-        }
-
-
+        return processedTransactions;
     }
 
+    /**
+     * Executes the View Transaction use case logic.
+     * @param transactionInputData The input data containing the date range.
+     */
+    @Override
+    public void execute(final ViewTransactionInputData transactionInputData) {
+        final LocalDate start = transactionInputData.getStartDate();
+        final LocalDate end = transactionInputData.getEndDate();
+        final List<Transaction> trans = viewDataAccessObject.getByDateRange(start, end);
+        final List<Map<String, Object>> processedTransactions = convertTransactionToString(trans);
+
+        final YearMonth yearMonth = YearMonth.from(start);
+
+        if (!processedTransactions.isEmpty()) {
+            final ViewTransactionOutputData viewTransactionOutputData =
+                    new ViewTransactionOutputData(yearMonth.toString(), processedTransactions);
+            viewTransactionPresenter.prepareSuccessView(viewTransactionOutputData);
+        }
+        else {
+            viewTransactionPresenter.prepareFailView("No data available.");
+        }
+    }
 }
-
-
-
-
-
-
-
-
-
-    // convert everthing to string in outputData
-
-
-
-

@@ -1,12 +1,10 @@
 package interface_adapter.view_transaction;
 
-import entity.Transaction;
-import use_case.view_transactions.ViewTransactionInputBoundary;
-import use_case.view_transactions.ViewTransactionInputData;
-
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
+
+import use_case.view_transactions.ViewTransactionInputBoundary;
+import use_case.view_transactions.ViewTransactionInputData;
 
 public class ViewTransactionController {
     private final ViewTransactionInputBoundary viewTransactionInteractor;
@@ -15,18 +13,18 @@ public class ViewTransactionController {
         this.viewTransactionInteractor = viewTransactionInteractor;
     }
 
+    /**
+     * Execute controller method.
+     * @param monthString string month
+     */
+    public void execute(String monthString) {
+        final YearMonth yearMonth;
+        yearMonth = YearMonth.parse(monthString);
 
-    public void execute(String monthString)
-    {
-        YearMonth yearMonth;
-            yearMonth = YearMonth.parse(monthString); // Expects "YYYY-MM"
+        final LocalDate startDate = yearMonth.atDay(1);
+        final LocalDate endDate = yearMonth.atEndOfMonth();
 
-
-        // get the first and last dates of the month
-        LocalDate startDate = yearMonth.atDay(1);
-        LocalDate endDate = yearMonth.atEndOfMonth();
-
-        ViewTransactionInputData inputData = new ViewTransactionInputData(startDate, endDate);
+        final ViewTransactionInputData inputData = new ViewTransactionInputData(startDate, endDate);
         viewTransactionInteractor.execute(inputData);
     }
 }

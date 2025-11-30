@@ -24,6 +24,9 @@ import interface_adapter.import_statement.ImportStatementViewModel;
 import interface_adapter.set_goal.SetGoalController;
 import interface_adapter.set_goal.SetGoalPresenter;
 import interface_adapter.set_goal.SetGoalViewModel;
+import interface_adapter.view_transaction.ViewTransactionController;
+import interface_adapter.view_transaction.ViewTransactionPresenter;
+import interface_adapter.view_transaction.ViewTransactionViewModel;
 import use_case.autosave.AutosaveInputBoundary;
 import use_case.autosave.AutosaveInteractor;
 import use_case.autosave.AutosaveOutputBoundary;
@@ -36,10 +39,14 @@ import use_case.load_dashboard.LoadDashboardOutputBoundary;
 import use_case.set_goal.SetGoalInputBoundary;
 import use_case.set_goal.SetGoalInteractor;
 import use_case.set_goal.SetGoalOutputBoundary;
+import use_case.view_transactions.ViewTransactionInputBoundary;
+import use_case.view_transactions.ViewTransactionInteractor;
+import use_case.view_transactions.ViewTransactionOutputBoundary;
 import view.AutosaveView;
 import view.DashboardView;
 import view.GoalView;
 import view.ImportStatementView;
+import view.TransactionsView;
 import view.ViewManager;
 
 public class AppBuilder {
@@ -68,12 +75,16 @@ public class AppBuilder {
     private DashboardView dashboardView;
     private DashboardViewModel dashboardViewModel;
 
+    private TransactionsView viewTransactionView;
+    private ViewTransactionViewModel viewTransactionViewModel;
+
     /**
      * Creates a new builder.
      */
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);
     }
+
 
     /**
      * Initializes the autosave view as a status bar.
@@ -93,6 +104,11 @@ public class AppBuilder {
         return this;
     }
 
+
+    public AppBuilder addAutosaveUseCase() {
+        final AutosaveOutputBoundary autosaveOutputBoundary = new AutosavePresenter(autosaveViewModel);
+        final AutosaveInputBoundary autosaveInputBoundary =
+                new AutosaveInteractor(transactionDataAccessObject, autosaveOutputBoundary);
     /**
      * Creates the autosave use case and connects it to the autosave view.
      *
@@ -108,6 +124,7 @@ public class AppBuilder {
         return this;
     }
 
+
     /**
      * Initializes the import statement view .
      *
@@ -121,6 +138,11 @@ public class AppBuilder {
         return this;
     }
 
+
+    public AppBuilder addImportStatementUseCase() {
+        final ImportStatementOutputBoundary importStatementOutputBoundary =
+                new ImportStatementPresenter(viewManagerModel,
+                importStatementViewModel);
     /**
      * Creates the import statement use case and connects it to the view.
      *
@@ -138,6 +160,7 @@ public class AppBuilder {
         return this;
     }
 
+
     /**
      * Initializes goal-setting view.
      *
@@ -150,6 +173,7 @@ public class AppBuilder {
         cardPanel.add(goalView, setGoalViewModel.getViewName());
         return this;
     }
+
 
     /**
      * Creates the goal use case and connects it to the goal view.
@@ -166,6 +190,7 @@ public class AppBuilder {
         return this;
     }
 
+
     /**
      * Initializes the dashboard view.
      *
@@ -178,6 +203,7 @@ public class AppBuilder {
         cardPanel.add(dashboardView, dashboardViewModel.getViewName());
         return this;
     }
+
 
     /**
      * Creates the dashboard use case and connects it to the dashboard view.
@@ -197,6 +223,7 @@ public class AppBuilder {
         return this;
     }
 
+
     /**
      * Getter for the  dashboard view.
      *
@@ -207,6 +234,45 @@ public class AppBuilder {
     }
 
     /**
+     * Get TransactionView.
+     * @return TransactionView
+     */
+    public AppBuilder addTransactionsView() {
+        viewTransactionViewModel = new ViewTransactionViewModel();
+        viewTransactionView = new TransactionsView(viewTransactionViewModel);
+        cardPanel.add(viewTransactionView, viewTransactionViewModel.getViewName());
+
+        // WAS: return viewTransactionView;
+        return this; // NOW: returns the builder so you can keep chaining
+    }
+
+    /**
+     * Does transactionViewUseCase.
+     * @return transactionViewUseCase
+     */
+    public AppBuilder addTransactionViewUseCase() {
+
+        final ViewTransactionOutputBoundary viewTransactionOutputBoundary =
+            new ViewTransactionPresenter(viewManagerModel, viewTransactionViewModel);
+        final ViewTransactionInputBoundary viewTransactionInputBoundary =
+            new ViewTransactionInteractor(transactionDataAccessObject, viewTransactionOutputBoundary);
+        final ViewTransactionController viewTransactionController =
+            new ViewTransactionController(viewTransactionInputBoundary);
+        viewTransactionView.setViewTransactionController(viewTransactionController);
+
+        viewTransactionController.execute("2025-11");
+        return this;
+    }
+
+    /**
+     * Builds Swing design.
+     * @return JFrame
+     */
+    public JFrame build() {
+        final JFrame application = new JFrame("Frugl");
+
+        application.add(cardPanel);
+        viewManagerModel.setState(goalView.viewName);
      * Builds the application frame, shows the initial view, and returns it.
      *
      * @return a JFrame application frame ready to display
@@ -228,3 +294,4 @@ public class AppBuilder {
         return application;
     }
 }
+

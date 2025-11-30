@@ -21,8 +21,9 @@ import use_case.autosave.AutosaveDataAccessInterface;
 import use_case.set_goal.ForestDataAccessInterface;
 import use_case.import_statement.ImportStatementDataAccessInterface;
 import use_case.load_dashboard.LoadDashboardDataAccessInterface;
+import use_case.view_transactions.ViewTransactionDataAccessInterface;
 
-public class TransactionDataAccessObject implements AutosaveDataAccessInterface, LoadDashboardDataAccessInterface, ImportStatementDataAccessInterface, ForestDataAccessInterface {
+public class TransactionDataAccessObject implements AutosaveDataAccessInterface, LoadDashboardDataAccessInterface, ImportStatementDataAccessInterface, ForestDataAccessInterface, ViewTransactionDataAccessInterface {
     private final Gson gson;
 
     private final File transactionsFile;

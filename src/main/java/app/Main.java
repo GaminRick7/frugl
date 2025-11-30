@@ -4,6 +4,19 @@ import javax.swing.JFrame;
 
 import view.DashboardView;
 
+import view.TransactionsView;
+
+/**
+ * The Main class of the application.
+ */
+public class Main {
+
+    /**
+     * Builds and runs the CA architecture application.
+     * @param args unused command line arguments
+
+import view.DashboardView;
+
 public class Main {
 
     /**
@@ -22,6 +35,8 @@ public class Main {
                 .addImportStatementUseCase()
                 .addSetGoalView()
                 .addGoalUseCase()
+                .addTransactionsView()
+                .addTransactionViewUseCase()
                 .build();
 
         application.pack();
