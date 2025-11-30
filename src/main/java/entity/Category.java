@@ -1,6 +1,5 @@
 package entity;
 
-
 public class Category {
 
     private String name;
@@ -12,7 +11,6 @@ public class Category {
     public String getName() {
         return name;
     }
-
 
     public void setName(String newName) {
         this.name = newName;

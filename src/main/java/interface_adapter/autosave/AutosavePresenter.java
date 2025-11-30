@@ -13,14 +13,14 @@ public class AutosavePresenter implements AutosaveOutputBoundary {
 
     @Override
     public void presentSuccess(AutosaveOutputData outputData) {
-        AutosaveState state = viewModel.getState();
+        final AutosaveState state = viewModel.getState();
         state.setSuccess(outputData.getMessage(), outputData.getTimestamp());
         viewModel.firePropertyChange();
     }
 
     @Override
     public void presentFailure(String errorMessage) {
-        AutosaveState state = viewModel.getState();
+        final AutosaveState state = viewModel.getState();
         state.setErrorMessage(errorMessage);
         viewModel.firePropertyChange();
     }
