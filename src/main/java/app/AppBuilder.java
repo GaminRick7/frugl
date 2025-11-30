@@ -2,8 +2,6 @@ package app;
 
 import java.awt.CardLayout;
 
-import javax.swing.*;
-
 import charts.PieChartRenderer;
 import charts.TimeChartRenderer;
 import data_access.GoalDataAccessObject;
@@ -38,6 +36,7 @@ import use_case.set_goal.SetGoalInteractor;
 import use_case.set_goal.SetGoalOutputBoundary;
 import use_case.view_transactions.*;
 import view.*;
+import javax.swing.*;
 
 public class AppBuilder {
 
@@ -160,7 +159,6 @@ public class AppBuilder {
         ViewTransactionController viewTransactionController  = new ViewTransactionController(viewTransactionInputBoundary);
         viewTransactionView.setViewTransactionController(viewTransactionController);
 
-        //load initial value
         viewTransactionController.execute("2025-11");
         return this;
     }
