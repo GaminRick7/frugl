@@ -132,7 +132,7 @@ public class AppBuilder {
         final ImportStatementInputBoundary importStatementInputBoundary =
                 new ImportStatementInteractor(transactionDataAccessObject, importStatementOutputBoundary);
         final ImportStatementController importStatementController =
-                new ImportStatementController(importStatementInputBoundary, viewManagerModel);
+                new ImportStatementController(importStatementInputBoundary);
 
         importStatementView.setImportStatementController(importStatementController);
         return this;
