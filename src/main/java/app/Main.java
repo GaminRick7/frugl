@@ -1,5 +1,7 @@
 package app;
 
+import java.awt.Frame;
+
 import javax.swing.JFrame;
 
 import view.DashboardView;
@@ -28,7 +30,7 @@ public class Main {
                 .addTransactionViewUseCase()
                 .build();
 
-        application.pack();
+        application.setExtendedState(Frame.MAXIMIZED_BOTH);
         application.setLocationRelativeTo(null);
         application.setVisible(true);
 

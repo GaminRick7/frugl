@@ -53,10 +53,12 @@ public class PieChartRenderer implements ChartRenderer<PieChartData> {
                     + "\"labels\": [" + labels + "],"
                     + "\"datasets\": [{"
                     + "\"data\": [" + values + "],"
-                    + "\"backgroundColor\": [\"#FF6384\", \"#36A2EB\", \"#FFCE56\", \"#4BC0C0\", \"#9966FF\"]"
+                    + "\"backgroundColor\": [\"#3498DB\", \"#9B59B6\", \"#E67E22\", \"#1ABC9C\", \"#F1C40F\"]"
                     + "}]},"
-                    + "\"options\": { \"plugins\": { \"datalabels\": { \"display\": true }}}"
-                    + "}";
+                    + "\"options\": {"
+                    + "   \"legend\": { \"labels\": { \"fontColor\": \"black\" } },"
+                    + "   \"plugins\": { \"datalabels\": { \"display\": true, \"color\": \"black\" } }"
+                    + "}}";
         }
 
         final String encodedConfig = URLEncoder.encode(chartConfig, StandardCharsets.UTF_8);
