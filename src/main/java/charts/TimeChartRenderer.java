@@ -14,11 +14,11 @@ import javax.imageio.ImageIO;
  * Uses QuickChart.io API.
  */
 public class TimeChartRenderer implements ChartRenderer<ProcessedTimeChartData> {
+    private static final String DELIMITER = ";";
 
     @Override
     public Image render(ProcessedTimeChartData data) throws IOException {
         final String chartConfig;
-
         // Handle empty data case
         if (data.getDataPoints().isEmpty()) {
             chartConfig = "{\"type\": \"bar\","
@@ -36,19 +36,19 @@ public class TimeChartRenderer implements ChartRenderer<ProcessedTimeChartData> 
             final String incomeValues = data.getDataPoints().stream()
                     .map(ProcessedTimeChartData.DataPoint::income)
                     .map(value -> String.format("%.2f", value))
-                    .collect(Collectors.joining(","));
+                    .collect(Collectors.joining(DELIMITER));
 
             // Build the expense data strings using Record accessor
             final String expenseValues = data.getDataPoints().stream()
                     .map(ProcessedTimeChartData.DataPoint::expense)
                     .map(value -> String.format("%.2f", value))
-                    .collect(Collectors.joining(","));
+                    .collect(Collectors.joining(DELIMITER));
 
             // Build the labels string using the Record accessor
             final String labels = data.getDataPoints().stream()
                     .map(ProcessedTimeChartData.DataPoint::label)
                     .map(label -> "\"" + label + "\"")
-                    .collect(Collectors.joining(","));
+                    .collect(Collectors.joining(DELIMITER));
 
             chartConfig = "{\"type\": \"bar\","
                     + "\"data\": {"
