@@ -276,12 +276,14 @@ class SetGoalInteractorTest {
         Source sFood = new Source("Food");
         Source sRent = new Source("Rent");
 
-        YearMonth month = YearMonth.of(2025, 10);
-        YearMonth future = month.plusMonths(1);
+        YearMonth now = YearMonth.now();
+        YearMonth past = now.minusMonths(1);    // already passed → healthy/dead
+        YearMonth current = now;                // current month → sapling
+        YearMonth future = now.plusMonths(1);   // future → sapling
 
         List<Transaction> txs = List.of(
-                new Transaction(sFood, 50, LocalDate.of(2025, 10, 10)),
-                new Transaction(sRent, 200, LocalDate.of(2025, 10, 5))
+                new Transaction(sFood, 50, past.atDay(10)),
+                new Transaction(sRent, 200, past.atDay(5))
         );
 
         Map<Source, Category> link = Map.of(
@@ -299,21 +301,31 @@ class SetGoalInteractorTest {
 
         SetGoalInteractor interactor = new SetGoalInteractor(repo, txRepo, presenter);
 
-        interactor.execute(new SetGoalInputData(month, 100, List.of(food)));  // healthy
-        interactor.execute(new SetGoalInputData(month, 150, List.of(rent)));  // dead
-        interactor.execute(new SetGoalInputData(future, 200, List.of(food))); // sapling
+        // Create goals
+        interactor.execute(new SetGoalInputData(past, 100, List.of(food)));    // healthy/dead
+        interactor.execute(new SetGoalInputData(past, 150, List.of(rent)));    // healthy/dead
+        interactor.execute(new SetGoalInputData(future, 200, List.of(food)));  // sapling
 
         List<GoalTree> forest = new ArrayList<>();
         for (Goal g : repo.getAll()) {
             List<Transaction> filtered = txRepo.getTransactionsByCategoriesAndMonth(g.getCategories(), g.getMonth());
-            GoalTree t = new GoalTree(g, 0, 0);
-            t.updateStatus(filtered);
+            GoalTree t = new GoalTree(g, 0, 0);  // fixed coordinates
+            t.updateStatus(filtered);             // uses YearMonth.now() internally
             forest.add(t);
         }
 
-        assertEquals("healthy", forest.stream().filter(t -> t.getGoal().getGoalAmount() == 100).findFirst().get().getStatus());
-        assertEquals("dead", forest.stream().filter(t -> t.getGoal().getGoalAmount() == 150).findFirst().get().getStatus());
-        assertEquals("sapling", forest.stream().filter(t -> t.getGoal().getGoalAmount() == 200).findFirst().get().getStatus());
+        // Assertions
+        assertEquals("healthy", forest.stream()
+                .filter(t -> t.getGoal().getGoalAmount() == 100)
+                .findFirst().get().getStatus());
+
+        assertEquals("dead", forest.stream()
+                .filter(t -> t.getGoal().getGoalAmount() == 150)
+                .findFirst().get().getStatus());
+
+        assertEquals("sapling", forest.stream()
+                .filter(t -> t.getGoal().getGoalAmount() == 200)
+                .findFirst().get().getStatus());
     }
 
     @Test
