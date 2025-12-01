@@ -5,8 +5,6 @@ import javax.swing.JFrame;
 import interface_adapter.set_goal.SetGoalController;
 import view.DashboardView;
 
-import view.TransactionsView;
-
 /**
  * The Main class of the application.
  */
@@ -15,10 +13,11 @@ public class Main {
      * Main entry point for the application.
      *
      * @param args command line arguments (not used)
+     * @throws Exception if an error occurs during application initialization
      */
     public static void main(String[] args) throws Exception {
-        AppBuilder appBuilder = new AppBuilder();
-        JFrame application = appBuilder
+        final AppBuilder appBuilder = new AppBuilder();
+        final JFrame application = appBuilder
                 .addDashboardView()
                 .addDashboardUseCase()
                 .addAutosaveView()
@@ -27,8 +26,8 @@ public class Main {
                 .addImportStatementUseCase()
                 .addSetGoalView()
                 .addGoalUseCase()
-                .addTransactionsView()  //added
-                .addTransactionViewUseCase() //aded
+                .addTransactionsView()
+                .addTransactionViewUseCase()
                 .build();
 
         final SetGoalController goalController = appBuilder.getSetGoalController();
