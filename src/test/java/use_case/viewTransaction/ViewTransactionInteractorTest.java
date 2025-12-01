@@ -8,8 +8,8 @@ import use_case.view_transactions.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -56,13 +56,13 @@ public class ViewTransactionInteractorTest {
                 assertEquals("2025-01", outputData.getYearMonth());
                 assertEquals(2, outputData.getMonthTransactions().size());
 
-                HashMap<String, Object> firstTrans = outputData.getTransactionByIndex(0);
+                Map<String, Object> firstTrans = outputData.getTransactionByIndex(0);
                 assertEquals("Uber", firstTrans.get("source"));
                 assertEquals("-23.0", firstTrans.get("amount"));
                 assertEquals("Transport", firstTrans.get("category"));
                 assertEquals(LocalDate.of(2025, 1, 5), firstTrans.get("date"));
 
-                HashMap<String, Object> secondTrans = outputData.getTransactionByIndex(1);
+                Map<String, Object> secondTrans = outputData.getTransactionByIndex(1);
                 assertEquals("Salary", secondTrans.get("source"));
                 assertEquals("2500.0", secondTrans.get("amount"));
                 assertEquals("Income", secondTrans.get("category"));
@@ -146,7 +146,7 @@ public class ViewTransactionInteractorTest {
                 assertEquals("2025-02", outputData.getYearMonth());
                 assertEquals(1, outputData.getMonthTransactions().size());
 
-                HashMap<String, Object> transaction = outputData.getTransactionByIndex(0);
+                Map<String, Object> transaction = outputData.getTransactionByIndex(0);
                 assertEquals("Rent", transaction.get("source"));
                 assertEquals("-1200.0", transaction.get("amount"));
                 assertEquals("Housing", transaction.get("category"));
