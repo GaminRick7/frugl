@@ -1,4 +1,4 @@
-package charts;
+package interface_adapter.dashboard;
 
 import java.awt.Image;
 import java.io.IOException;
@@ -10,14 +10,16 @@ import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
+import use_case.load_dashboard.PieChartData;
+
 /**
  * Renders pie chart images from pie chart data or returns an IOException if rendering fails.
  * Uses QuickChart.io API.
  */
-public class PieChartRenderer implements ChartRenderer<ProcessedPieChartData> {
+public class PieChartRenderer implements ChartRenderer<PieChartData> {
 
     @Override
-    public Image render(ProcessedPieChartData data) throws IOException {
+    public Image render(PieChartData data) throws IOException {
         final Map<String, Double> categories = data.getCategoryTotals();
         final String chartConfig;
 

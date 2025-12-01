@@ -9,8 +9,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import charts.PieChartRenderer;
-import charts.TimeChartRenderer;
 import data_access.GoalDataAccessObject;
 import data_access.TransactionDataAccessObject;
 import interface_adapter.ViewManagerModel;
@@ -20,6 +18,8 @@ import interface_adapter.autosave.AutosaveViewModel;
 import interface_adapter.dashboard.DashboardController;
 import interface_adapter.dashboard.DashboardPresenter;
 import interface_adapter.dashboard.DashboardViewModel;
+import interface_adapter.dashboard.PieChartRenderer;
+import interface_adapter.dashboard.TimeChartRenderer;
 import interface_adapter.import_statement.ImportStatementController;
 import interface_adapter.import_statement.ImportStatementPresenter;
 import interface_adapter.import_statement.ImportStatementViewModel;

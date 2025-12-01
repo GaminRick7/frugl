@@ -1,26 +1,23 @@
 package use_case.load_dashboard;
 
-import charts.ProcessedPieChartData;
-import charts.ProcessedTimeChartData;
-
 /**
  * Output Data for the Load Dashboard Use Case.
  */
 public class LoadDashboardOutputData {
-    private final ProcessedTimeChartData timeChartData;
-    private final ProcessedPieChartData pieChartData;
+    private final TimeChartData timeChartData;
+    private final PieChartData pieChartData;
 
-    public LoadDashboardOutputData(ProcessedTimeChartData processedTimeChartData,
-                                   ProcessedPieChartData processedPieChartData) {
-        this.timeChartData = processedTimeChartData;
-        this.pieChartData = processedPieChartData;
+    public LoadDashboardOutputData(TimeChartData timeChartData,
+                                   PieChartData pieChartData) {
+        this.timeChartData = timeChartData;
+        this.pieChartData = pieChartData;
     }
 
-    public ProcessedPieChartData getPieChartData() {
+    public PieChartData getPieChartData() {
         return pieChartData;
     }
 
-    public ProcessedTimeChartData getTimeChartData() {
+    public TimeChartData getTimeChartData() {
         return timeChartData;
     }
 }

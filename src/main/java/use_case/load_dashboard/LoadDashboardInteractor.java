@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import charts.ProcessedPieChartData;
-import charts.ProcessedTimeChartData;
-import charts.ProcessedTimeChartData.DataPoint;
 import entity.Transaction;
+import use_case.load_dashboard.TimeChartData.DataPoint;
 
 /**
  * Interactor for the Load Dashboard Use Case.
@@ -35,14 +33,14 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
         final List<Transaction> timeRawData = transactionDataAccessObject.getByDateRange(
                 currentDate.minusMonths(timeRange.getValue()), currentDate);
 
-        final ProcessedPieChartData pieChartData = processPieChartData(pieRawData);
-        final ProcessedTimeChartData timeChartData = processTimeChartData(timeRawData, timeRange);
+        final PieChartData pieChartData = processPieChartData(pieRawData);
+        final TimeChartData timeChartData = processTimeChartData(timeRawData, timeRange);
 
         final LoadDashboardOutputData outputData = new LoadDashboardOutputData(timeChartData, pieChartData);
         presenter.present(outputData);
     }
 
-    private ProcessedPieChartData processPieChartData(List<Transaction> transactions) {
+    private PieChartData processPieChartData(List<Transaction> transactions) {
         final Map<String, Double> categoryValues = transactions.stream()
                 .filter(transaction -> transaction.getAmount() < 0)
                 // filter for expenses only
@@ -50,10 +48,10 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
                         transaction -> transactionDataAccessObject.getSourceCategory(transaction.getSource()).getName(),
                         Collectors.summingDouble(Transaction::getAmount)
         ));
-        return new ProcessedPieChartData(categoryValues);
+        return new PieChartData(categoryValues);
     }
 
-    private ProcessedTimeChartData processTimeChartData(List<Transaction> transactions, TimeRange timeRange) {
+    private TimeChartData processTimeChartData(List<Transaction> transactions, TimeRange timeRange) {
         final int monthRange = timeRange.getValue();
         final List<DataPoint> dataPoints = new ArrayList<>();
 
@@ -78,7 +76,7 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
 
             dataPoints.add(new DataPoint(label, incomeSum, expenseSum));
         }
-        return new ProcessedTimeChartData(dataPoints);
+        return new TimeChartData(dataPoints);
     }
 
     private boolean isSameMonth(LocalDate date1, LocalDate date2) {

@@ -1,4 +1,4 @@
-package charts;
+package interface_adapter.dashboard;
 
 import java.awt.Image;
 import java.io.IOException;
@@ -9,15 +9,17 @@ import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
+import use_case.load_dashboard.TimeChartData;
+
 /**
  * Renders time chart images from time chart data or returns an IOException if rendering fails.
  * Uses QuickChart.io API.
  */
-public class TimeChartRenderer implements ChartRenderer<ProcessedTimeChartData> {
+public class TimeChartRenderer implements ChartRenderer<TimeChartData> {
     private static final String DELIMITER = ",";
 
     @Override
-    public Image render(ProcessedTimeChartData data) throws IOException {
+    public Image render(TimeChartData data) throws IOException {
         final String chartConfig;
         // Handle empty data case
         if (data.getDataPoints().isEmpty()) {
@@ -34,19 +36,19 @@ public class TimeChartRenderer implements ChartRenderer<ProcessedTimeChartData> 
         else {
             // Build income data string using the Record accessor
             final String incomeValues = data.getDataPoints().stream()
-                    .map(ProcessedTimeChartData.DataPoint::income)
+                    .map(TimeChartData.DataPoint::income)
                     .map(value -> String.format("%.2f", value))
                     .collect(Collectors.joining(DELIMITER));
 
             // Build the expense data strings using Record accessor
             final String expenseValues = data.getDataPoints().stream()
-                    .map(ProcessedTimeChartData.DataPoint::expense)
+                    .map(TimeChartData.DataPoint::expense)
                     .map(value -> String.format("%.2f", value))
                     .collect(Collectors.joining(DELIMITER));
 
             // Build the labels string using the Record accessor
             final String labels = data.getDataPoints().stream()
-                    .map(ProcessedTimeChartData.DataPoint::label)
+                    .map(TimeChartData.DataPoint::label)
                     .map(label -> "\"" + label + "\"")
                     .collect(Collectors.joining(DELIMITER));
 

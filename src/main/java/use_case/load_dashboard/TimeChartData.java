@@ -1,14 +1,14 @@
-package charts;
+package use_case.load_dashboard;
 
 import java.util.List;
 
 /**
  * Collects time chart data that is processed from the transactions.
  */
-public class ProcessedTimeChartData implements AbstractProcessedChartData {
+public class TimeChartData implements ChartData {
     private final List<DataPoint> dataPoints;
 
-    public ProcessedTimeChartData(List<DataPoint> dataPoints) {
+    public TimeChartData(List<DataPoint> dataPoints) {
         this.dataPoints = dataPoints;
     }
 

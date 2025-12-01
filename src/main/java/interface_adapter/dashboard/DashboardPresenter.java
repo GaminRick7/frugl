@@ -5,22 +5,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import charts.ChartRenderer;
-import charts.ProcessedPieChartData;
-import charts.ProcessedTimeChartData;
 import use_case.load_dashboard.LoadDashboardOutputBoundary;
 import use_case.load_dashboard.LoadDashboardOutputData;
+import use_case.load_dashboard.PieChartData;
+import use_case.load_dashboard.TimeChartData;
 
 /**
  * Presenter for the Dashboard Use Case.
  */
 public class DashboardPresenter implements LoadDashboardOutputBoundary {
     private final DashboardViewModel dashboardViewModel;
-    private final ChartRenderer<ProcessedPieChartData> pieChartRenderer;
-    private final ChartRenderer<ProcessedTimeChartData> timeChartRenderer;
+    private final ChartRenderer<PieChartData> pieChartRenderer;
+    private final ChartRenderer<TimeChartData> timeChartRenderer;
 
-    public DashboardPresenter(DashboardViewModel viewModel, ChartRenderer<ProcessedPieChartData> pieChartRenderer,
-                              ChartRenderer<ProcessedTimeChartData> timeChartRenderer) {
+    public DashboardPresenter(DashboardViewModel viewModel, ChartRenderer<PieChartData> pieChartRenderer,
+                              ChartRenderer<TimeChartData> timeChartRenderer) {
         this.dashboardViewModel = viewModel;
         this.pieChartRenderer = pieChartRenderer;
         this.timeChartRenderer = timeChartRenderer;
