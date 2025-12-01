@@ -14,6 +14,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import entity.Category;
 import entity.Source;
 import entity.Transaction;
@@ -24,7 +25,9 @@ import entity.Transaction;
 public class ImportStatementInteractor implements ImportStatementInputBoundary {
 
     private final ImportStatementDataAccessInterface transactionsDataAccessObject;
+
     private final ImportStatementOutputBoundary presenter;
+
     private final GeminiCategorizer geminiCategorizer;
 
     public ImportStatementInteractor(ImportStatementDataAccessInterface transactionsDataAccessObject,
@@ -51,8 +54,7 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
         final JsonArray transactionsJsonArray;
         try {
             transactionsJsonArray = readArrayFromFile(inputData.getFilePath());
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             presenter.prepareFailView("file does not contain a JSON array");
             return;
         }
@@ -67,32 +69,28 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
 
         try {
             separateTransactions(transactionsJsonArray, categorized, uncategorized);
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             presenter.prepareFailView("unsupported file");
             return;
         }
 
         try {
             addTransactions(categorized);
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             presenter.prepareFailView("unsupported file");
             return;
         }
 
         try {
             categorizeSources(uncategorized);
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             presenter.prepareFailView("could not categorize transactions");
             return;
         }
 
         try {
             addTransactions(uncategorized);
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             presenter.prepareFailView("unsupported file");
             return;
         }
@@ -104,14 +102,13 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
 
     private JsonArray readArrayFromFile(String filePath) throws Exception {
         try (FileReader reader = new FileReader(filePath)) {
-
-            final JsonElement element = JsonParser.parseReader(reader);
-
-            if (!element.isJsonArray()) {
+            try {
+                final JsonElement element = JsonParser.parseReader(reader);
+                return element.getAsJsonArray();
+            } catch (Exception exception) {
                 throw new Exception("File does not contain a JSON array");
             }
 
-            return element.getAsJsonArray();
         }
     }
 
@@ -131,8 +128,7 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
 
             if (transactionsDataAccessObject.sourceExists(new Source(sourceName))) {
                 categorized.add(tx);
-            }
-            else {
+            } else {
                 uncategorized.add(tx);
             }
         }
@@ -142,9 +138,6 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
 
         final Set<String> uniqueSourceNames = new HashSet<>();
         for (JsonObject tx : uncategorized) {
-            if (!tx.has("source")) {
-                throw new Exception("Transaction missing 'source' field");
-            }
             final String sourceName = tx.get("source").getAsString();
             uniqueSourceNames.add(sourceName);
         }
@@ -161,6 +154,10 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
             if (category == null) {
                 throw new Exception("Missing category for source: " + sourceName);
             }
+        }
+        for (String sourceName : sourcesToCategorize) {
+            final Category category = categorizedSources.get(sourceName);
+
             transactionsDataAccessObject.addSourceCategory(new Source(sourceName), category);
         }
 
@@ -178,7 +175,7 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
             final double amount = tx.get("amount").getAsDouble();
             final String dateString = tx.get("date").getAsString();
             final Transaction transaction = new Transaction(new Source(sourceName), amount,
-                LocalDate.parse(dateString));
+                    LocalDate.parse(dateString));
             transactionsDataAccessObject.addTransaction(transaction);
         }
     }

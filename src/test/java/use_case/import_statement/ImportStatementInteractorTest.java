@@ -157,6 +157,21 @@ class ImportStatementInteractorTest {
     }
 
     @Test
+    void notJsonObjectinArray() {
+        InMemoryImportDAO dao = new InMemoryImportDAO();
+        Message message = new Message();
+        MockPresenter presenter = new MockPresenter(message);
+        ImportStatementInteractor interactor = new ImportStatementInteractor(dao, presenter,
+            new GeminiCategorizer(api_key));
+        ImportStatementInputData input = new ImportStatementInputData("src/test/java/mock_data2.json");
+
+        interactor.execute(input);
+        assertEquals("no transactions found", message.message);
+        assertTrue(dao.transactions.isEmpty());
+        assertTrue(dao.sources.isEmpty());
+    }
+
+    @Test
     void transactionMissingSource() {
         InMemoryImportDAO dao = new InMemoryImportDAO();
         Message message = new Message();
@@ -222,6 +237,28 @@ class ImportStatementInteractorTest {
         assertTrue(dao.sources.isEmpty());
     }
 
+    @Test
+    void nullCategory() {
+        InMemoryImportDAO dao = new InMemoryImportDAO();
+        Message message = new Message();
+        MockPresenter presenter = new MockPresenter(message);
+        Map<String,Category> sourceToCategories = new HashMap<>();
+        sourceToCategories.put("Uber", new Category("Transportation"));
+        sourceToCategories.put("Amazon", new Category("Shopping"));
+        sourceToCategories.put("Starbucks", new Category("Food and Dining"));
+        sourceToCategories.put("Employer", null);
+        MockCategorizer categorizer = new MockCategorizer(sourceToCategories);
+        ImportStatementInteractor interactor = new ImportStatementInteractor(dao, presenter, categorizer);
+
+        ImportStatementInputData input = new ImportStatementInputData("src/test/java/mock_data5.json");
+
+        interactor.execute(input);
+        assertEquals("could not categorize transactions", message.message);
+        assertTrue(dao.transactions.isEmpty());
+        assertTrue(dao.sources.isEmpty());
+
+
+    }
     @Test
     void successTestAllUncategorized() {
         InMemoryImportDAO dao = new InMemoryImportDAO();
