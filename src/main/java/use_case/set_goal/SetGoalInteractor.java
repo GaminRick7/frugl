@@ -53,7 +53,7 @@ public class SetGoalInteractor implements SetGoalInputBoundary {
 
                     // generate goal trees based on goals with deterministic coordinates
 
-                    final int seed = 123;
+                    final long seed = g.getMonth().hashCode() + g.getCategories().hashCode();
                     final Random rng = new Random(seed);
 
                     final int x = rng.nextInt(700);
@@ -76,5 +76,50 @@ public class SetGoalInteractor implements SetGoalInputBoundary {
             presenter.prepareFailView(errorMessage);
         }
 
+    }
+
+    /**
+     * Helper method for goal fetching and forest generation.
+     * @param newGoal The goal just saved (can be null for initial load).
+     * @param successMessage The message to show (can be null for initial load).
+     * @throws IOException if the file cannot be written or accessed
+     */
+
+    private void loadAndPresentForest(Goal newGoal, String successMessage) throws IOException {
+        final List<Goal> allGoals = goalDataAccess.getAll();
+        final List<Transaction> allTransactions = transactionDataAccess.getAll();
+        final List<GoalTree> forest = new ArrayList<>();
+
+        for (Goal g : allGoals) {
+
+            // generate goal trees based on goals with deterministic coordinates
+
+            final long seed = g.getMonth().hashCode() + g.getCategories().hashCode();
+            final Random rng = new Random(seed);
+
+            final int x = rng.nextInt(700);
+            final int y = rng.nextInt(500);
+            final GoalTree tree = new GoalTree(g, x, y);
+
+            tree.updateStatus(allTransactions);
+
+            forest.add(tree);
+        }
+
+        presenter.prepareSuccessView(new SetGoalOutputData(newGoal, forest, successMessage != null, successMessage));
+    }
+
+    /**
+     * This method is called once on application startup.
+     */
+    @Override
+    public void loadForest() {
+        try {
+            // Load and present the forest, using null for the message to keep it silent
+            loadAndPresentForest(null, null);
+        }
+        catch (IOException error) {
+            presenter.prepareFailView("An error occurred while loading forest: " + error.getMessage());
+        }
     }
 }

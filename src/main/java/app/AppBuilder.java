@@ -68,6 +68,8 @@ public class AppBuilder {
     private DashboardView dashboardView;
     private DashboardViewModel dashboardViewModel;
 
+    private SetGoalController setGoalController;
+
     /**
      * Creates a new builder.
      */
@@ -160,7 +162,8 @@ public class AppBuilder {
         final SetGoalOutputBoundary setGoalOutputBoundary = new SetGoalPresenter(setGoalViewModel);
         final SetGoalInputBoundary setGoalInputBoundary = new SetGoalInteractor(goalDataAccessObject,
                 transactionDataAccessObject, setGoalOutputBoundary);
-        final SetGoalController setGoalController = new SetGoalController(setGoalInputBoundary);
+
+        this.setGoalController = new SetGoalController(setGoalInputBoundary);
         goalView.setGoalController(setGoalController);
 
         return this;
@@ -207,6 +210,16 @@ public class AppBuilder {
     }
 
     /**
+     * Getter for the SetGoalController.
+     *
+     * @return the SetGoalController instance
+     */
+
+    public SetGoalController getSetGoalController() {
+        return this.setGoalController;
+    }
+
+    /**
      * Builds the application frame, shows the initial view, and returns it.
      *
      * @return a JFrame application frame ready to display
@@ -223,7 +236,7 @@ public class AppBuilder {
         }
 
         application.add(mainPanel);
-        viewManagerModel.setState(dashboardViewModel.getViewName());
+        viewManagerModel.setState(setGoalViewModel.getViewName());
         viewManagerModel.firePropertyChange();
         return application;
     }

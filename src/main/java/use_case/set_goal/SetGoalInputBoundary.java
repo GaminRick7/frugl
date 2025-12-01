@@ -7,4 +7,10 @@ public interface SetGoalInputBoundary {
      * @param inputData the input data required to set a goal
      */
     void execute(SetGoalInputData inputData);
+
+    /**
+     * Loads the Forest.
+     *
+     */
+    void loadForest();
 }

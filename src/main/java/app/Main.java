@@ -2,6 +2,7 @@ package app;
 
 import javax.swing.JFrame;
 
+import interface_adapter.set_goal.SetGoalController;
 import view.DashboardView;
 
 public class Main {
@@ -23,6 +24,11 @@ public class Main {
                 .addSetGoalView()
                 .addGoalUseCase()
                 .build();
+
+        final SetGoalController goalController = appBuilder.getSetGoalController();
+        if (goalController != null) {
+            goalController.loadForest();
+        }
 
         application.pack();
         application.setLocationRelativeTo(null);

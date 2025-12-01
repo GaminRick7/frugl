@@ -77,7 +77,11 @@ public class GoalDataAccessObject implements SetGoalDataAccessInterface, Autosav
 
     @Override
     public void saveGoal(Goal goal) {
-        goals.removeIf(geo -> geo.getMonth().equals(goal.getMonth()));
+        goals.removeIf(existingGoal -> {
+            return existingGoal.getMonth().equals(goal.getMonth())
+                    && existingGoal.getCategories().equals(goal.getCategories());
+        });
+
         goals.add(goal);
         save();
     }
