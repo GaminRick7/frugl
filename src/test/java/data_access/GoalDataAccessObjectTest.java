@@ -39,19 +39,14 @@ class GoalDataAccessObjectTest {
         }
     }
 
-    // --- Standard Success Tests ---
-// Assuming this test is integrated into your GoalDataAccessObjectTest class structure
 
     @Test
     void testLoad_IOExceptionTriggered() {
-        // Create a directory instead of a file
         Path dirPath = tempDir.resolve("dir_instead_of_file");
         dirPath.toFile().mkdir();
 
-        // Pass directory path as if it were a file
         GoalDataAccessObject daoWithDir = new GoalDataAccessObject(dirPath.toString());
 
-        // It should fall back to empty list and not throw
         assertNotNull(daoWithDir.getAll());
         assertTrue(daoWithDir.getAll().isEmpty());
     }
@@ -59,27 +54,20 @@ class GoalDataAccessObjectTest {
 
     @Test
     void testSave_CreatesParentDirectories() {
-        // 1. Define a file path that includes non-existent subdirectories
         Path nestedDirPath = tempDir.resolve("nonexistent_folder");
         Path nestedFilePath = nestedDirPath.resolve("goals_deep.json");
 
-        // 2. Instantiate DAO with the deep path
         GoalDataAccessObject daoNested = new GoalDataAccessObject(nestedFilePath.toString());
 
-        // 3. Save a goal (this triggers the save() method)
         Goal g = new Goal(YearMonth.of(2025, 1), 100);
         daoNested.saveGoal(g);
 
-        // 4. Verify that the parent directory was created and the file exists
         assertTrue(Files.exists(nestedDirPath), "The parent directory should have been created.");
         assertTrue(Files.exists(nestedFilePath), "The file should exist within the new directory.");
-
-        // Clean up the created directory afterward (handled by @TempDir, but good practice to check)
         try {
             Files.deleteIfExists(nestedFilePath);
             Files.deleteIfExists(nestedDirPath);
         } catch (IOException e) {
-            // Ignore cleanup failure
         }
     }
 
@@ -89,11 +77,6 @@ class GoalDataAccessObjectTest {
         class FaultyDAO extends GoalDataAccessObject {
             public FaultyDAO(String path) {
                 super(path);
-            }
-
-            @Override
-            protected FileReader createFileReader() throws IOException {
-                throw new IOException("Simulated IO failure");
             }
         }
 
@@ -167,15 +150,12 @@ class GoalDataAccessObjectTest {
 
     @Test
     void testSave_ThrowsRuntimeException_WhenWriteFails() {
-        // Create a directory where a file should be
-        // This forces new FileWriter() to fail with IOException
         Path badPath = tempDir.resolve("read_only_dir");
         badPath.toFile().mkdir();
 
         GoalDataAccessObject daoBad = new GoalDataAccessObject(badPath.toString());
         Goal g = new Goal(YearMonth.of(2025, 1), 100);
 
-        // Verify the RuntimeException wrapper is thrown
         Exception exception = assertThrows(RuntimeException.class, () -> {
             daoBad.saveGoal(g);
         });
@@ -185,20 +165,15 @@ class GoalDataAccessObjectTest {
 
     @Test
     void testRemoveIfExecutesWithCategories() {
-        // Create a category
         Category cat = new Category("Food");
 
-        // Save initial goal with a category
         Goal g1 = new Goal(YearMonth.of(2025, 1), List.of(cat), 100);
         dao.saveGoal(g1);
 
-        // Save another goal with the same month and same category
         Goal g2 = new Goal(YearMonth.of(2025, 1), List.of(cat), 999);
         dao.saveGoal(g2);
 
         List<Goal> allGoals = dao.getAll();
-
-        // Only one goal should exist, the second one replaced the first
         assertEquals(1, allGoals.size());
         assertEquals(999, allGoals.get(0).getGoalAmount());
     }

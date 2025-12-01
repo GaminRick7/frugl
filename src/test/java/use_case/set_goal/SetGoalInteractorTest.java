@@ -94,11 +94,8 @@ class SetGoalInteractorTest {
         Category food = new Category("Food");
         YearMonth m = YearMonth.of(2025, 1);
 
-        // First save
         Goal g1 = new Goal(m, List.of(food), 100);
         repo.saveGoal(g1);
-
-        // New input with SAME month + categories but different amount
         SetGoalInputData input = new SetGoalInputData(m, 300, List.of(food));
 
         SetGoalOutputBoundary presenter = new SetGoalOutputBoundary() {
