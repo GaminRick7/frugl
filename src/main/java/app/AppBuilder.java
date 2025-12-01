@@ -236,7 +236,7 @@ public class AppBuilder {
         }
 
         application.add(mainPanel);
-        viewManagerModel.setState(setGoalViewModel.getViewName());
+        viewManagerModel.setState(dashboardViewModel.getViewName());
         viewManagerModel.firePropertyChange();
         return application;
     }
