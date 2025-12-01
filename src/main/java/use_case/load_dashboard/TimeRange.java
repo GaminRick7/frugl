@@ -4,7 +4,7 @@ package use_case.load_dashboard;
  * Enum to specify time-ranges for time chart.
  */
 public enum TimeRange {
-    ONE_MONTH("Last 30 Days", 1),
+    ONE_MONTH("This Month", 1),
     THREE_MONTHS("3 Months", 3),
     SIX_MONTHS("6 Months", 6),
     TWELVE_MONTHS("12 Months", 12);
