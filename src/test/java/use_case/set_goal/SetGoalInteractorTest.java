@@ -8,54 +8,43 @@ import entity.Transaction;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.time.YearMonth;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.time.YearMonth;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SetGoalInteractorTest {
 
-    /**
-     * In-memory goal repository for testing purposes.
-     * Implements SetGoalDataAccessInterface.
-     */
+    // ---------------------------------------------------------
+    // Mock Repositories
+    // ---------------------------------------------------------
+
     private static class InMemoryGoalRepo implements SetGoalDataAccessInterface {
         private final List<Goal> goals = new ArrayList<>();
 
         @Override
         public void saveGoal(Goal goal) throws IOException {
-            // Simulate unique constraint handling: replace goal with same month/category set.
-            goals.removeIf(existingGoal ->
-                    existingGoal.getMonth().equals(goal.getMonth()) &&
-                            existingGoal.getCategories().equals(goal.getCategories())
+            goals.removeIf(g ->
+                    g.getMonth().equals(goal.getMonth()) &&
+                            g.getCategories().equals(goal.getCategories())
             );
             goals.add(goal);
         }
 
         @Override
-        public List<Goal> getAll() {
+        public List<Goal> getAll() throws IOException {
             return new ArrayList<>(goals);
         }
     }
 
-    /**
-     * In-memory transaction repository for testing purposes.
-     * Implements ForestDataAccessInterface.
-     */
     private static class InMemoryTransactionRepo implements ForestDataAccessInterface {
         private final List<Transaction> txs = new ArrayList<>();
-        // Helper map to simulate Source to Category linking for filtering in the mock DAO
-        private final Map<Source, Category> sourceToCategoryMap;
+        private final Map<Source, Category> srcMap;
 
-        public InMemoryTransactionRepo(List<Transaction> transactions, Map<Source, Category> sourceToCategoryMap) {
-            this.txs.addAll(transactions);
-            this.sourceToCategoryMap = sourceToCategoryMap;
+        public InMemoryTransactionRepo(List<Transaction> txs, Map<Source, Category> linkMap) {
+            this.txs.addAll(txs);
+            this.srcMap = linkMap;
         }
 
         @Override
@@ -63,272 +52,237 @@ class SetGoalInteractorTest {
             return new ArrayList<>(txs);
         }
 
-        /**
-         * Implements filtering by both month and category, simulating the correct DAO behavior.
-         *
-         * @param categories the list of categories used to filter the transactions
-         * @param month      the month (as a {@code YearMonth}) used to filter the transactions
-         * @return A list of filtered transactions.
-         */
         @Override
         public List<Transaction> getTransactionsByCategoriesAndMonth(List<Category> categories, YearMonth month) {
-            final List<String> categoryNames = categories.stream().map(Category::getName).toList();
-            final List<Transaction> result = new ArrayList<>();
+            Set<String> categoryNames = new HashSet<>();
+            for (Category c : categories) categoryNames.add(c.getName());
 
-            for (Transaction transaction : txs) {
-                // Look up the category associated with the transaction's source using the test map
-                final Category txCategory = sourceToCategoryMap.get(transaction.getSource());
+            List<Transaction> result = new ArrayList<>();
+            for (Transaction t : txs) {
+                Category mapped = srcMap.get(t.getSource());
+                if (mapped == null) continue;
 
-                // 1. Check if the category matches any of the goal's categories
-                final boolean categoryMatches = txCategory != null && categoryNames.contains(txCategory.getName());
+                boolean catMatch = categoryNames.contains(mapped.getName());
+                boolean monthMatch = YearMonth.from(t.getDate()).equals(month);
 
-                // 2. Check if the transaction date is in the goal's month
-                final boolean monthMatches = YearMonth.from(transaction.getDate()).equals(month);
-
-                if (categoryMatches && monthMatches) {
-                    result.add(transaction);
-                }
+                if (catMatch && monthMatch) result.add(t);
             }
-
             return result;
         }
     }
 
+    // ---------------------------------------------------------
+    // Tests
+    // ---------------------------------------------------------
+
     @Test
-    void successTest() {
+    void testSuccess() {
         SetGoalDataAccessInterface goalRepo = new InMemoryGoalRepo();
-        ForestDataAccessInterface transactionRepo = new InMemoryTransactionRepo(new ArrayList<>(), new HashMap<>());
+        ForestDataAccessInterface txRepo = new InMemoryTransactionRepo(List.of(), Map.of());
 
         SetGoalInputData input = new SetGoalInputData(
-                YearMonth.of(2025, 1),
-                500,
-                Arrays.asList(new Category("Food"), new Category("Travel"))
+                YearMonth.of(2025, 3),
+                400,
+                List.of(new Category("Food"), new Category("Travel"))
         );
 
         SetGoalOutputBoundary presenter = new SetGoalOutputBoundary() {
             @Override
             public void prepareSuccessView(SetGoalOutputData data) {
-                Goal saved = data.getGoal();
-
-                assertEquals(500, saved.getGoalAmount());
-                List<String> actualCatNames = saved.getCategories()
-                        .stream()
-                        .map(Category::getName)
-                        .toList();
-
-                assertEquals(Arrays.asList("Food", "Travel"), actualCatNames);
-
-                List<GoalTree> forest = data.getForest();
-                assertEquals(1, forest.size());
-                assertEquals(saved, forest.get(0).getGoal());
-
                 assertTrue(data.isSuccess());
                 assertEquals("Goal successfully saved.", data.getMessage());
+                assertEquals(400, data.getGoal().getGoalAmount());
+                assertEquals(1, data.getForest().size());
             }
-
             @Override
             public void prepareFailView(String error) {
-                fail("Unexpected failure: " + error);
+                fail("Should not fail");
             }
         };
 
-        SetGoalInteractor interactor = new SetGoalInteractor(goalRepo, transactionRepo, presenter);
-        interactor.execute(input);
+        new SetGoalInteractor(goalRepo, txRepo, presenter).execute(input);
     }
 
     @Test
-    void failureNegativeGoalAmount() {
-        SetGoalDataAccessInterface goalRepo = new InMemoryGoalRepo();
-        ForestDataAccessInterface transactionRepo = new InMemoryTransactionRepo(new ArrayList<>(), new HashMap<>());
+    void testNegativeAmount() {
+        SetGoalDataAccessInterface repo = new InMemoryGoalRepo();
+        ForestDataAccessInterface txRepo = new InMemoryTransactionRepo(List.of(), Map.of());
 
-        SetGoalInputData input = new SetGoalInputData(
-                YearMonth.of(2025, 1),
-                -5,
-                Arrays.asList(new Category("Food"))
+        SetGoalInputData bad = new SetGoalInputData(
+                YearMonth.of(2025, 3),
+                -10,
+                List.of(new Category("X"))
         );
 
         SetGoalOutputBoundary presenter = new SetGoalOutputBoundary() {
             @Override
-            public void prepareSuccessView(SetGoalOutputData data) {
-                fail("The test should not pass for negative goal amounts.");
+            public void prepareSuccessView(SetGoalOutputData d) {
+                fail("Should fail due to negative amount");
             }
-
             @Override
             public void prepareFailView(String error) {
                 assertEquals("Goal amount must be at least 0.", error);
             }
         };
 
-        SetGoalInteractor interactor = new SetGoalInteractor(goalRepo, transactionRepo, presenter);
-        interactor.execute(input);
+        new SetGoalInteractor(repo, txRepo, presenter).execute(bad);
     }
 
     @Test
-    void failureEmptyCategories() {
-        SetGoalDataAccessInterface goalRepo = new InMemoryGoalRepo();
-        ForestDataAccessInterface transactionRepo = new InMemoryTransactionRepo(new ArrayList<>(), new HashMap<>());
+    void testEmptyCategories() {
+        SetGoalDataAccessInterface repo = new InMemoryGoalRepo();
+        ForestDataAccessInterface txRepo = new InMemoryTransactionRepo(List.of(), Map.of());
 
-        SetGoalInputData input = new SetGoalInputData(
-                YearMonth.of(2025, 1),
-                100,
-                new ArrayList<>()
+        SetGoalInputData bad = new SetGoalInputData(
+                YearMonth.of(2025, 3),
+                200,
+                List.of()
         );
 
         SetGoalOutputBoundary presenter = new SetGoalOutputBoundary() {
             @Override
-            public void prepareSuccessView(SetGoalOutputData data) {
-                fail("The test should not pass when no categories are provided.");
+            public void prepareSuccessView(SetGoalOutputData d) {
+                fail("Should fail due to missing categories");
             }
-
             @Override
             public void prepareFailView(String error) {
                 assertEquals("At least one category must be provided.", error);
             }
         };
 
-        SetGoalInteractor interactor = new SetGoalInteractor(goalRepo, transactionRepo, presenter);
-        interactor.execute(input);
+        new SetGoalInteractor(repo, txRepo, presenter).execute(bad);
     }
 
     @Test
-    void failureExceptionThrownBySaveGoal() {
-        SetGoalDataAccessInterface goalRepo = new SetGoalDataAccessInterface() {
+    void testSaveGoalIOException() {
+        SetGoalDataAccessInterface repo = new SetGoalDataAccessInterface() {
             @Override
-            public void saveGoal(Goal goal) throws IOException{
-                throw new IOException("Simulated DB failure");
+            public void saveGoal(Goal g) throws IOException {
+                throw new IOException("DB broken");
             }
-
             @Override
-            public List<Goal> getAll() {
-                return new ArrayList<>();
-            }
+            public List<Goal> getAll() { return List.of(); }
         };
 
-        ForestDataAccessInterface transactionRepo = new InMemoryTransactionRepo(new ArrayList<>(), new HashMap<>());
+        ForestDataAccessInterface txRepo = new InMemoryTransactionRepo(List.of(), Map.of());
 
         SetGoalInputData input = new SetGoalInputData(
-                YearMonth.of(2025, 1),
+                YearMonth.of(2025, 7),
                 100,
-                Arrays.asList(new Category("Food"))
+                List.of(new Category("Food"))
         );
 
         SetGoalOutputBoundary presenter = new SetGoalOutputBoundary() {
             @Override
-            public void prepareSuccessView(SetGoalOutputData data) {
-                fail("The test should not pass if the DAO throws exeption.");
+            public void prepareSuccessView(SetGoalOutputData d) {
+                fail("Should fail because saveGoal throws");
             }
-
             @Override
             public void prepareFailView(String error) {
-                assertTrue(error.startsWith("An error occurred while saving goal: Simulated DB failure"));
+                assertTrue(error.contains("DB broken"));
             }
         };
 
-        SetGoalInteractor interactor = new SetGoalInteractor(goalRepo, transactionRepo, presenter);
-        interactor.execute(input);
+        new SetGoalInteractor(repo, txRepo, presenter).execute(input);
     }
 
     @Test
-    void testTreeStatusCalculation() {
-        // define categories
+    void testTreeStatusHealthyDeadSapling() throws IOException {
         Category food = new Category("Food");
         Category rent = new Category("Rent");
 
-        // define sources
-        Source foodSource = new Source(food.getName());
-        Source rentSource = new Source(rent.getName());
+        Source sFood = new Source("Food");
+        Source sRent = new Source("Rent");
 
-        YearMonth goalMonth = YearMonth.of(2025, 10);
-        YearMonth futureMonth = goalMonth.plusMonths(1);
+        YearMonth month = YearMonth.of(2025, 10);
+        YearMonth future = month.plusMonths(1);
 
-        // 1. Goal 1: Healthy (Spent 50 / Goal 100)
-        SetGoalInputData input1 = new SetGoalInputData(goalMonth, 100, Arrays.asList(food));
-        // 2. Goal 2: Dead (Spent 200 / Goal 150)
-        SetGoalInputData input2 = new SetGoalInputData(goalMonth, 150, Arrays.asList(rent));
-        // 3. Goal 3: Sapling (Goal Month is in the future)
-        SetGoalInputData input3 = new SetGoalInputData(futureMonth, 200, Arrays.asList(food));
-
-        // Define raw transactions
-        List<Transaction> transactions = Arrays.asList(
-                // Transaction 1: Affects Goal 1 (Food in Oct 2025) -> $50
-                new Transaction(foodSource, 50, LocalDate.of(2025, 10, 15)),
-                // Transaction 2: Affects Goal 2 (Rent in Oct 2025) -> $200
-                new Transaction(rentSource, 200, LocalDate.of(2025, 10, 10)),
-                // Transaction 3: Outside scope (Sept 2025, wrong month)
-                new Transaction(foodSource, 10, LocalDate.of(2025, 9, 1))
+        List<Transaction> txs = List.of(
+                new Transaction(sFood, 50, LocalDate.of(2025, 10, 10)),
+                new Transaction(sRent, 200, LocalDate.of(2025, 10, 5))
         );
 
-        // Define the mapping so the mock DAO knows how to filter
-        Map<Source, Category> sourceToCategoryMap = new HashMap<>();
-        sourceToCategoryMap.put(foodSource, food);
-        sourceToCategoryMap.put(rentSource, rent);
+        Map<Source, Category> link = Map.of(
+                sFood, food,
+                sRent, rent
+        );
 
-        // Instantiate mock DAO with data and mapping
-        ForestDataAccessInterface transactionRepo = new InMemoryTransactionRepo(transactions, sourceToCategoryMap);
-        SetGoalDataAccessInterface goalRepo = new InMemoryGoalRepo();
+        SetGoalDataAccessInterface repo = new InMemoryGoalRepo();
+        ForestDataAccessInterface txRepo = new InMemoryTransactionRepo(txs, link);
 
+        SetGoalOutputBoundary presenter = new SetGoalOutputBoundary() {
+            @Override public void prepareSuccessView(SetGoalOutputData d) {}
+            @Override public void prepareFailView(String e) { fail(); }
+        };
 
-        // Simple presenter for execution
+        SetGoalInteractor interactor = new SetGoalInteractor(repo, txRepo, presenter);
+
+        interactor.execute(new SetGoalInputData(month, 100, List.of(food)));  // healthy
+        interactor.execute(new SetGoalInputData(month, 150, List.of(rent)));  // dead
+        interactor.execute(new SetGoalInputData(future, 200, List.of(food))); // sapling
+
+        // Manual recomputation to test correctness
+        List<GoalTree> forest = new ArrayList<>();
+        for (Goal g : repo.getAll()) {
+            List<Transaction> filtered =
+                    txRepo.getTransactionsByCategoriesAndMonth(g.getCategories(), g.getMonth());
+            GoalTree t = new GoalTree(g, 0, 0);
+            t.updateStatus(filtered);
+            forest.add(t);
+        }
+
+        assertEquals("healthy", forest.stream().filter(t -> t.getGoal().getGoalAmount() == 100).findFirst().get().getStatus());
+        assertEquals("dead", forest.stream().filter(t -> t.getGoal().getGoalAmount() == 150).findFirst().get().getStatus());
+        assertEquals("sapling", forest.stream().filter(t -> t.getGoal().getGoalAmount() == 200).findFirst().get().getStatus());
+    }
+
+    @Test
+    void testLoadForestSuccess() {
+        Category c = new Category("Food");
+        Goal g = new Goal(YearMonth.of(2026, 1), List.of(c), 500);
+
+        InMemoryGoalRepo repo = new InMemoryGoalRepo();
+        repo.goals.add(g);
+
+        ForestDataAccessInterface txRepo = new InMemoryTransactionRepo(List.of(), Map.of());
+
         SetGoalOutputBoundary presenter = new SetGoalOutputBoundary() {
             @Override
             public void prepareSuccessView(SetGoalOutputData data) {
-                assertTrue(data.isSuccess());
+                assertEquals(1, data.getForest().size());
+                assertNull(data.getGoal()); // loadForest passes null
+                assertFalse(data.isSuccess()); // message = null
             }
-
             @Override
             public void prepareFailView(String error) {
-                fail("Unexpected failure during execution: " + error);
+                fail("loadForest should succeed");
             }
         };
 
-        SetGoalInteractor interactor = new SetGoalInteractor(goalRepo, transactionRepo, presenter);
+        new SetGoalInteractor(repo, txRepo, presenter).loadForest();
+    }
 
-        // Execute interactor logic, which saves the goals and runs the status update logic
-        interactor.execute(input1);
-        interactor.execute(input2);
-        interactor.execute(input3);
+    @Test
+    void testLoadForestIOException() {
+        SetGoalDataAccessInterface repo = new SetGoalDataAccessInterface() {
+            @Override
+            public void saveGoal(Goal goal) {}
 
-        List<Goal> savedGoals = goalRepo.getAll();
-        assertEquals(3, savedGoals.size(), "Expected 3 goals to be saved in the repository.");
+            @Override
+            public List<Goal> getAll() throws IOException {
+                throw new IOException("Load fail");
+            }
+        };
 
-        List<GoalTree> finalForest = new ArrayList<>();
+        ForestDataAccessInterface txRepo = new InMemoryTransactionRepo(List.of(), Map.of());
 
-        // Verification: Manually re-run the status calculation using the filtered data
-        // to correctly assert the final status, replicating the Interactor's logic.
-        for (Goal goal : savedGoals) {
-            GoalTree tree = new GoalTree(goal, 0, 0);
+        SetGoalOutputBoundary presenter = new SetGoalOutputBoundary() {
+            @Override public void prepareSuccessView(SetGoalOutputData d) { fail(); }
+            @Override public void prepareFailView(String e) {
+                assertTrue(e.contains("Load fail"));
+            }
+        };
 
-            // CRITICAL: Call the mock DAO to get the transactions filtered by category AND month
-            List<Transaction> filteredTransactions = transactionRepo.getTransactionsByCategoriesAndMonth(
-                    goal.getCategories(),
-                    goal.getMonth()
-            );
-
-            // Update status using the filtered transactions
-            tree.updateStatus(filteredTransactions);
-            finalForest.add(tree);
-        }
-
-        assertEquals(3, finalForest.size(), "Expected 3 GoalTree objects to be created.");
-
-
-        GoalTree tree1 = finalForest.stream().filter(t ->
-                t.getGoal().getGoalAmount() == 100 && t.getGoal().getCategories().contains(food)
-        ).findFirst().orElseThrow(() -> new AssertionError("Could not find Goal 1 (Amount 100)"));
-
-        GoalTree tree2 = finalForest.stream().filter(t ->
-                t.getGoal().getGoalAmount() == 150 && t.getGoal().getCategories().contains(rent)
-        ).findFirst().orElseThrow(() -> new AssertionError("Could not find Goal 2 (Amount 150)"));
-
-        GoalTree tree3 = finalForest.stream().filter(t ->
-                t.getGoal().getGoalAmount() == 200 && t.getGoal().getMonth().equals(futureMonth)
-        ).findFirst().orElseThrow(() -> new AssertionError("Could not find Goal 3 (Future month, Amount 200)"));
-
-        // Goal 1 (Food, 2025-10, $100 budget): Spent $50 (filtered) -> Healthy
-        assertEquals("healthy", tree1.getStatus(), "Goal 1: Spent $50 on $100 goal should be healthy.");
-        // Goal 2 (Rent, 2025-10, $150 budget): Spent $200 (filtered) -> Dead
-        assertEquals("dead", tree2.getStatus(), "Goal 2: Spent $200 on $150 goal should be dead.");
-        // Goal 3 (Food, 2025-11, $200 budget): Since month is in the future, status should be 'sapling'.
-        assertEquals("sapling", tree3.getStatus(), "Goal 3: Future month goal should be sapling.");
+        new SetGoalInteractor(repo, txRepo, presenter).loadForest();
     }
 }

@@ -96,7 +96,7 @@ public class GoalTree {
 
         final float goalAmount = goal.getGoalAmount();
 
-        if (currentMonth.isBefore(goalMonth)) {
+        if (currentMonth.isBefore(goalMonth) || currentMonth.equals(goalMonth)) {
             this.status = "sapling";
         }
         else if (spent <= goalAmount) {
