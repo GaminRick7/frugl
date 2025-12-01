@@ -1,9 +1,12 @@
 package view;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.CardLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import interface_adapter.ViewManagerModel;
 
 /**
@@ -26,12 +29,12 @@ public class ViewManager implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         switch (evt.getPropertyName()) {
             case "state":
-                String newState = (String) evt.getNewValue();
+                final String newState = (String) evt.getNewValue();
                 cardLayout.show(views, newState);
                 break;
 
             case "popup":
-                String message = (String) evt.getNewValue();
+                final String message = (String) evt.getNewValue();
                 JOptionPane.showMessageDialog(null, message);
                 break;
         }

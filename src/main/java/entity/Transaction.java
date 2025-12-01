@@ -1,10 +1,14 @@
 package entity;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.time.LocalDate;
 
+import com.google.gson.annotations.SerializedName;
+
+/**
+ * Transaction Entity.
+ */
 public class Transaction {
+
     @SerializedName("date")
     private final LocalDate date;
     
@@ -14,25 +18,22 @@ public class Transaction {
     @SerializedName("amount")
     private final double amount;
 
-
-    //create transaction class with category
+    // Create transaction class with category
     public Transaction(Source source, double amount, LocalDate date) {
         this.date = date;
         this.source = source;
         this.amount = amount;
-
     }
 
-    public double getAmount(){
+    public double getAmount() {
         return this.amount;
     }
 
-    public Source getSource(){
+    public Source getSource() {
         return this.source;
     }
 
     public LocalDate getDate() {
         return this.date;
     }
-
 }

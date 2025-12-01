@@ -27,6 +27,9 @@ import interface_adapter.ViewManagerModel;
 import interface_adapter.dashboard.DashboardController;
 import interface_adapter.dashboard.DashboardState;
 import interface_adapter.dashboard.DashboardViewModel;
+import interface_adapter.import_statement.ImportStatementViewModel;
+import interface_adapter.set_goal.SetGoalViewModel;
+import interface_adapter.view_transaction.ViewTransactionViewModel;
 import use_case.load_dashboard.TimeRange;
 
 /**
@@ -195,12 +198,12 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
 
         // 3. Goal Button
         final JButton goalViewButton = new JButton("View Goals");
-        importStatementButton.addActionListener(event -> onGoalViewClicked());
+        goalViewButton.addActionListener(event -> onGoalViewClicked());
         bottomPanel.add(goalViewButton);
 
         // 4. View Transactions Button
         final JButton viewTransactionsButton = new JButton("View Transactions");
-        importStatementButton.addActionListener(event -> onViewTransactionsClicked());
+        viewTransactionsButton.addActionListener(event -> onViewTransactionsClicked());
         bottomPanel.add(viewTransactionsButton);
 
         return bottomPanel;
@@ -264,18 +267,18 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
     }
 
     private void onImportStatementClicked() {
-        viewManagerModel.setState("import statement");
+        viewManagerModel.setState(ImportStatementViewModel.VIEW_NAME);
         viewManagerModel.firePropertyChange();
     }
 
     private void onGoalViewClicked() {
-        viewManagerModel.setState("view goals");
+        viewManagerModel.setState(SetGoalViewModel.VIEW_NAME);
         viewManagerModel.firePropertyChange();
 
     }
 
     private void onViewTransactionsClicked() {
-        viewManagerModel.setState("view transactions");
+        viewManagerModel.setState(ViewTransactionViewModel.VIEW_NAME);
         viewManagerModel.firePropertyChange();
     }
 }

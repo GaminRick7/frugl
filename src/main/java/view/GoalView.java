@@ -20,6 +20,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import entity.GoalTree;
+import interface_adapter.ViewManagerModel;
+import interface_adapter.dashboard.DashboardViewModel;
 import interface_adapter.set_goal.SetGoalController;
 import interface_adapter.set_goal.SetGoalState;
 import interface_adapter.set_goal.SetGoalViewModel;
@@ -30,14 +32,16 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
     private static final Color FOREST_BACKGROUND_COLOR = new Color(191, 246, 191);
     private static final int VERTICAL_STRUT = 10;
 
-    private final SetGoalViewModel viewModel;
-    private SetGoalController controller;
+    private final transient SetGoalViewModel viewModel;
+    private final transient ViewManagerModel viewManagerModel;
+    private transient SetGoalController controller;
 
     private final ForestPanel forestPanel;
     private final JButton setGoalButton;
 
-    public GoalView(SetGoalViewModel viewModel) {
+    public GoalView(SetGoalViewModel viewModel, ViewManagerModel viewManagerModel) {
         this.viewModel = viewModel;
+        this.viewManagerModel = viewManagerModel;
         this.viewModel.addPropertyChangeListener(this);
 
         this.setLayout(new BorderLayout());
@@ -51,6 +55,14 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
         setGoalButton = UserInterfaceFactory.createButton(SetGoalState.SET_GOAL_BUTTON_LABEL, this);
         final JPanel buttonPanel = new JPanel();
         buttonPanel.add(setGoalButton);
+
+        final JButton backButton = new JButton("Back");
+        backButton.addActionListener(evt -> {
+            viewManagerModel.setState(DashboardViewModel.VIEW_NAME);
+            viewManagerModel.firePropertyChange();
+        });
+        buttonPanel.add(backButton);
+
         this.add(buttonPanel, BorderLayout.SOUTH);
     }
 
@@ -83,9 +95,9 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
 
     // Inner class for rendering the forest
     private class ForestPanel extends JPanel {
-        private BufferedImage saplingImage;
-        private BufferedImage healthyImage;
-        private BufferedImage deadImage;
+        private transient BufferedImage saplingImage;
+        private transient BufferedImage healthyImage;
+        private transient BufferedImage deadImage;
 
         ForestPanel() {
             this.setBackground(FOREST_BACKGROUND_COLOR);

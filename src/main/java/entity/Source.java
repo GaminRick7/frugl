@@ -1,6 +1,10 @@
 package entity;
 
+/**
+ * Source Entity.
+ */
 public class Source {
+
     private final String name;
 
     public Source(String name) {

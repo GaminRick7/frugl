@@ -1,5 +1,8 @@
 package entity;
 
+/**
+ * Category Entity.
+ */
 public class Category {
 
     private String name;

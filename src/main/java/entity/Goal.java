@@ -4,12 +4,13 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Goal Entity.
+ */
 public class Goal {
 
     private YearMonth yearMonth;
-
-    private List<Category> categories;
-
+    private final List<Category> categories;
     private float goalAmount;
 
     public Goal(YearMonth yearMonth, float goalAmount) {
@@ -55,7 +56,7 @@ public class Goal {
      */
 
     public boolean removeCategory(Category category) {
-        Boolean result = false;
+        boolean result = false;
 
         if (categories.contains(category)) {
             categories.remove(category);

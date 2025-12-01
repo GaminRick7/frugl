@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
  * Uses QuickChart.io API.
  */
 public class TimeChartRenderer implements ChartRenderer<ProcessedTimeChartData> {
-    private static final String DELIMITER = ";";
+    private static final String DELIMITER = ",";
 
     @Override
     public Image render(ProcessedTimeChartData data) throws IOException {
@@ -53,13 +53,31 @@ public class TimeChartRenderer implements ChartRenderer<ProcessedTimeChartData> 
             chartConfig = "{\"type\": \"bar\","
                     + "\"data\": {"
                     + "\"labels\": [" + labels + "], \"datasets\": ["
-                    + "{\"label\": \"Income\","
-                    + "\"data\": [" + incomeValues + "], \"backgroundColor\": \"#4BC0C0\""
-                    + "},{"
-                    + "\"label\": \"Expenses\","
-                    + "\"data\": [" + expenseValues + "], \"backgroundColor\": \"#FF6384\""
+                    + "{"
+                    + "\"label\": \"Income\", \"data\": [" + incomeValues + "], \"backgroundColor\": \"#4BC0C0\""
+                    + "},"
+                    + "{"
+                    + "\"label\": \"Expenses\", \"data\": [" + expenseValues + "], \"backgroundColor\": \"#FF6384\""
                     + "}]},"
-                    + "\"options\": {\"scales\": {\"yAxes\": [{ \"ticks\": { \"beginAtZero\": true } }]}}}";
+                    + "\"options\": {"
+                    + "\"layout\": {"
+                    + "\"padding\": 30"
+                    + "},"
+                    + "\"legend\": { \"display\": true },"
+                    + "\"scales\": {"
+                    + "\"xAxes\": [{"
+                    + "\"stacked\": true,"
+                    + "\"barPercentage\": 0.7,"
+                    + "\"ticks\": { \"autoSkip\": false, \"minRotation\": 45 },"
+                    + "\"gridLines\": { \"display\": false }"
+                    + "}],"
+                    + "\"yAxes\": [{"
+                    + "\"stacked\": true,"
+                    + "\"ticks\": {"
+                    + "\"beginAtZero\": true,"
+                    + "\"suggestedMax\": 10,"
+                    + "\"suggestedMin\": -10"
+                    + "}}]}}}";
         }
 
         final String encodedConfig = URLEncoder.encode(chartConfig, StandardCharsets.UTF_8);

@@ -1,10 +1,8 @@
 package use_case.load_dashboard;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,8 +32,8 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
 
         final List<Transaction> pieRawData = transactionDataAccessObject.getByDateRange(inputData.getStartDate(),
                 inputData.getEndDate());
-        final List<Transaction> timeRawData = transactionDataAccessObject.getByDateRange(currentDate,
-                inputData.getCurrentDate().minusMonths(timeRange.getValue()));
+        final List<Transaction> timeRawData = transactionDataAccessObject.getByDateRange(
+                currentDate.minusMonths(timeRange.getValue()), currentDate);
 
         final ProcessedPieChartData pieChartData = processPieChartData(pieRawData);
         final ProcessedTimeChartData timeChartData = processTimeChartData(timeRawData, timeRange);
@@ -50,51 +48,40 @@ public class LoadDashboardInteractor implements LoadDashboardInputBoundary {
                 // filter for expenses only
                 .collect(Collectors.groupingBy(
                         transaction -> transactionDataAccessObject.getSourceCategory(transaction.getSource()).getName(),
-                        Collectors.summingDouble(transaction -> Math.abs(transaction.getAmount()))
+                        Collectors.summingDouble(Transaction::getAmount)
         ));
         return new ProcessedPieChartData(categoryValues);
     }
 
     private ProcessedTimeChartData processTimeChartData(List<Transaction> transactions, TimeRange timeRange) {
         final int monthRange = timeRange.getValue();
-
-        final List<String> labels = new ArrayList<>();
-        final Map<String, Integer> labelToIndex = new HashMap<>();
-
-        final SimpleDateFormat monthFormat = new SimpleDateFormat("MMM");
-        final Calendar calendar = Calendar.getInstance();
-
-        calendar.add(Calendar.MONTH, -(monthRange - 1));
-
-        for (int i = 0; i < monthRange; i++) {
-            final String label = monthFormat.format(calendar.getTime());
-            labels.add(label);
-            labelToIndex.put(label, i);
-            calendar.add(Calendar.MONTH, 1);
-        }
-
-        final double[] incomeArray = new double[monthRange];
-        final double[] expenseArray = new double[monthRange];
-
-        for (Transaction transaction : transactions) {
-            final String bucketLabel = monthFormat.format(transaction.getDate());
-            if (labelToIndex.containsKey(bucketLabel)) {
-                final int index = labelToIndex.get(bucketLabel);
-
-                if (transaction.getAmount() > 0) {
-                    incomeArray[index] += transaction.getAmount();
-                }
-                else {
-                    expenseArray[index] += transaction.getAmount();
-                }
-            }
-        }
-
         final List<DataPoint> dataPoints = new ArrayList<>();
-        for (int i = 0; i < monthRange; i++) {
-            dataPoints.add(new DataPoint(labels.get(i), incomeArray[i], expenseArray[i]));
-        }
 
+        final DateTimeFormatter monthFormat = DateTimeFormatter.ofPattern("MMM");
+        final LocalDate today = LocalDate.now();
+
+        for (int i = monthRange - 1; i >= 0; i--) {
+            final LocalDate stepDate = today.minusMonths(i);
+            final String label = stepDate.format(monthFormat);
+
+            final double incomeSum = transactions.stream()
+                    .filter(transaction -> isSameMonth(transaction.getDate(), stepDate))
+                    .filter(transaction -> transaction.getAmount() > 0)
+                    .mapToDouble(Transaction::getAmount)
+                    .sum();
+
+            final double expenseSum = transactions.stream()
+                    .filter(transaction -> isSameMonth(transaction.getDate(), stepDate))
+                    .filter(transaction -> transaction.getAmount() < 0)
+                    .mapToDouble(Transaction::getAmount)
+                    .sum();
+
+            dataPoints.add(new DataPoint(label, incomeSum, expenseSum));
+        }
         return new ProcessedTimeChartData(dataPoints);
+    }
+
+    private boolean isSameMonth(LocalDate date1, LocalDate date2) {
+        return date1.getYear() == date2.getYear() && date1.getMonth() == date2.getMonth();
     }
 }

@@ -41,7 +41,8 @@ public class PieChartRenderer implements ChartRenderer<ProcessedPieChartData> {
                     .collect(Collectors.joining(", "));
 
             final String values = categories.values().stream()
-                    .map(String::valueOf)
+                    .map(Math::abs)
+                    .map(value -> String.format("%.2f", value))
                     .collect(Collectors.joining(","));
 
             chartConfig = "{"

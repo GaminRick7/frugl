@@ -23,6 +23,9 @@ import use_case.load_dashboard.LoadDashboardDataAccessInterface;
 import use_case.set_goal.ForestDataAccessInterface;
 import use_case.view_transactions.ViewTransactionDataAccessInterface;
 
+/**
+ * Data Access Object for Transactions.
+ */
 public class TransactionDataAccessObject implements AutosaveDataAccessInterface,
         LoadDashboardDataAccessInterface, ImportStatementDataAccessInterface,
         ForestDataAccessInterface, ViewTransactionDataAccessInterface {
@@ -208,18 +211,19 @@ public class TransactionDataAccessObject implements AutosaveDataAccessInterface,
     /**
      * Adds a source-category mapping.
      *
-     * @param source the source
-     * @param category the category to map to
+     * @param source The source to be added.
+     * @param category The category to map to.
      */
     public void addSourceCategory(Source source, Category category) {
         sourceToCategoryMap.put(source, category);
+        save();
     }
 
     /**
      * Gets the category for a source.
      *
-     * @param source the source
-     * @return the category associated with the source, or null if not found
+     * @param source The source to be looked up.
+     * @return Category The category associated with the source, or null if not found.
      */
     public Category getSourceCategory(Source source) {
         return sourceToCategoryMap.get(source);

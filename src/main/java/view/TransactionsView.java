@@ -1,61 +1,69 @@
 package view;
-import interface_adapter.dashboard.DashboardState;
-import interface_adapter.view_transaction.ViewTransactionController;
-import interface_adapter.view_transaction.ViewTransactionState;
-import interface_adapter.view_transaction.ViewTransactionViewModel;
-import use_case.load_dashboard.TimeRange;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.LinkedHashMap;
 import java.util.List;
-import javax.swing.SwingUtilities;
-import javax.swing.*;
+import java.util.Map;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import interface_adapter.ViewManagerModel;
+import interface_adapter.dashboard.DashboardViewModel;
+import interface_adapter.view_transaction.ViewTransactionController;
+import interface_adapter.view_transaction.ViewTransactionState;
+import interface_adapter.view_transaction.ViewTransactionViewModel;
+
+/**
+ * View for the View Transactions Use Case.
+ */
 public class TransactionsView extends JPanel implements ActionListener, PropertyChangeListener {
 
-    //initialize all the compoents in CA
-    private final String viewName = "view transaction";
-    private final ViewTransactionViewModel viewTransactionViewModel;
+    private static final int ROW_HEIGHT = 40;
 
-    private ViewTransactionController viewTransactionController;
+    // Initialize all the components in CA
+    private static final String VIEW_TRANSACTION_VIEW_NAME = "view transaction";
+    private final transient ViewTransactionViewModel viewTransactionViewModel;
+    private final transient ViewManagerModel viewManagerModel;
+    private transient ViewTransactionController viewTransactionController;
 
-    //master Frame made up of all JPanel
+    // Master Frame made up of all JPanel
 
-    //componets for my view
+    // Components for my view
     private final JPanel transactionTilesBlock = new JPanel();
     private JComboBox<String> dropdownMonth;
     private JComboBox<String> dropdownYear;
 
-
-    //dropDown data
-    private final Map<String, String> dropdownMonthLabels = new LinkedHashMap<>(); //searched up online for Reference
+    // Dropdown data
+    private final Map<String, String> dropdownMonthLabels = new LinkedHashMap<>();
     private final String[] dropdownYearList = {"2025", "2024", "2023"};
 
-
-    public TransactionsView (ViewTransactionViewModel viewTransactionViewModel) {
-        this.viewTransactionViewModel= viewTransactionViewModel;
+    public TransactionsView(ViewTransactionViewModel viewTransactionViewModel, ViewManagerModel viewManagerModel) {
+        this.viewTransactionViewModel = viewTransactionViewModel;
+        this.viewManagerModel = viewManagerModel;
         this.viewTransactionViewModel.addPropertyChangeListener(this);
         this.setLayout(new BorderLayout());
 
         populateDropDown();
-
         buildContainer();
-
     }
 
-
-    public void populateDropDown(){
+    /**
+     * Populate the dropdown select option.
+     */
+    public void populateDropDown() {
         // Using LinkedHashMap to preserve insertion order (Jan -> Dec)
         dropdownMonthLabels.put("January", "01");
         dropdownMonthLabels.put("February", "02");
@@ -72,98 +80,96 @@ public class TransactionsView extends JPanel implements ActionListener, Property
     }
 
     /**
-     * We will build the basic default container where total transactions is stored
+     * We will build the basic default container where total transactions is stored.
      */
     private void buildContainer() {
+        // Create dropdown
+        final JPanel selectDatePanel = new JPanel();
 
-        //Create dropdown
-        JPanel selctDatePanel = new JPanel();
-
-        //fill dropdowns
-        String[] months = dropdownMonthLabels.keySet().toArray(new String[0]);
+        // Fill dropdowns
+        final String[] months = dropdownMonthLabels.keySet().toArray(new String[0]);
         dropdownMonth = new JComboBox<>(months);
         dropdownYear = new JComboBox<>(dropdownYearList);
 
-        JLabel monthTitle = new JLabel("Month:");
-        JLabel yearTitle = new JLabel("Year:");
-        //Creatiing okay buttons
+        final JLabel monthTitle = new JLabel("Month:");
+        final JLabel yearTitle = new JLabel("Year:");
+        // Creating okay buttons
 
-        JButton dateButton = new JButton("Okay");
-        dateButton.addActionListener(e -> ClickedMonth());
+        final JButton dateButton = new JButton("Okay");
+        dateButton.addActionListener(evt -> clickedMonth());
 
-        selctDatePanel.add(yearTitle);
-        selctDatePanel.add(dropdownYear);
-        selctDatePanel.add(monthTitle);
-        selctDatePanel.add(dropdownMonth);
-        selctDatePanel.add(dateButton);
+        selectDatePanel.add(yearTitle);
+        selectDatePanel.add(dropdownYear);
+        selectDatePanel.add(monthTitle);
+        selectDatePanel.add(dropdownMonth);
+        selectDatePanel.add(dateButton);
 
-        this.add(selctDatePanel, BorderLayout.NORTH);
+        this.add(selectDatePanel, BorderLayout.NORTH);
 
-
-        //loading the data
+        // Loading the data
         transactionTilesBlock.setLayout(new BoxLayout(transactionTilesBlock, BoxLayout.Y_AXIS));
-        JScrollPane scrollPane = new JScrollPane(transactionTilesBlock);
+        final JScrollPane scrollPane = new JScrollPane(transactionTilesBlock);
 
         this.add(scrollPane, BorderLayout.CENTER);
 
+        final JPanel buttonPanel = new JPanel();
+        final JButton backButton = new JButton("Back");
+        backButton.addActionListener(evt -> {
+            viewManagerModel.setState(DashboardViewModel.VIEW_NAME);
+            viewManagerModel.firePropertyChange();
+        });
+        buttonPanel.add(backButton);
+
+        this.add(buttonPanel, BorderLayout.SOUTH);
     }
 
-
-    private void rebuildTiles(List<HashMap<String, Object>> monthlyTransactions) { //monthly transactions
-
+    private void rebuildTiles(List<Map<String, Object>> monthlyTransactions) {
+        // Monthly transactions
         transactionTilesBlock.removeAll();
-
-
 
         if (monthlyTransactions == null || monthlyTransactions.isEmpty()) {
             transactionTilesBlock.add(new JLabel("No transactions found for this month."));
-        } else {
+        }
+        else {
             // Header
-            JPanel header = new JPanel(new GridLayout(1, 5));
+            final JPanel header = new JPanel(new GridLayout(1, 5));
             header.add(new JLabel("Date"));
             header.add(new JLabel("Source"));
             header.add(new JLabel("Category"));
             header.add(new JLabel("Amount"));
-            header.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+            header.setMaximumSize(new Dimension(Integer.MAX_VALUE, ROW_HEIGHT));
             transactionTilesBlock.add(header);
 
             for (int i = 0; i < monthlyTransactions.size(); i++) {
-                HashMap<String, Object> t = monthlyTransactions.get(i);
-                JPanel row = new JPanel(new GridLayout(1, 5));
+                final Map<String, Object> transaction = monthlyTransactions.get(i);
+                final JPanel row = new JPanel(new GridLayout(1, 5));
                 row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
 
-                row.add(new JLabel(String.valueOf(t.get("date"))));
-                row.add(new JLabel(String.valueOf(t.get("source"))));
-                row.add(new JLabel(String.valueOf(t.get("category"))));
-                row.add(new JLabel((String) t.get("amount")));
-                row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+                row.add(new JLabel(String.valueOf(transaction.get("date"))));
+                row.add(new JLabel(String.valueOf(transaction.get("source"))));
+                row.add(new JLabel(String.valueOf(transaction.get("category"))));
+                row.add(new JLabel((String) transaction.get("amount")));
+                row.setMaximumSize(new Dimension(Integer.MAX_VALUE, ROW_HEIGHT));
                 transactionTilesBlock.add(row);
             }
         }
 
-
         transactionTilesBlock.revalidate();
         transactionTilesBlock.repaint();
+    }
 
-
-
-}
-
-
-    private void ClickedMonth() {
-        String selectedMonth = (String) dropdownMonth.getSelectedItem();
-        String selectedYear = (String) dropdownYear.getSelectedItem();
-        String monthNumber = dropdownMonthLabels.get(selectedMonth);
-        String yearMonthString = selectedYear + "-" + monthNumber;
+    private void clickedMonth() {
+        final String selectedMonth = (String) dropdownMonth.getSelectedItem();
+        final String selectedYear = (String) dropdownYear.getSelectedItem();
+        final String monthNumber = dropdownMonthLabels.get(selectedMonth);
+        final String yearMonthString = selectedYear + "-" + monthNumber;
 
         viewTransactionController.execute(yearMonthString);
-
     }
 
     /**
      * React to a button click that results in evt.
-     * @param evt the ActionEvent to react to
-     * Class Code**
+     * @param evt The ActionEvent to react to.
      */
     public void actionPerformed(ActionEvent evt) {
         System.out.println("Click " + evt.getActionCommand());
@@ -177,13 +183,10 @@ public class TransactionsView extends JPanel implements ActionListener, Property
         }}
 
     public String getViewName() {
-        return viewName;
+        return VIEW_TRANSACTION_VIEW_NAME;
     }
 
     public void setViewTransactionController(ViewTransactionController viewTransactionController) {
         this.viewTransactionController = viewTransactionController;
     }
-
-
 }
-
