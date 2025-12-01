@@ -164,9 +164,11 @@ public class TransactionDataAccessObject implements AutosaveDataAccessInterface,
 
     /**
      * @param categories the list of categories used to filter the transactions
-     * @param month      the month (as a {@code YearMonth}) used to filter the transactions
-     * @return
+     * @param month the month (as a {@code YearMonth}) used to filter the transactions
+     * @return a list of transactions that match both the category and month criteria;
      */
+
+
     @Override
     public List<Transaction> getTransactionsByCategoriesAndMonth(List<Category> categories, YearMonth month) {
         final List<Transaction> result = new ArrayList<>();
@@ -183,12 +185,6 @@ public class TransactionDataAccessObject implements AutosaveDataAccessInterface,
         return result;
     }
 
-     * Gets transactions within a date range.
-     *
-     * @param startDate the start date (inclusive)
-     * @param endDate the end date (inclusive)
-     * @return a list of transactions within the date range
-     */
     public List<Transaction> getByDateRange(LocalDate startDate, LocalDate endDate) {
         final List<Transaction> result = new ArrayList<>();
         for (Transaction transaction : transactions) {
