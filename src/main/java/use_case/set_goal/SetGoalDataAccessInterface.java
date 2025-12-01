@@ -16,7 +16,8 @@ public interface SetGoalDataAccessInterface {
     /**
      * Retrieves all goals from the data source.
      *
-     * @return a list of all goals
+     * @return a {@link List} of all {@link Goal} objects, or an empty list if no goals represent
+     * @throws IOException if an I/O error occurs while communicating with the data source
      */
-    List<Goal> getAll();
+    List<Goal> getAll() throws IOException;
 }

@@ -78,6 +78,7 @@ public class AppBuilder {
     private DashboardView dashboardView;
     private DashboardViewModel dashboardViewModel;
 
+    private SetGoalController setGoalController;
     private TransactionsView viewTransactionView;
     private ViewTransactionViewModel viewTransactionViewModel;
 
@@ -175,7 +176,8 @@ public class AppBuilder {
         final SetGoalOutputBoundary setGoalOutputBoundary = new SetGoalPresenter(setGoalViewModel);
         final SetGoalInputBoundary setGoalInputBoundary = new SetGoalInteractor(goalDataAccessObject,
                 transactionDataAccessObject, setGoalOutputBoundary);
-        final SetGoalController setGoalController = new SetGoalController(setGoalInputBoundary);
+
+        this.setGoalController = new SetGoalController(setGoalInputBoundary);
         goalView.setGoalController(setGoalController);
 
         return this;
@@ -232,7 +234,6 @@ public class AppBuilder {
 
         return this;
     }
-
     /**
      * Does transactionViewUseCases.
      * @return transactionViewUseCase
@@ -253,6 +254,16 @@ public class AppBuilder {
         viewTransactionController.execute(formattedYearMonth);
         return this;
 
+    }
+
+    /**
+     * Getter for the SetGoalController.
+     *
+     * @return the SetGoalController instance
+     */
+
+    public SetGoalController getSetGoalController() {
+        return this.setGoalController;
     }
 
     /**

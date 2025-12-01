@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -35,9 +36,18 @@ public class AddGoalDialog {
 
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.add(new JLabel("Month (YYYY-MM):"));
+
+        final JPanel monthLabelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        monthLabelPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        // Add only the main label to the horizontal panel
+        monthLabelPanel.add(new JLabel("Month (YYYY-MM):"));
+
+        // Add the horizontal label panel and the text field to the main vertical panel
+        panel.add(monthLabelPanel);
         panel.add(monthField);
         panel.add(Box.createVerticalStrut(VERTICAL_SPACING));
+
         panel.add(new JLabel("Goal Amount ($):"));
         panel.add(amountField);
         panel.add(Box.createVerticalStrut(VERTICAL_SPACING));
@@ -45,7 +55,7 @@ public class AddGoalDialog {
         panel.add(categoriesField);
 
         final int result = JOptionPane.showConfirmDialog(parent, panel,
-                "Plant a New Goal Tree", JOptionPane.OK_CANCEL_OPTION);
+                "Plant a New Goal Tree", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
             try {
