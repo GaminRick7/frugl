@@ -13,10 +13,18 @@ public class Source {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Source other = (Source) obj;
-        return name.equals(other.name);
+        boolean result = false;
+        if (this == obj) {
+            result = true;
+        }
+        else if (obj == null || getClass() != obj.getClass()) {
+            result = false;
+        }
+        else {
+            final Source other = (Source) obj;
+            result = name.equals(other.name);
+        }
+        return result;
     }
 
     @Override

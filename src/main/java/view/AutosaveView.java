@@ -65,16 +65,18 @@ public class AutosaveView extends JPanel implements PropertyChangeListener {
      * @return formatted label text
      */
     private String labelText(String statusMessage, LocalDateTime timestamp, String errorMessage) {
+        String message = "";
         if (errorMessage != null) {
-            return "⚠ Autosave failed: " + errorMessage;
+            message += "⚠ Autosave failed: " + errorMessage;
         }
-        
-        if (timestamp != null) {
-            String formattedTime = formatTimestamp(timestamp);
-            return "✓ Saved at " + formattedTime;
+        else if (timestamp != null) {
+            final String formattedTime = formatTimestamp(timestamp);
+            message += "✓ Saved at " + formattedTime;
         }
-        
-        return statusMessage;
+        else {
+            message += statusMessage;
+        }
+        return message;
     }
     
     /**
@@ -84,7 +86,7 @@ public class AutosaveView extends JPanel implements PropertyChangeListener {
      * @return formatted time string
      */
     private String formatTimestamp(LocalDateTime timestamp) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a");
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a");
         return timestamp.format(formatter);
     }
 

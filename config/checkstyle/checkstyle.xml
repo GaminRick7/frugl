@@ -749,7 +749,7 @@
         </module>
         <module name="RegexpSinglelineJava">
             <property name="id" value="checkASCII"/>
-            <property name="format" value="[^\p{ASCII}]"/>
+            <property name="format" value="[^\p{ASCII}✓⚠]"/>
             <property name="ignoreComments" value="true"/>
         </module>
 

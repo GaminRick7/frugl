@@ -3,7 +3,7 @@ package use_case.autosave;
 import data_access.GoalDataAccessObject;
 import data_access.TransactionDataAccessObject;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;

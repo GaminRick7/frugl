@@ -21,7 +21,7 @@ public class ImportStatementController {
      * @param filePath the filePath inputted by the user
      */
     public void execute(String filePath) {
-        ImportStatementInputData inputData = new ImportStatementInputData(filePath);
+        final ImportStatementInputData inputData = new ImportStatementInputData(filePath);
         importStatementInteractor.execute(inputData);
     }
 

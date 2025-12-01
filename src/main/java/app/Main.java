@@ -10,10 +10,11 @@ public class Main {
      * Main entry point for the application.
      *
      * @param args command line arguments (not used)
+     * @throws Exception exception
      */
     public static void main(String[] args) throws Exception {
-        AppBuilder appBuilder = new AppBuilder();
-        JFrame application = appBuilder
+        final AppBuilder appBuilder = new AppBuilder();
+        final JFrame application = appBuilder
                 .addDashboardView()
                 .addDashboardUseCase()
                 .addAutosaveView()

@@ -212,7 +212,7 @@ public class AppBuilder {
      * @return a JFrame application frame ready to display
      */
     public JFrame build() {
-        JFrame application = new JFrame("frugl");
+        final JFrame application = new JFrame("frugl");
         final JPanel mainPanel = new JPanel(new BorderLayout());
 
         mainPanel.add(cardPanel, BorderLayout.CENTER);

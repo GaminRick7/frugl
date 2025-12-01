@@ -53,6 +53,12 @@ public class ViewModel<T> {
         this.support.firePropertyChange(propertyName, null, this.state);
     }
 
+    /**
+     * Fires a property changed  with a custom newValue
+     * it can use the property name to distinguish which property has changed.
+     * @param propertyName the label for the property that was changed
+     * @param newValue the new value to be made accessible
+     */
     public void firePropertyChange(String propertyName, Object newValue) {
         this.support.firePropertyChange(propertyName, null, newValue);
     }
