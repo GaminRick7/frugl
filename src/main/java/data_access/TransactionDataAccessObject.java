@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -163,14 +164,38 @@ public class TransactionDataAccessObject implements AutosaveDataAccessInterface,
     public List<Transaction> getAll() {
         return new ArrayList<>(transactions);
     }
-
     /**
-     * Gets transactions within a date range.
-     *
-     * @param startDate the start date (inclusive)
-     * @param endDate the end date (inclusive)
-     * @return a list of transactions within the date range
+     * Returns the transaction filtered by both month and date.
+     * @param categories the list of categories used to filter the transactions
+     * @param month the month (as a {@code YearMonth}) used to filter the transactions
+     * @return a list of transactions that match both the category and month criteria;
      */
+
+    @Override
+    public List<Transaction> getTransactionsByCategoriesAndMonth(List<Category> categories, YearMonth month) {
+        final List<Transaction> result = new ArrayList<>();
+
+        for (Transaction transaction : transactions) {
+            final boolean categoryMatches = categories.contains(sourceToCategoryMap.get(transaction.getSource()));
+            final boolean monthMatches = YearMonth.from(transaction.getDate()).equals(month);
+
+            if (categoryMatches && monthMatches) {
+                result.add(transaction);
+            }
+        }
+
+        return result;
+    }
+    /**
+     * Returns a list of all transactions whose dates fall within the specified range
+     * (inclusive of both start and end dates).
+     * @param startDate the start of the date range (inclusive)
+     * @param endDate   the end of the date range (inclusive)
+     * @return a list of transactions occurring on or between the given dates;
+     *         an empty list if none match
+     * @throws NullPointerException if either {@code startDate} or {@code endDate} is {@code null}
+     */
+
     public List<Transaction> getByDateRange(LocalDate startDate, LocalDate endDate) {
         final List<Transaction> result = new ArrayList<>();
         for (Transaction transaction : transactions) {

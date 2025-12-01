@@ -14,14 +14,29 @@ public class SetGoalController {
         this.setGoalUseCaseInteractor = setGoalUseCaseInteractor;
     }
 
+    /**
+     * Sets a goal for the specified month with the given amount and categories.
+     *
+     * @param yearMonth   the year and month the goal applies to
+     * @param goalAmount  the monetary amount of the goal
+     * @param categories  the list of categories associated with the goal
+     */
+
     public void setGoal(YearMonth yearMonth, float goalAmount, List<Category> categories) {
         // create an instance of the input data object
-        SetGoalInputData inputData = new SetGoalInputData(
+        final SetGoalInputData inputData = new SetGoalInputData(
                 yearMonth,
                 goalAmount,
                 categories
         );
 
         setGoalUseCaseInteractor.execute(inputData);
+    }
+    /**
+     * Call the load forest.
+     */
+
+    public void loadForest() {
+        setGoalUseCaseInteractor.loadForest();
     }
 }

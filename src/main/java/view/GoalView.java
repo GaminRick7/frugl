@@ -12,11 +12,15 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
 
 import entity.GoalTree;
 import interface_adapter.ViewManagerModel;
@@ -28,12 +32,20 @@ import interface_adapter.set_goal.SetGoalViewModel;
 public class GoalView extends JPanel implements ActionListener, PropertyChangeListener {
 
     private static final Color FOREST_BACKGROUND_COLOR = new Color(191, 246, 191);
+    private static final int VERTICAL_STRUT = 10;
+    private static final int COLUMN_MONTH = 0;
+    private static final int COLUMN_AMOUNT = 1;
+    private static final int COLUMN_CATEGORIES = 2;
+    private static final int COLUMN_STATUS = 3;
 
     private final transient SetGoalViewModel viewModel;
     private transient SetGoalController controller;
 
     private final ForestPanel forestPanel;
     private final JButton setGoalButton;
+
+    private final JTable goalTable;
+    private final GoalTableModel tableModel;
 
     public GoalView(SetGoalViewModel viewModel, ViewManagerModel viewManagerModel) {
         this.viewModel = viewModel;
@@ -45,6 +57,14 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
 
         forestPanel = new ForestPanel();
         this.add(forestPanel, BorderLayout.CENTER);
+
+        tableModel = new GoalTableModel();
+        goalTable = new JTable(tableModel);
+        goalTable.setAutoCreateRowSorter(true);
+
+        final JScrollPane tableScrollPane = new JScrollPane(goalTable);
+        this.add(tableScrollPane, BorderLayout.EAST);
+        // ---------------------------------
 
         setGoalButton = UserInterfaceFactory.createButton(SetGoalState.SET_GOAL_BUTTON_LABEL, this);
         UserInterfaceFactory.stylePrimaryButton(setGoalButton);
@@ -71,8 +91,13 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if ("state".equals(evt.getPropertyName())) {
-            forestPanel.repaint();
             final SetGoalState state = viewModel.getState();
+
+            // NEW: Update the table data
+            tableModel.setGoals(state.getForest());
+
+            forestPanel.repaint();
+
             if (state.getErrorMessage() != null) {
                 JOptionPane.showMessageDialog(this, state.getErrorMessage(),
                         "Error", JOptionPane.ERROR_MESSAGE);
@@ -101,6 +126,8 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
 
         private void loadImages() {
             try {
+                // NOTE: Using 'new File()' may cause issues when packaged as a JAR.
+                // Consider using getClass().getResource() for production code.
                 saplingImage = javax.imageio.ImageIO.read(new File("images/sapling.png"));
                 healthyImage = javax.imageio.ImageIO.read(new File("images/healthy.png"));
                 deadImage = javax.imageio.ImageIO.read(new File("images/dead.png"));
@@ -139,4 +166,74 @@ public class GoalView extends JPanel implements ActionListener, PropertyChangeLi
             }
         }
     }
+
+    private final class GoalTableModel extends AbstractTableModel {
+
+        private List<GoalTree> forest = new ArrayList<>();
+        private final String[] columnNames = {"Month", "Amount", "Categories", "Status"};
+
+        @Override
+        public int getRowCount() {
+            return forest.size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return columnNames.length;
+        }
+
+        @Override
+        public String getColumnName(int columnIndex) {
+            return columnNames[columnIndex];
+        }
+
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            final Object value;
+
+            if (rowIndex < 0 || rowIndex >= forest.size()) {
+                value = null;
+            }
+            else {
+                final GoalTree tree = forest.get(rowIndex);
+
+                switch (columnIndex) {
+                    case COLUMN_MONTH:
+                        value = tree.getGoal().getMonth().toString();
+                        break;
+                    case COLUMN_AMOUNT:
+                        value = "$" + String.format("%.2f", tree.getGoal().getGoalAmount());
+                        break;
+                    case COLUMN_CATEGORIES:
+                        value = tree.getGoal().getCategories().stream()
+                                .map(category -> category.getName())
+                                .reduce((stringa, stringb) -> stringa + ", " + stringb)
+                                .orElse("");
+                        break;
+                    case COLUMN_STATUS:
+                        value = tree.getStatus();
+                        break;
+                    default:
+                        value = null;
+                        break;
+                }
+            }
+            return value;
+        }
+        /**
+         * Updates the data in the table and notifies the JTable to redraw.
+         * @param newForest The list of GoalTree entities to display.
+         */
+
+        public void setGoals(List<GoalTree> newForest) {
+            if (newForest == null) {
+                this.forest = new ArrayList<>();
+            }
+            else {
+                this.forest = newForest;
+            }
+            fireTableDataChanged();
+        }
+    }
+
 }

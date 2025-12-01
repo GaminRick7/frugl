@@ -88,25 +88,22 @@ public class GoalTree {
     public void updateStatus(List<Transaction> transactions) {
         final YearMonth currentMonth = YearMonth.now();
         final YearMonth goalMonth = goal.getMonth();
-        double spent = 0;
+
+        final double spent = transactions.stream()
+                .mapToDouble(Transaction::getAmount)
+                .sum();
+
         final float goalAmount = goal.getGoalAmount();
 
-        for (Transaction transaction : transactions) {
-            spent += transaction.getAmount();
-        }
-
-        if (currentMonth.isAfter(goalMonth) || currentMonth.equals(goalMonth)) {
-            if (spent <= goalAmount) {
-                this.status = "healthy";
-                // Goal achieved
-            }
-            else {
-                this.status = "dead";
-                // Goal failed
-            }
-        }
-        else if (currentMonth.isBefore(goalMonth)) {
+        if (currentMonth.isBefore(goalMonth) || currentMonth.equals(goalMonth)) {
             this.status = "sapling";
         }
+        else if (spent <= goalAmount) {
+            this.status = "healthy";
+        }
+        else {
+            this.status = "dead";
+        }
     }
+
 }
