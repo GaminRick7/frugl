@@ -1,6 +1,5 @@
 package view;
 
-
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -10,26 +9,37 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import interface_adapter.ViewManagerModel;
 import interface_adapter.import_statement.ImportStatementController;
 import interface_adapter.import_statement.ImportStatementViewModel;
 
-
-
-
 /**
  * The Import Bank Statement View.
  */
 public class ImportStatementView extends JPanel implements ActionListener, PropertyChangeListener {
+    private static final int BORDER_PADDING = 15;
+    private static final int TITLE_FONT_SIZE = 16;
+    private static final int PATH_FIELD_COLUMNS = 20;
+    private static final int HORIZONTAL_GAP = 10;
+    private static final int VERTICAL_GAP_LARGE = 15;
+    private static final int VERTICAL_GAP_SMALL = 10;
+
     private final String viewName = "import statement";
 
     private final ImportStatementViewModel importStatementViewModel;
 
     private final ViewManagerModel viewManagerModel;
 
-    private ImportStatementController importStatementController = null;
+    private ImportStatementController importStatementController;
 
     private final JTextField filePathField;
 
@@ -44,29 +54,19 @@ public class ImportStatementView extends JPanel implements ActionListener, Prope
         this.viewManagerModel = viewManagerModel;
         importStatementViewModel.addPropertyChangeListener(this);
 
-
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        this.setBorder(BorderFactory.createEmptyBorder(
+                BORDER_PADDING, BORDER_PADDING, BORDER_PADDING, BORDER_PADDING));
 
-        JLabel title = new JLabel("Import Bank Statement");
+        final JLabel title = new JLabel("Import Bank Statement");
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        title.setFont(new Font("Arial", Font.BOLD, 16));
+        title.setFont(new Font("Arial", Font.BOLD, TITLE_FONT_SIZE));
 
-        JPanel pathPanel = new JPanel();
-        pathPanel.setLayout(new BoxLayout(pathPanel, BoxLayout.X_AXIS));
-
-        JLabel filePathLabel = new JLabel("File path: ");
-        filePathField = new JTextField(20);
+        filePathField = new JTextField(PATH_FIELD_COLUMNS);
         filePathField.setEditable(false);
 
         browseButton = new JButton("Browse");
         browseButton.addActionListener(this);
-
-        pathPanel.add(filePathLabel);
-        pathPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        pathPanel.add(filePathField);
-        pathPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        pathPanel.add(browseButton);
 
         importButton = new JButton("Import");
         importButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -76,30 +76,50 @@ public class ImportStatementView extends JPanel implements ActionListener, Prope
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         backButton.addActionListener(this);
 
-        this.add(title);
-        this.add(Box.createRigidArea(new Dimension(0, 15)));
-        this.add(pathPanel);
-        this.add(Box.createRigidArea(new Dimension(0, 15)));
-        this.add(importButton);
-        this.add(Box.createRigidArea(new Dimension(0, 10)));
-        this.add(backButton);
+        final JPanel pathPanel = createPathPanel();
 
+        addComponents(title, pathPanel);
+    }
+
+    private JPanel createPathPanel() {
+        final JPanel pathPanel = new JPanel();
+        pathPanel.setLayout(new BoxLayout(pathPanel, BoxLayout.X_AXIS));
+
+        final JLabel filePathLabel = new JLabel("File path: ");
+
+        pathPanel.add(filePathLabel);
+        pathPanel.add(Box.createRigidArea(new Dimension(HORIZONTAL_GAP, 0)));
+        pathPanel.add(filePathField);
+        pathPanel.add(Box.createRigidArea(new Dimension(HORIZONTAL_GAP, 0)));
+        pathPanel.add(browseButton);
+
+        return pathPanel;
+    }
+
+    private void addComponents(JLabel title, JPanel pathPanel) {
+        this.add(title);
+        this.add(Box.createRigidArea(new Dimension(0, VERTICAL_GAP_LARGE)));
+        this.add(pathPanel);
+        this.add(Box.createRigidArea(new Dimension(0, VERTICAL_GAP_LARGE)));
+        this.add(importButton);
+        this.add(Box.createRigidArea(new Dimension(0, VERTICAL_GAP_SMALL)));
+        this.add(backButton);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == browseButton) {
-            JFileChooser chooser = new JFileChooser();
+            final JFileChooser chooser = new JFileChooser();
             chooser.setDialogTitle("Select Bank Statement JSON File");
 
-            int result = chooser.showOpenDialog(this);
+            final int result = chooser.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = chooser.getSelectedFile();
+                final File selectedFile = chooser.getSelectedFile();
                 filePathField.setText(selectedFile.getAbsolutePath());
             }
         }
         else if (e.getSource() == importButton) {
-            String filePath = filePathField.getText().trim();
+            final String filePath = filePathField.getText().trim();
             importStatementController.execute(filePath);
         }
         else if (e.getSource() == backButton) {
@@ -120,5 +140,3 @@ public class ImportStatementView extends JPanel implements ActionListener, Prope
     }
 
 }
-
-

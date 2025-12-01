@@ -1,6 +1,5 @@
 package interface_adapter.import_statement;
 
-
 import use_case.import_statement.ImportStatementInputBoundary;
 import use_case.import_statement.ImportStatementInputData;
 

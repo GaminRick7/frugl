@@ -256,8 +256,6 @@ class ImportStatementInteractorTest {
         assertEquals("could not categorize transactions", message.message);
         assertTrue(dao.transactions.isEmpty());
         assertTrue(dao.sources.isEmpty());
-
-
     }
     @Test
     void successTestAllUncategorized() {

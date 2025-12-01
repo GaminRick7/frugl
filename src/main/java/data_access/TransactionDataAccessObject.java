@@ -216,6 +216,7 @@ public class TransactionDataAccessObject implements AutosaveDataAccessInterface,
      */
     public void addSourceCategory(Source source, Category category) {
         sourceToCategoryMap.put(source, category);
+        save();
     }
 
     /**
