@@ -238,6 +238,7 @@ public class AppBuilder {
      * Does transactionViewUseCases.
      * @return transactionViewUseCase
      */
+
     public AppBuilder addTransactionViewUseCase() {
 
         final ViewTransactionOutputBoundary viewTransactionOutputBoundary =

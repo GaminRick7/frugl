@@ -1,11 +1,11 @@
 package interface_adapter.set_goal;
 
-import entity.Category;
-import entity.GoalTree;
-
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+
+import entity.Category;
+import entity.GoalTree;
 
 public class SetGoalState {
     public static final String TITLE_LABEL = "Financial Forest";
@@ -13,9 +13,9 @@ public class SetGoalState {
 
     private YearMonth yearMonth = YearMonth.now();
     private List<Category> selectedCategories = new ArrayList<>();
-    private float goalAmount = 0;
-    private String errorMessage = null;
-    private String successMessage = null;
+    private float goalAmount;
+    private String errorMessage;
+    private String successMessage;
     private List<GoalTree> forest = new ArrayList<>();
 
     public YearMonth getYearMonth() {
@@ -57,13 +57,22 @@ public class SetGoalState {
     public void setForest(List<GoalTree> forest) {
         this.forest = forest;
     }
-    // handling property change
 
+    /**
+     * Sets the success message and clears any error message.
+     *
+     * @param message the success message to set
+     */
     public void setSuccess(String message) {
         this.successMessage = message;
         this.errorMessage = null;
     }
 
+    /**
+     * Sets the error message and clears any success message.
+     *
+     * @param error the error message to set
+     */
     public void setFailure(String error) {
         this.errorMessage = error;
         this.successMessage = null;
