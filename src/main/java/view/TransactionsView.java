@@ -20,6 +20,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import interface_adapter.ViewManagerModel;
+import interface_adapter.dashboard.DashboardViewModel;
 import interface_adapter.view_transaction.ViewTransactionController;
 import interface_adapter.view_transaction.ViewTransactionState;
 import interface_adapter.view_transaction.ViewTransactionViewModel;
@@ -34,6 +36,7 @@ public class TransactionsView extends JPanel implements ActionListener, Property
     // Initialize all the components in CA
     private static final String VIEW_TRANSACTION_VIEW_NAME = "view transaction";
     private final transient ViewTransactionViewModel viewTransactionViewModel;
+    private final transient ViewManagerModel viewManagerModel;
     private transient ViewTransactionController viewTransactionController;
 
     // Master Frame made up of all JPanel
@@ -47,8 +50,9 @@ public class TransactionsView extends JPanel implements ActionListener, Property
     private final Map<String, String> dropdownMonthLabels = new LinkedHashMap<>();
     private final String[] dropdownYearList = {"2025", "2024", "2023"};
 
-    public TransactionsView(ViewTransactionViewModel viewTransactionViewModel) {
+    public TransactionsView(ViewTransactionViewModel viewTransactionViewModel, ViewManagerModel viewManagerModel) {
         this.viewTransactionViewModel = viewTransactionViewModel;
+        this.viewManagerModel = viewManagerModel;
         this.viewTransactionViewModel.addPropertyChangeListener(this);
         this.setLayout(new BorderLayout());
 
@@ -107,6 +111,16 @@ public class TransactionsView extends JPanel implements ActionListener, Property
         final JScrollPane scrollPane = new JScrollPane(transactionTilesBlock);
 
         this.add(scrollPane, BorderLayout.CENTER);
+
+        final JPanel buttonPanel = new JPanel();
+        final JButton backButton = new JButton("Back");
+        backButton.addActionListener(evt -> {
+            viewManagerModel.setState(DashboardViewModel.VIEW_NAME);
+            viewManagerModel.firePropertyChange();
+        });
+        buttonPanel.add(backButton);
+
+        this.add(buttonPanel, BorderLayout.SOUTH);
     }
 
     private void rebuildTiles(List<Map<String, Object>> monthlyTransactions) {

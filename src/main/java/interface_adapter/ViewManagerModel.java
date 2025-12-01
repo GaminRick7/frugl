@@ -11,7 +11,11 @@ public class ViewManagerModel extends ViewModel<String> {
         this.setState("");
     }
 
-    public void showPopup (String message) {
+    /**
+     * Shows the popup.
+     * @param message Popup message
+     */
+    public void showPopup(String message) {
         this.firePropertyChange("popup", message);
     }
 

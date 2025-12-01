@@ -7,8 +7,10 @@ import interface_adapter.ViewModel;
  */
 public class ViewTransactionViewModel extends ViewModel<ViewTransactionState> {
 
+    public static final String VIEW_NAME = "view transactions";
+
     public ViewTransactionViewModel() {
-        super("view transaction");
+        super(VIEW_NAME);
         setState(new ViewTransactionState());
 
     }

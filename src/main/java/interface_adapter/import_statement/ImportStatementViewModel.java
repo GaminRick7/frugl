@@ -7,8 +7,10 @@ import interface_adapter.ViewModel;
  */
 public class ImportStatementViewModel extends ViewModel<String> {
 
+    public static final String VIEW_NAME = "import statement";
+
     public ImportStatementViewModel() {
-        super("import statement");
+        super(VIEW_NAME);
         this.setState("");
     }
 }
