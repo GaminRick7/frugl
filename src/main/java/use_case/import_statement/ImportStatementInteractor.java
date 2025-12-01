@@ -118,10 +118,6 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
 
         for (JsonElement element : array) {
 
-            if (!element.isJsonObject()) {
-                throw new Exception("Array elements must be JSON objects");
-            }
-
             final JsonObject tx = element.getAsJsonObject();
 
             final String sourceName = tx.get("source").getAsString();
