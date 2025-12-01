@@ -2,6 +2,7 @@ package use_case.import_statement;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -13,8 +14,8 @@ import java.util.Set;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
-
 import entity.Category;
 import entity.Source;
 import entity.Transaction;
@@ -23,6 +24,14 @@ import entity.Transaction;
  * The Import Bank Statement Interactor.
  */
 public class ImportStatementInteractor implements ImportStatementInputBoundary {
+
+    private static final String ERROR_UNSUPPORTED_FILE = "unsupported file";
+
+    private static final String ERROR_CATEGORIZE_TRANSACTIONS = "could not categorize transactions";
+
+    private static final String FIELD_SOURCE = "source";
+
+    private static final String FIELD_DATE = "date";
 
     private final ImportStatementDataAccessInterface transactionsDataAccessObject;
 
@@ -39,151 +48,174 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
 
     @Override
     public void execute(ImportStatementInputData inputData) {
-
-        if (inputData.getFilePath().isBlank()) {
-            presenter.prepareFailView("blank file path");
-            return;
-        }
-
-        final File file = new File(inputData.getFilePath());
-        if (!file.exists()) {
-            presenter.prepareFailView("file does not exist");
-            return;
-        }
-
-        final JsonArray transactionsJsonArray;
         try {
-            transactionsJsonArray = readArrayFromFile(inputData.getFilePath());
-        } catch (Exception exception) {
-            presenter.prepareFailView("file does not contain a JSON array");
-            return;
-        }
+            final JsonArray transactionsJsonArray = loadTransactions(inputData);
+            ensureTransactionsPresent(transactionsJsonArray);
 
-        if (transactionsJsonArray.isEmpty()) {
-            presenter.prepareFailView("no transactions found");
-            return;
-        }
+            final List<JsonObject> categorized = new ArrayList<>();
+            final List<JsonObject> uncategorized = new ArrayList<>();
 
-        final List<JsonObject> categorized = new ArrayList<>();
-        final List<JsonObject> uncategorized = new ArrayList<>();
-
-        try {
             separateTransactions(transactionsJsonArray, categorized, uncategorized);
-        } catch (Exception exception) {
-            presenter.prepareFailView("unsupported file");
-            return;
-        }
-
-        try {
             addTransactions(categorized);
-        } catch (Exception exception) {
-            presenter.prepareFailView("unsupported file");
-            return;
+            processUncategorizedTransactions(uncategorized);
+
+            final YearMonth yearMonth = extractYearMonth(transactionsJsonArray);
+            presenter.prepareSuccessView(new ImportStatementOutputData(yearMonth));
         }
-
-        try {
-            categorizeSources(uncategorized);
-        } catch (Exception exception) {
-            presenter.prepareFailView("could not categorize transactions");
-            return;
+        catch (ImportStatementException exception) {
+            presenter.prepareFailView(exception.getMessage());
         }
-
-        try {
-            addTransactions(uncategorized);
-        } catch (Exception exception) {
-            presenter.prepareFailView("unsupported file");
-            return;
-        }
-
-        final YearMonth ym = extractYearMonth(transactionsJsonArray);
-        presenter.prepareSuccessView(new ImportStatementOutputData(ym));
-
     }
 
-    private JsonArray readArrayFromFile(String filePath) throws Exception {
-        try (FileReader reader = new FileReader(filePath)) {
-            try {
-                final JsonElement element = JsonParser.parseReader(reader);
-                return element.getAsJsonArray();
-            } catch (Exception exception) {
-                throw new Exception("File does not contain a JSON array");
-            }
+    private JsonArray loadTransactions(ImportStatementInputData inputData) throws ImportStatementException {
+        final String filePath = inputData.getFilePath();
+        if (filePath == null || filePath.isBlank()) {
+            throw new ImportStatementException("blank file path");
+        }
 
+        final File file = new File(filePath);
+        if (!file.exists()) {
+            throw new ImportStatementException("file does not exist");
+        }
+
+        try {
+            return readArrayFromFile(file);
+        }
+        catch (IOException exception) {
+            throw new ImportStatementException(ERROR_UNSUPPORTED_FILE, exception);
+        }
+        catch (JsonParseException | IllegalStateException exception) {
+            throw new ImportStatementException("file does not contain a JSON array", exception);
+        }
+    }
+
+    private void ensureTransactionsPresent(JsonArray transactionsJsonArray) throws ImportStatementException {
+        if (transactionsJsonArray.isEmpty()) {
+            throw new ImportStatementException("no transactions found");
+        }
+    }
+
+    private void processUncategorizedTransactions(List<JsonObject> uncategorized)
+            throws ImportStatementException {
+        if (!uncategorized.isEmpty()) {
+            categorizeSources(uncategorized);
+            addTransactions(uncategorized);
+        }
+    }
+
+    private JsonArray readArrayFromFile(File file) throws IOException {
+        try (FileReader reader = new FileReader(file)) {
+            final JsonElement element = JsonParser.parseReader(reader);
+            return element.getAsJsonArray();
         }
     }
 
     private void separateTransactions(JsonArray array,
                                       List<JsonObject> categorized,
-                                      List<JsonObject> uncategorized) throws Exception {
+                                      List<JsonObject> uncategorized) throws ImportStatementException {
 
-        for (JsonElement element : array) {
+        try {
+            for (JsonElement element : array) {
+                final JsonObject tx = element.getAsJsonObject();
+                if (!tx.has(FIELD_SOURCE)) {
+                    throw new ImportStatementException(ERROR_UNSUPPORTED_FILE);
+                }
+                final String sourceName = tx.get(FIELD_SOURCE).getAsString();
+                final Source source = new Source(sourceName);
 
-            final JsonObject tx = element.getAsJsonObject();
-
-            final String sourceName = tx.get("source").getAsString();
-
-            if (transactionsDataAccessObject.sourceExists(new Source(sourceName))) {
-                categorized.add(tx);
-            } else {
-                uncategorized.add(tx);
+                if (transactionsDataAccessObject.sourceExists(source)) {
+                    categorized.add(tx);
+                }
+                else {
+                    uncategorized.add(tx);
+                }
             }
+        }
+        catch (ClassCastException | IllegalStateException exception) {
+            throw new ImportStatementException(ERROR_UNSUPPORTED_FILE, exception);
         }
     }
 
-    private void categorizeSources(List<JsonObject> uncategorized) throws Exception {
-
+    private void categorizeSources(List<JsonObject> uncategorized) throws ImportStatementException {
         final Set<String> uniqueSourceNames = new HashSet<>();
         for (JsonObject tx : uncategorized) {
-            final String sourceName = tx.get("source").getAsString();
-            uniqueSourceNames.add(sourceName);
+            if (!tx.has(FIELD_SOURCE)) {
+                throw new ImportStatementException(ERROR_CATEGORIZE_TRANSACTIONS);
+            }
+            uniqueSourceNames.add(tx.get(FIELD_SOURCE).getAsString());
         }
-        if (uniqueSourceNames.isEmpty()) {
-            return;
-        }
-        final List<String> sourcesToCategorize = new ArrayList<>(uniqueSourceNames);
+        if (!uniqueSourceNames.isEmpty()) {
+            final List<String> sourcesToCategorize = new ArrayList<>(uniqueSourceNames);
+            final Map<String, Category> categorizedSources;
 
-        final Map<String, Category> categorizedSources = geminiCategorizer.categorizeSources(sourcesToCategorize);
+            try {
+                categorizedSources = geminiCategorizer.categorizeSources(sourcesToCategorize);
+            }
+            catch (IOException | GeminiCategorizerException exception) {
+                throw new ImportStatementException(ERROR_CATEGORIZE_TRANSACTIONS, exception);
+            }
+            catch (RuntimeException exception) {
+                throw new ImportStatementException(ERROR_CATEGORIZE_TRANSACTIONS, exception);
+            }
 
-        for (String sourceName : sourcesToCategorize) {
-            final Category category = categorizedSources.get(sourceName);
+            for (String sourceName : sourcesToCategorize) {
+                if (categorizedSources.get(sourceName) == null) {
+                    throw new ImportStatementException(ERROR_CATEGORIZE_TRANSACTIONS);
+                }
+            }
 
-            if (category == null) {
-                throw new Exception("Missing category for source: " + sourceName);
+            try {
+                for (String sourceName : sourcesToCategorize) {
+                    final Category category = categorizedSources.get(sourceName);
+                    transactionsDataAccessObject.addSourceCategory(new Source(sourceName), category);
+                }
+            }
+            catch (RuntimeException exception) {
+                throw new ImportStatementException(ERROR_CATEGORIZE_TRANSACTIONS, exception);
             }
         }
-        for (String sourceName : sourcesToCategorize) {
-            final Category category = categorizedSources.get(sourceName);
-
-            transactionsDataAccessObject.addSourceCategory(new Source(sourceName), category);
-        }
-
     }
 
-    private void addTransactions(List<JsonObject> transactions) throws Exception {
+    private void addTransactions(List<JsonObject> transactions) throws ImportStatementException {
 
         for (JsonObject tx : transactions) {
-            if (!tx.has("source") || !tx.has("amount") || !tx.has("date")) {
-                throw new Exception("Missing fields in transaction");
+            if (!tx.has(FIELD_SOURCE) || !tx.has("amount") || !tx.has(FIELD_DATE)) {
+                throw new ImportStatementException(ERROR_UNSUPPORTED_FILE);
             }
         }
-        for (JsonObject tx : transactions) {
-            final String sourceName = tx.get("source").getAsString();
-            final double amount = tx.get("amount").getAsDouble();
-            final String dateString = tx.get("date").getAsString();
-            final Transaction transaction = new Transaction(new Source(sourceName), amount,
-                    LocalDate.parse(dateString));
-            transactionsDataAccessObject.addTransaction(transaction);
+        try {
+            for (JsonObject tx : transactions) {
+                final Source source = new Source(tx.get(FIELD_SOURCE).getAsString());
+                final double amount = tx.get("amount").getAsDouble();
+                final String dateString = tx.get(FIELD_DATE).getAsString();
+                final Transaction transaction = new Transaction(source, amount,
+                        LocalDate.parse(dateString));
+                transactionsDataAccessObject.addTransaction(transaction);
+            }
+        }
+        catch (RuntimeException exception) {
+            throw new ImportStatementException(ERROR_UNSUPPORTED_FILE, exception);
         }
     }
 
     private YearMonth extractYearMonth(JsonArray array) {
 
         final JsonObject first = array.get(0).getAsJsonObject();
-        final String dateString = first.get("date").getAsString();
+        final String dateString = first.get(FIELD_DATE).getAsString();
         final LocalDate date = LocalDate.parse(dateString);
         return YearMonth.from(date);
 
     }
 
+    private static final class ImportStatementException extends Exception {
+
+        ImportStatementException(String message) {
+            super(message);
+        }
+
+        ImportStatementException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 }
 

@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
+import com.google.gson.JsonSyntaxException;
 import entity.Category;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -39,9 +39,11 @@ public class GeminiCategorizer {
      *
      * @param sources list of vendor/source names
      * @return map of source → Category(name)
-     * @throws Exception if API fails or response cannot be parsed
+     * @throws IOException                 if the API request fails
+     * @throws GeminiCategorizerException  if the response cannot be parsed
      */
-    public Map<String, Category> categorizeSources(List<String> sources) throws Exception {
+    public Map<String, Category> categorizeSources(List<String> sources)
+            throws IOException, GeminiCategorizerException {
 
         final Map<String, Category> finalResult = new HashMap<>();
 
@@ -70,12 +72,13 @@ public class GeminiCategorizer {
      *
      * @param sources the list of vendor names that need to be classified
      * @return a formatted prompt string instructing the model to classify each vendor
-     * and return the results as a JSON object.
+     *          and return the results as a JSON object.
      * */
     private String buildPrompt(List<String> sources) {
         return "Classify each of the following vendor names into one of the categories:\n"
-                + "- Income\n- Transportation\n- Rent and Utilities\n- Food and Dining\n- Shopping\n- Other\n\n"
-                + "Return ONLY a JSON object mapping vendor→category. Example:\n"
+                + "- Income\n- Transportation\n- Rent and Utilities\n- Food and Dining\n- Entertainment\n- Shopping\n"
+                + "- Other\n\n"
+                + "Return ONLY a JSON object mapping vendor->category. Example:\n"
                 + "{ \"Uber\": \"Transportation\", \"McDonalds\": \"Food and Dining\" }\n\n"
                 + "Vendors:\n"
                 + gson.toJson(sources);
@@ -93,7 +96,8 @@ public class GeminiCategorizer {
         try {
             final int sleepTime = 100;
             Thread.sleep(sleepTime);
-        } catch (InterruptedException exception) {
+        }
+        catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
         }
 
@@ -138,17 +142,18 @@ public class GeminiCategorizer {
      * @param jsonResponse    the raw JSON response body returned by the Gemini API
      * @param originalSources the list of vendor names that were originally sent for classification
      * @return a map where each vendor name maps to a {@code Category} object representing
-     * the category assigned by Gemini.
-     * @throws Exception if the response is missing required fields, contains invalid JSON,
-     * or does not provide a category for one of the original sources.
+     *              the category assigned by Gemini.
+     * @throws GeminiCategorizerException if the response is missing required fields, contains invalid JSON,
+     *                      or does not provide a category for one of the original sources.
      */
-    private Map<String, Category> parseResponse(String jsonResponse, List<String> originalSources) throws Exception {
+    private Map<String, Category> parseResponse(String jsonResponse,
+                                                List<String> originalSources) throws GeminiCategorizerException {
 
         final JsonObject root = JsonParser.parseString(jsonResponse).getAsJsonObject();
 
         final JsonArray candidates = root.getAsJsonArray("candidates");
         if (candidates == null || candidates.isEmpty()) {
-            throw new Exception("Gemini returned no candidates");
+            throw new GeminiCategorizerException("Gemini returned no candidates");
         }
 
         final JsonObject content = candidates.get(0)
@@ -157,7 +162,7 @@ public class GeminiCategorizer {
 
         final JsonArray parts = content.getAsJsonArray("parts");
         if (parts == null || parts.isEmpty()) {
-            throw new Exception("Gemini returned no parts");
+            throw new GeminiCategorizerException("Gemini returned no parts");
         }
 
         String modelText = parts.get(0)
@@ -170,15 +175,16 @@ public class GeminiCategorizer {
         final JsonObject parsedCategories;
         try {
             parsedCategories = JsonParser.parseString(modelText).getAsJsonObject();
-        } catch (Exception exception) {
-            throw new Exception("Gemini response was not valid JSON: " + modelText);
+        }
+        catch (JsonSyntaxException exception) {
+            throw new GeminiCategorizerException("Gemini response was not valid JSON: " + modelText, exception);
         }
 
         final Map<String, Category> result = new HashMap<>();
 
         for (String source : originalSources) {
             if (!parsedCategories.has(source)) {
-                throw new Exception("Missing category for: " + source);
+                throw new GeminiCategorizerException("Missing category for: " + source);
             }
 
             final String categoryName = parsedCategories.get(source).getAsString();

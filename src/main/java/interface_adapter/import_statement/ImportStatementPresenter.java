@@ -7,7 +7,6 @@ import interface_adapter.ViewManagerModel;
 import use_case.import_statement.ImportStatementOutputBoundary;
 import use_case.import_statement.ImportStatementOutputData;
 
-
 /**
  * The Presenter for the Import Bank Statement Use Case.
  */
@@ -26,9 +25,9 @@ public class ImportStatementPresenter implements ImportStatementOutputBoundary {
     @Override
     public void prepareSuccessView(ImportStatementOutputData outputData) {
 
-        YearMonth month = outputData.getStatementMonth();
+        final YearMonth month = outputData.getStatementMonth();
 
-        String message = "Importing Successful for " + month.format(DateTimeFormatter.ofPattern("MMMM yyyy"));
+        final String message = "Importing Successful for " + month.format(DateTimeFormatter.ofPattern("MMMM yyyy"));
         viewManagerModel.showPopup(message);
         importStatementViewModel.setState("");
         importStatementViewModel.firePropertyChange("filePath");
@@ -36,7 +35,7 @@ public class ImportStatementPresenter implements ImportStatementOutputBoundary {
 
     @Override
     public void prepareFailView(String errorMessage) {
-        String message = "Importing Unsuccessful: " + errorMessage;
+        final String message = "Importing Unsuccessful: " + errorMessage;
         viewManagerModel.showPopup(message);
         importStatementViewModel.setState("");
         importStatementViewModel.firePropertyChange("filePath");

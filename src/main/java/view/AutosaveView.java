@@ -17,7 +17,7 @@ import interface_adapter.autosave.AutosaveViewModel;
 public class AutosaveView extends JPanel implements PropertyChangeListener {
 
     private static final long serialVersionUID = 1L;
-    private static final int AUTOSAVE_INTERVAL_MS = 5_000;
+    private static final int AUTOSAVE_INTERVAL_MS = 15_000;
 
     private AutosaveController controller;
     private final AutosaveViewModel viewModel;
