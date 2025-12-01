@@ -6,16 +6,25 @@ import use_case.load_dashboard.LoadDashboardInputBoundary;
 import use_case.load_dashboard.LoadDashboardInputData;
 import use_case.load_dashboard.TimeRange;
 
+/**
+ * Controller for the Dashboard Use Case.
+ */
 public class DashboardController {
-    private final LoadDashboardInputBoundary useCase;
+    private final LoadDashboardInputBoundary loadDashboardInteractor;
 
-    public DashboardController(LoadDashboardInputBoundary useCase) {
-        this.useCase = useCase;
+    public DashboardController(LoadDashboardInputBoundary loadDashboardInteractor) {
+        this.loadDashboardInteractor = loadDashboardInteractor;
     }
 
-    public void loadDashboard(LocalDate currentDate, TimeRange timeRange, LocalDate startDate, LocalDate endDate)
-            throws Exception {
+    /**
+     * Executes Load Dashboard Use Case.
+     * @param currentDate The current date.
+     * @param timeRange Time Chart timeRange enum.
+     * @param startDate Pie Chart start date.
+     * @param endDate Pie Chart end date.
+     */
+    public void loadDashboard(LocalDate currentDate, TimeRange timeRange, LocalDate startDate, LocalDate endDate) {
         final LoadDashboardInputData input = new LoadDashboardInputData(currentDate, timeRange, startDate, endDate);
-        useCase.execute(input);
+        loadDashboardInteractor.execute(input);
     }
 }

@@ -1,5 +1,8 @@
 package use_case.load_dashboard;
 
+/**
+ * Enum to specify timeranges for time chart.
+ */
 public enum TimeRange {
     ONE_MONTH("Last 30 Days", 1),
     THREE_MONTHS("3 Months", 3),
@@ -18,5 +21,8 @@ public enum TimeRange {
     public String toString() {
         return displayName;
     }
-    public int getValue() {return value;}
+
+    public int getValue() {
+        return value;
+    }
 }

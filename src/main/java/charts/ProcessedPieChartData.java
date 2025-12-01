@@ -2,7 +2,10 @@ package charts;
 
 import java.util.Map;
 
-public class ProcessedPieChartData extends AbstractProcessedChartData{
+/**
+ * Collects pie chart data that is processed from the transactions.
+ */
+public class ProcessedPieChartData implements AbstractProcessedChartData {
     private final Map<String, Double> categoryTotals;
 
     public ProcessedPieChartData(Map<String, Double> categoryTotals) {

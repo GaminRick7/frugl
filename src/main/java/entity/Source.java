@@ -13,7 +13,7 @@ public class Source {
 
     @Override
     public boolean equals(Object obj) {
-        boolean result = false;
+        final boolean result;
         if (this == obj) {
             result = true;
         }

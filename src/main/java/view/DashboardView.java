@@ -1,13 +1,9 @@
 package view;
 
-import interface_adapter.ViewManagerModel;
-import interface_adapter.dashboard.DashboardController;
-import interface_adapter.dashboard.DashboardState;
-import interface_adapter.dashboard.DashboardViewModel;
-import use_case.load_dashboard.TimeRange;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.time.LocalDate;
@@ -16,41 +12,109 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class DashboardView extends JPanel implements PropertyChangeListener {
-    private DashboardController controller;
-    private final DashboardViewModel viewModel;
-    private final ViewManagerModel viewManagerModel;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerDateModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
-    //UI Components
+import interface_adapter.ViewManagerModel;
+import interface_adapter.dashboard.DashboardController;
+import interface_adapter.dashboard.DashboardState;
+import interface_adapter.dashboard.DashboardViewModel;
+import use_case.load_dashboard.TimeRange;
+
+/**
+ * View for the Dashboard Use Case.
+ */
+public class DashboardView extends JPanel implements PropertyChangeListener {
+    private static final int DEFAULT_DAY_RANGE = -30;
+    private static final int DEFAULT_GAP = 10;
+
+    private transient DashboardController controller;
+    private final transient DashboardViewModel viewModel;
+    private final transient ViewManagerModel viewManagerModel;
+
+    // UI Components
     private JComboBox<TimeRange> timeRangeDropdown;
     private JSpinner startDateSpinner;
     private JSpinner endDateSpinner;
-
     private JLabel pieChartLabel;
     private JLabel timeChartLabel;
 
-    public DashboardView(DashboardViewModel viewModel,  ViewManagerModel viewManagerModel) {
+    public DashboardView(DashboardViewModel viewModel, ViewManagerModel viewManagerModel) {
         this.viewModel = viewModel;
-
         this.viewManagerModel = viewManagerModel;
-        this.viewModel.addPropertyChangeListener(this);
 
-        setupUI();
+        // For state updates
+        this.viewModel.addPropertyChangeListener(this);
+        setupUserInterface();
     }
 
-    private void setupUI() {
+    /**
+     * Sets the controller for this view.
+     *
+     * @param dashboardController The DashboardController.
+     */
+    public void setDashboardController(DashboardController dashboardController) {
+        this.controller = dashboardController;
+    }
+
+    /**
+     * Triggers initial data load upon application start.
+     */
+    public void loadInitialData() {
+        if (controller != null) {
+            onRefreshClicked();
+        }
+    }
+
+    private void setupUserInterface() {
         this.setLayout(new BorderLayout());
+        this.setBorder(BorderFactory.createEmptyBorder(DEFAULT_GAP, DEFAULT_GAP, DEFAULT_GAP, DEFAULT_GAP));
 
-        JPanel splitPanel = new JPanel(new GridLayout(1, 2));
-        splitPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // 1. Create central split panel for charts
+        final JPanel splitPanel = createSplitPanel();
+        this.add(splitPanel, BorderLayout.CENTER);
 
-        // ---- LEFT SIDE: TIME CHART PANEL ----
-        JPanel leftPanel = new JPanel(new BorderLayout());
+        // 2. Create bottom button panel
+        final JPanel bottomPanel = createBottomPanel();
+        this.add(bottomPanel, BorderLayout.SOUTH);
+    }
+
+    /**
+     * Helper: Creates the main middle panel with two columns.
+     * @return JPanel The center split panel.
+     */
+    private JPanel createSplitPanel() {
+        final JPanel splitPanel = new JPanel(new GridLayout(1, 2, DEFAULT_GAP, DEFAULT_GAP));
+
+        // Left: Time Chart
+        splitPanel.add(createLeftPanel());
+
+        // Right: Pie Chart
+        splitPanel.add(createRightPanel());
+
+        return splitPanel;
+    }
+
+    /**
+     * Helper: Creates the Left Panel with time range controls and time chart.
+     * @return JPanel The left panel with the time chart.
+     */
+    private JPanel createLeftPanel() {
+        final JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setBorder(BorderFactory.createTitledBorder("Time Chart"));
 
         // 1. Left: Time Chart Controls
-        JPanel timeControlsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        final JPanel timeControlsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         timeControlsPanel.add(new JLabel("Time Range:"));
+
         timeRangeDropdown = new JComboBox<>(TimeRange.values());
         timeControlsPanel.add(timeRangeDropdown);
 
@@ -60,81 +124,98 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         timeChartLabel = new JLabel("Loading Time Chart...", SwingConstants.CENTER);
         leftPanel.add(timeChartLabel, BorderLayout.CENTER);
 
-        // ---- RIGHT SIDE: PIE CHART PANEL ----
-        JPanel rightPanel = new JPanel(new BorderLayout());
+        return leftPanel;
+    }
+
+    /**
+     * Helper: Creates the Right Panel with date spinners and pie chart.
+     * @return JPanel The right panel with the pie chart.
+     */
+    private JPanel createRightPanel() {
+        final JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.setBorder(BorderFactory.createTitledBorder("Pie Chart"));
 
         // 1. Right: Pie Chart Controls
-        JPanel pieControlsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        Calendar calendar =  Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_MONTH, -30);
-        Date defaultStartDate = calendar.getTime();
-        Date defaultEndDate = new Date();
+        final JPanel pieControlsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        setupDateSpinner(pieControlsPanel);
 
-        startDateSpinner = createDateSpinner(defaultStartDate);
-        endDateSpinner = createDateSpinner(defaultEndDate);
+        rightPanel.add(pieControlsPanel, BorderLayout.NORTH);
+
+        // 2. Right: Pie Chart Display
+        pieChartLabel = new JLabel("Loading Pie Chart...", SwingConstants.CENTER);
+        rightPanel.add(pieChartLabel, BorderLayout.CENTER);
+
+        return rightPanel;
+    }
+
+    /**
+     * Helper: Creates Date Spinners.
+     * @param pieControlsPanel The pie controls panel.
+     */
+    private void setupDateSpinner(JPanel pieControlsPanel) {
+        final Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, DEFAULT_DAY_RANGE);
+        final Date defaultStartDate = calendar.getTime();
+        final Date defaultEndDate = new Date();
+
+        startDateSpinner = new JSpinner(new SpinnerDateModel(defaultStartDate, null, null, Calendar.DAY_OF_MONTH));
+        endDateSpinner = new JSpinner(new SpinnerDateModel(defaultEndDate, null, null, Calendar.DAY_OF_MONTH));
+
+        final JSpinner.DateEditor startEditor = new JSpinner.DateEditor(startDateSpinner, "yyyy-MM-dd");
+        final JSpinner.DateEditor endEditor = new JSpinner.DateEditor(endDateSpinner, "yyyy-MM-dd");
+        startDateSpinner.setEditor(startEditor);
+        endDateSpinner.setEditor(endEditor);
 
         pieControlsPanel.add(new JLabel("Start Date:"));
         pieControlsPanel.add(startDateSpinner);
         pieControlsPanel.add(new JLabel("End Date:"));
         pieControlsPanel.add(endDateSpinner);
+    }
 
-        rightPanel.add(pieControlsPanel, BorderLayout.NORTH);
+    /**
+     * Helper: Creates bottom panel with refresh and navigation buttons.
+     * @return JPanel The bottom panel with the buttons
+     */
+    private JPanel createBottomPanel() {
+        final JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        //2. Right: Pie Chart Display
-        pieChartLabel = new JLabel("Loading Pie Chart...", SwingConstants.CENTER);
-        rightPanel.add(pieChartLabel, BorderLayout.CENTER);
+        // 1. Import Button
+        final JButton importStatementButton = new JButton("Import Statement");
+        importStatementButton.addActionListener(event -> onImportStatementClicked());
+        bottomPanel.add(importStatementButton);
 
-        splitPanel.add(leftPanel);
-        splitPanel.add(rightPanel);
-        this.add(splitPanel, BorderLayout.CENTER);
-
-        // BOTTOM PANEL
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton refreshButton = new JButton("Refresh Dashboard");
-        refreshButton.addActionListener(e -> {
-            try {
+        // 2. Refresh Button
+        final JButton refreshButton = new JButton("Refresh Dashboard");
+        refreshButton.addActionListener(event -> {
+            if (controller != null) {
                 onRefreshClicked();
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
             }
         });
         bottomPanel.add(refreshButton);
-        JButton importStatementButton = new JButton("Import Statement");
-        importStatementButton.addActionListener(e -> onImportStatementClicked());
-        bottomPanel.add(importStatementButton);
 
-        this.add(bottomPanel, BorderLayout.SOUTH);
+        // 3. Goal Button
+        final JButton goalViewButton = new JButton("View Goals");
+        importStatementButton.addActionListener(event -> onGoalViewClicked());
+        bottomPanel.add(goalViewButton);
+
+        // 4. View Transactions Button
+        final JButton viewTransactionsButton = new JButton("View Transactions");
+        importStatementButton.addActionListener(event -> onViewTransactionsClicked());
+        bottomPanel.add(viewTransactionsButton);
+
+        return bottomPanel;
     }
 
-    private JSpinner createDateSpinner(Date defaultDate){
-        SpinnerDateModel model = new SpinnerDateModel();
-        model.setValue(defaultDate);
-        JSpinner spinner = new JSpinner(model);
-        JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "yyyy-MM-dd");
-        spinner.setEditor(editor);
-        return spinner;
-    }
+    private void onRefreshClicked() {
+        final TimeRange selectedTimeRange = (TimeRange) timeRangeDropdown.getSelectedItem();
 
-    public void loadInitialData() throws Exception {
-        onRefreshClicked();
-    }
+        final Date legacyStartDate = (Date) startDateSpinner.getValue();
+        final Date legacyEndDate = (Date) endDateSpinner.getValue();
 
-    private void onImportStatementClicked() {
-        viewManagerModel.setState("import statement");
-        viewManagerModel.firePropertyChange();
-    }
+        final LocalDate startDate = convertToLocalDate(legacyStartDate);
+        final LocalDate endDate = convertToLocalDate(legacyEndDate);
 
-    private void onRefreshClicked() throws Exception {
-        TimeRange selectedTimeRange = (TimeRange) timeRangeDropdown.getSelectedItem();
-
-        Date legacyStartDate = (Date) startDateSpinner.getValue();
-        Date legacyEndDate = (Date) endDateSpinner.getValue();
-
-        LocalDate startDate = convertToLocalDate(legacyStartDate);
-        LocalDate endDate = convertToLocalDate(legacyEndDate);
-
-        LocalDate currentDate = LocalDate.now();
+        final LocalDate currentDate = LocalDate.now();
 
         controller.loadDashboard(currentDate, selectedTimeRange, startDate, endDate);
     }
@@ -146,29 +227,31 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
                 .toLocalDate();
     }
 
+    // Helper to update chart displays
     private void updateChartDisplay() {
-        DashboardState state = viewModel.getState();
-        List<Image> chartImages = state.getChartImages();
+        final DashboardState state = viewModel.getState();
+        final List<Image> chartImages = state.getChartImages();
 
-        if (chartImages == null || chartImages.isEmpty()){
+        if (chartImages == null || chartImages.isEmpty()) {
             pieChartLabel.setText("No Data");
             pieChartLabel.setIcon(null);
             timeChartLabel.setText("No Data");
             timeChartLabel.setIcon(null);
-        } else {
+        }
+        else {
             timeChartLabel.setText("");
             timeChartLabel.setIcon(new ImageIcon(chartImages.get(1)));
             pieChartLabel.setText("");
             pieChartLabel.setIcon(new ImageIcon(chartImages.get(0)));
-            }
         }
-
-    public void setDashboardController(DashboardController controller) {
-        this.controller = controller;
     }
 
-    public void propertyChange(PropertyChangeEvent evt) {
-        DashboardState state = (DashboardState)  evt.getNewValue();
+    /**
+     * Property change method.
+     * @param event A PropertyChangeEvent object describing the event source and the property that has changed.
+     */
+    public void propertyChange(PropertyChangeEvent event) {
+        final DashboardState state = (DashboardState) event.getNewValue();
 
         SwingUtilities.invokeLater(() -> {
             if (state.getChartImages() != null) {
@@ -178,5 +261,21 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
             this.revalidate();
             this.repaint();
         });
+    }
+
+    private void onImportStatementClicked() {
+        viewManagerModel.setState("import statement");
+        viewManagerModel.firePropertyChange();
+    }
+
+    private void onGoalViewClicked() {
+        viewManagerModel.setState("view goals");
+        viewManagerModel.firePropertyChange();
+
+    }
+
+    private void onViewTransactionsClicked() {
+        viewManagerModel.setState("view transactions");
+        viewManagerModel.firePropertyChange();
     }
 }

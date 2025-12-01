@@ -1,33 +1,65 @@
 package charts;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Image;
+import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import static java.util.stream.Collectors.joining;
+import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
+
+/**
+ * Renders pie chart images from pie chart data or returns an IOException if rendering fails.
+ * Uses QuickChart.io API.
+ */
 public class PieChartRenderer implements ChartRenderer<ProcessedPieChartData> {
 
     @Override
-    public Image render(ProcessedPieChartData data) throws Exception {
-        Map<String, Double> categories = data.getCategoryTotals();
+    public Image render(ProcessedPieChartData data) throws IOException {
+        final Map<String, Double> categories = data.getCategoryTotals();
+        final String chartConfig;
 
-        String values = "100";
-        String labels = "No%20Data";
+        // Handle empty data case
+        if (categories == null || categories.isEmpty()) {
+            chartConfig = "{"
+                    + "\"type\": \"pie\","
+                    + "\"data\": {"
+                    + "\"labels\": [\"No Data\"],"
+                    + "\"datasets\": [{"
+                    + "\"data\": [1],"
+                    + "\"backgroundColor\": [\"#E0E0E0\"]"
+                    + "}]},"
+                    + "\"options\": { \"plugins\": { \"datalabels\": { \"display\": false }}}"
+                    + "}";
+        }
+        else {
+            // Collect values and labels from data
+            final String labels = categories.keySet().stream()
+                    .map(key -> "\"" + key + "\"")
+                    .collect(Collectors.joining(", "));
 
-        if (categories != null && !categories.isEmpty()) {
-             values = categories.values().stream()
-                    .map(v -> String.format("%.2f", v))
-                    .collect(joining(","));
-             labels = categories.keySet().stream()
-                    .collect(joining("|"));
+            final String values = categories.values().stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(","));
+
+            chartConfig = "{"
+                    + "\"type\": \"pie\","
+                    + "\"data\": {"
+                    + "\"labels\": [" + labels + "],"
+                    + "\"datasets\": [{"
+                    + "\"data\": [" + values + "],"
+                    + "\"backgroundColor\": [\"#FF6384\", \"#36A2EB\", \"#FFCE56\", \"#4BC0C0\", \"#9966FF\"]"
+                    + "}]},"
+                    + "\"options\": { \"plugins\": { \"datalabels\": { \"display\": true }}}"
+                    + "}";
         }
 
-        String url = "https://quickchart.io/chart?" +
-                "cht=p&chs=500x300" +
-                "&chd=t:" + values +
-                "&chl=" + labels;
+        final String encodedConfig = URLEncoder.encode(chartConfig, StandardCharsets.UTF_8);
+        final String urlString = "https://quickchart.io/chart?c=" + encodedConfig;
 
-        return ImageIO.read(new URL(url));
+        // Throws IOException if required
+        return ImageIO.read(new URL(urlString));
     }
 }

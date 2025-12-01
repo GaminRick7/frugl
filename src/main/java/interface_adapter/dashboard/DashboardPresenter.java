@@ -1,6 +1,7 @@
 package interface_adapter.dashboard;
 
 import java.awt.Image;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,29 +11,47 @@ import charts.ProcessedTimeChartData;
 import use_case.load_dashboard.LoadDashboardOutputBoundary;
 import use_case.load_dashboard.LoadDashboardOutputData;
 
+/**
+ * Presenter for the Dashboard Use Case.
+ */
 public class DashboardPresenter implements LoadDashboardOutputBoundary {
-    private final DashboardViewModel viewModel;
+    private final DashboardViewModel dashboardViewModel;
     private final ChartRenderer<ProcessedPieChartData> pieChartRenderer;
     private final ChartRenderer<ProcessedTimeChartData> timeChartRenderer;
 
     public DashboardPresenter(DashboardViewModel viewModel, ChartRenderer<ProcessedPieChartData> pieChartRenderer,
                               ChartRenderer<ProcessedTimeChartData> timeChartRenderer) {
-        this.viewModel = viewModel;
+        this.dashboardViewModel = viewModel;
         this.pieChartRenderer = pieChartRenderer;
         this.timeChartRenderer = timeChartRenderer;
     }
 
     @Override
-    public void present(LoadDashboardOutputData outputData) throws Exception {
+    public void present(LoadDashboardOutputData outputData) {
         final List<Image> images = new ArrayList<>();
-        images.add(pieChartRenderer.render(outputData.getPieChartData()));
-        images.add(timeChartRenderer.render(outputData.getTimeChartData()));
+        final DashboardState state = dashboardViewModel.getState();
+        try {
+            images.add(pieChartRenderer.render(outputData.getPieChartData()));
+            images.add(timeChartRenderer.render(outputData.getTimeChartData()));
 
-        final DashboardState state = viewModel.getState();
-        state.setChartImages(images);
+            state.setChartImages(images);
+            state.setError(null);
 
-        this.viewModel.setState(state);
-        this.viewModel.firePropertyChange();
+            this.dashboardViewModel.setState(state);
+            this.dashboardViewModel.firePropertyChange();
+        }
+        catch (IOException exception) {
+            prepareFailView("Unable to render charts: " + exception.getMessage());
+        }
+    }
+
+    @Override
+    public void prepareFailView(String errorMessage) {
+        final DashboardState state = dashboardViewModel.getState();
+        state.setError(errorMessage);
+        this.dashboardViewModel.setState(state);
+        this.dashboardViewModel.firePropertyChange();
+
     }
 
 }
