@@ -182,9 +182,7 @@ public class TransactionsView extends JPanel implements ActionListener, Property
     public void propertyChange(PropertyChangeEvent evt) {
         if ("state".equals(evt.getPropertyName())) {
             final ViewTransactionState state = (ViewTransactionState) evt.getNewValue();
-            if (state.getMonthlyTransactions() != null) {
-                rebuildTiles(state.getMonthlyTransactions());
-            }
+            rebuildTiles(state.getMonthlyTransactions());
         }
     }
 
