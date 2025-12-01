@@ -31,7 +31,6 @@ public class TransactionsView extends JPanel implements ActionListener, Property
     private ViewTransactionController viewTransactionController;
 
     //master Frame made up of all JPanel
-    private final JFrame parentFrame;
 
     //componets for my view
     private final JPanel transactionTilesBlock = new JPanel();
@@ -44,9 +43,8 @@ public class TransactionsView extends JPanel implements ActionListener, Property
     private final String[] dropdownYearList = {"2025", "2024", "2023"};
 
 
-    public TransactionsView (ViewTransactionViewModel viewTransactionViewModel, JFrame parentFrame) {
+    public TransactionsView (ViewTransactionViewModel viewTransactionViewModel) {
         this.viewTransactionViewModel= viewTransactionViewModel;
-        this.parentFrame = parentFrame;
         this.viewTransactionViewModel.addPropertyChangeListener(this);
         this.setLayout(new BorderLayout());
 

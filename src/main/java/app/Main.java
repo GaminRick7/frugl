@@ -4,17 +4,20 @@ import javax.swing.JFrame;
 
 import view.DashboardView;
 
-public class Main {
+import view.TransactionsView;
 
+/**
+ * The Main class of the application.
+ */
+public class Main {
     /**
      * Main entry point for the application.
      *
      * @param args command line arguments (not used)
-     * @throws Exception exception
      */
     public static void main(String[] args) throws Exception {
-        final AppBuilder appBuilder = new AppBuilder();
-        final JFrame application = appBuilder
+        AppBuilder appBuilder = new AppBuilder();
+        JFrame application = appBuilder
                 .addDashboardView()
                 .addDashboardUseCase()
                 .addAutosaveView()
@@ -23,6 +26,8 @@ public class Main {
                 .addImportStatementUseCase()
                 .addSetGoalView()
                 .addGoalUseCase()
+                .addTransactionsView()  //added
+                .addTransactionViewUseCase() //aded
                 .build();
 
         application.pack();
