@@ -85,7 +85,6 @@ public class AppBuilder {
         cardPanel.setLayout(cardLayout);
     }
 
-
     /**
      * Initializes the autosave view as a status bar.
      *
@@ -94,21 +93,16 @@ public class AppBuilder {
     public AppBuilder addAutosaveView() {
         autosaveViewModel = new AutosaveViewModel();
         autosaveView = new AutosaveView(autosaveViewModel);
-        
+
         autosaveView.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 0, 0, java.awt.Color.GRAY),
                 BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT)
         ));
-        
+
         // it is not added to card panel since it will be added as a status bar in build()
         return this;
     }
 
-
-    public AppBuilder addAutosaveUseCase() {
-        final AutosaveOutputBoundary autosaveOutputBoundary = new AutosavePresenter(autosaveViewModel);
-        final AutosaveInputBoundary autosaveInputBoundary =
-                new AutosaveInteractor(transactionDataAccessObject, autosaveOutputBoundary);
     /**
      * Creates the autosave use case and connects it to the autosave view.
      *
@@ -124,7 +118,6 @@ public class AppBuilder {
         return this;
     }
 
-
     /**
      * Initializes the import statement view .
      *
@@ -138,11 +131,6 @@ public class AppBuilder {
         return this;
     }
 
-
-    public AppBuilder addImportStatementUseCase() {
-        final ImportStatementOutputBoundary importStatementOutputBoundary =
-                new ImportStatementPresenter(viewManagerModel,
-                importStatementViewModel);
     /**
      * Creates the import statement use case and connects it to the view.
      *
@@ -160,7 +148,6 @@ public class AppBuilder {
         return this;
     }
 
-
     /**
      * Initializes goal-setting view.
      *
@@ -173,7 +160,6 @@ public class AppBuilder {
         cardPanel.add(goalView, setGoalViewModel.getViewName());
         return this;
     }
-
 
     /**
      * Creates the goal use case and connects it to the goal view.
@@ -190,7 +176,6 @@ public class AppBuilder {
         return this;
     }
 
-
     /**
      * Initializes the dashboard view.
      *
@@ -203,7 +188,6 @@ public class AppBuilder {
         cardPanel.add(dashboardView, dashboardViewModel.getViewName());
         return this;
     }
-
 
     /**
      * Creates the dashboard use case and connects it to the dashboard view.
@@ -223,7 +207,6 @@ public class AppBuilder {
         return this;
     }
 
-
     /**
      * Getter for the  dashboard view.
      *
@@ -233,11 +216,12 @@ public class AppBuilder {
         return this.dashboardView;
     }
 
-    /**
-     * Get TransactionView.
-     * @return TransactionView
-     */
-    public AppBuilder addTransactionsView() {
+
+/**
+ * Get TransactionView.
+ * @return TransactionView
+ */
+    public AppBuilder addTransactionsView () {
         viewTransactionViewModel = new ViewTransactionViewModel();
         viewTransactionView = new TransactionsView(viewTransactionViewModel);
         cardPanel.add(viewTransactionView, viewTransactionViewModel.getViewName());
@@ -247,32 +231,24 @@ public class AppBuilder {
     }
 
     /**
-     * Does transactionViewUseCase.
+     * Does transactionViewUseCase.s
      * @return transactionViewUseCase
      */
-    public AppBuilder addTransactionViewUseCase() {
+    public AppBuilder addTransactionViewUseCase () {
 
         final ViewTransactionOutputBoundary viewTransactionOutputBoundary =
-            new ViewTransactionPresenter(viewManagerModel, viewTransactionViewModel);
+                new ViewTransactionPresenter(viewManagerModel, viewTransactionViewModel);
         final ViewTransactionInputBoundary viewTransactionInputBoundary =
-            new ViewTransactionInteractor(transactionDataAccessObject, viewTransactionOutputBoundary);
+                new ViewTransactionInteractor(transactionDataAccessObject, viewTransactionOutputBoundary);
         final ViewTransactionController viewTransactionController =
-            new ViewTransactionController(viewTransactionInputBoundary);
+                new ViewTransactionController(viewTransactionInputBoundary);
         viewTransactionView.setViewTransactionController(viewTransactionController);
 
         viewTransactionController.execute("2025-11");
         return this;
+
     }
-
     /**
-     * Builds Swing design.
-     * @return JFrame
-     */
-    public JFrame build() {
-        final JFrame application = new JFrame("Frugl");
-
-        application.add(cardPanel);
-        viewManagerModel.setState(goalView.viewName);
      * Builds the application frame, shows the initial view, and returns it.
      *
      * @return a JFrame application frame ready to display
@@ -282,7 +258,7 @@ public class AppBuilder {
         final JPanel mainPanel = new JPanel(new BorderLayout());
 
         mainPanel.add(cardPanel, BorderLayout.CENTER);
-        
+
         // autosave view is added as a status bar
         if (autosaveView != null) {
             mainPanel.add(autosaveView, BorderLayout.SOUTH);
