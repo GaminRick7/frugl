@@ -26,7 +26,7 @@ Our application is built on Clean Architecture and SOLID principles, with excell
 
 ## API and Data Used
 
-API Link:
+API Link: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key= _{your api key here}_
 
 API Usage: Categorizing bank statements into categories Income, Rent & Utilities, Transportation, Food & Dining, Shopping, Entertainment, Other.
 
@@ -41,7 +41,18 @@ API Usage: Categorizing bank statements into categories Income, Rent & Utilities
 | **Other** | Bank fees, transfers, uncategorized transactions, miscellaneous |
 
 Instructions:
-- GEMINI_API_KEY=your_api_token
+The application sends a list of transaction *source names* to the Gemini API and receives a predicted category label for each source.
+
+* **Request Construction:**  
+  The program builds a JSON payload that includes all unique vendor/source names from the uploaded bank statement. This payload is passed to the Gemini `generateContent` endpoint using an `OkHttpClient` POST request.
+
+* **Model Prompting:**  
+  The prompt asks Gemini to classify each source into one of the supported categories:  
+  **Income**, **Rent and Utilities**, **Transportation**, **Food and Dining**, **Shopping**, **Entertainment**, or **Other**.
+
+* **Response Parsing:**  
+  The API returns a list of model-generated categorizations. The application parses the response JSON into a map of `Source → Category`.
+
 
 ### QuickChart.io API
 API Link: https://quickchart.io/chart?c= _{your chart here}_
