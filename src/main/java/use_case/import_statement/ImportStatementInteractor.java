@@ -81,10 +81,7 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
         try {
             return readArrayFromFile(file);
         }
-        catch (IOException exception) {
-            throw new ImportStatementException(ERROR_UNSUPPORTED_FILE, exception);
-        }
-        catch (JsonParseException | IllegalStateException exception) {
+        catch (JsonParseException | IllegalStateException | IOException exception) {
             throw new ImportStatementException("file does not contain a JSON array", exception);
         }
     }
@@ -151,9 +148,6 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
             catch (IOException | GeminiCategorizerException exception) {
                 throw new ImportStatementException(ERROR_CATEGORIZE_TRANSACTIONS, exception);
             }
-            catch (RuntimeException exception) {
-                throw new ImportStatementException(ERROR_CATEGORIZE_TRANSACTIONS, exception);
-            }
 
             for (String sourceName : sourcesToCategorize) {
                 if (categorizedSources.get(sourceName) == null) {
@@ -161,14 +155,9 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
                 }
             }
 
-            try {
-                for (String sourceName : sourcesToCategorize) {
-                    final Category category = categorizedSources.get(sourceName);
-                    transactionsDataAccessObject.addSourceCategory(new Source(sourceName), category);
-                }
-            }
-            catch (RuntimeException exception) {
-                throw new ImportStatementException(ERROR_CATEGORIZE_TRANSACTIONS, exception);
+            for (String sourceName : sourcesToCategorize) {
+                final Category category = categorizedSources.get(sourceName);
+                transactionsDataAccessObject.addSourceCategory(new Source(sourceName), category);
             }
         }
     }
@@ -180,18 +169,13 @@ public class ImportStatementInteractor implements ImportStatementInputBoundary {
                 throw new ImportStatementException(ERROR_UNSUPPORTED_FILE);
             }
         }
-        try {
-            for (JsonObject tx : transactions) {
-                final Source source = new Source(tx.get(FIELD_SOURCE).getAsString());
-                final double amount = tx.get("amount").getAsDouble();
-                final String dateString = tx.get(FIELD_DATE).getAsString();
-                final Transaction transaction = new Transaction(source, amount,
-                        LocalDate.parse(dateString));
-                transactionsDataAccessObject.addTransaction(transaction);
-            }
-        }
-        catch (RuntimeException exception) {
-            throw new ImportStatementException(ERROR_UNSUPPORTED_FILE, exception);
+        for (JsonObject tx : transactions) {
+            final Source source = new Source(tx.get(FIELD_SOURCE).getAsString());
+            final double amount = tx.get("amount").getAsDouble();
+            final String dateString = tx.get(FIELD_DATE).getAsString();
+            final Transaction transaction = new Transaction(source, amount,
+                LocalDate.parse(dateString));
+            transactionsDataAccessObject.addTransaction(transaction);
         }
     }
 
