@@ -3,17 +3,16 @@ package data_access;
 import entity.Category;
 import entity.Goal;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -120,11 +119,9 @@ class GoalDataAccessObjectTest {
 
     @Test
     void testSaveGoal_UpdatesExisting() {
-        // 1. Save initial
         Goal original = new Goal(YearMonth.of(2025, 1), 100);
         dao.saveGoal(original);
 
-        // 2. Save update
         Goal update = new Goal(YearMonth.of(2025, 1), 999);
         dao.saveGoal(update);
 
@@ -132,8 +129,6 @@ class GoalDataAccessObjectTest {
         assertEquals(1, dao2.getAll().size());
         assertEquals(999, dao2.getAll().get(0).getGoalAmount());
     }
-
-    // --- Edge Case / Exception Tests ---
 
     @Test
     void testLoad_EmptyFile_ReturnsEmptyList() throws IOException {
@@ -162,6 +157,21 @@ class GoalDataAccessObjectTest {
         });
 
         assertEquals("Failed to save goals", exception.getMessage());
+    }
+    @Test
+    void testLoad_ForcesIOException_CatchBranchCovered() throws IOException {
+
+        // Create the file so it exists, but make it unreadable
+        Path badFile = tempDir.resolve("bad.json");
+        Files.writeString(badFile, "[]");       // valid JSON, but irrelevant
+        badFile.toFile().setReadable(false);    // <-- forces FileReader to throw IOException
+
+        // When the DAO tries to load this file, FileReader will fail
+        GoalDataAccessObject dao = new GoalDataAccessObject(badFile.toString());
+
+        // After IOException, the catch block should set goals to empty list
+        assertNotNull(dao.getAll());
+        assertTrue(dao.getAll().isEmpty());
     }
 
     @Test
