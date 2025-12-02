@@ -1,14 +1,13 @@
-# Team Project
+# Frugl
 
-Please keep this up-to-date with information about your project throughout the term.
+## Software Design Project - Fall 2025
+### MONEY TREES (Group 3)
 
-The readme should include information such as:
-- a summary of what your application is all about
-- a list of the user stories, along with who is responsible for each one
-- information about the API(s) that your project uses 
-- screenshots or animations demonstrating current functionality
+## Project Summary
 
-By keeping this README up-to-date,
-your team will find it easier to prepare for the final presentation
-at the end of the term.
-    
+Frugl is a swing-based Personal Financial Management application that transforms raw bank statements into actionable insight. It simplifies financial tracking by allowing users to import bank statements for automated categorization and autosaving. Also, the app promotes mindful spending through intuitive visualizations and a gamified system for setting and tracking monthly spending goals.
+
+The user navigates our app from the main dashboard, where they can import bank statements from their local files and select a date range to visualize a breakdown of spending, inflows, and outflows. The user can also view monthly individual transactions and set goals using an interactive “financial forest,” where each goal creates a tree in their goal forest.
+
+### Structure of the app
+Our application is built on Clean Architecture and SOLID principles, with excellent Code Quality. Thus, our front-end UI elements operate independently of our core back-end logic, improving maintainability and collaboration. Our app runs locally, processes bank statements from JSON files using Gemini, and displays colourful charts via Charts.io.
