@@ -1,4 +1,4 @@
-# Frugl
+# frugl
 
 ## Software Design Project - Fall 2025
 ### MONEY TREES (Group 3)
@@ -40,8 +40,8 @@ Instructions: _KOSAR TO ADD_
 
 ### JSON data
 Transactions.json
-Source_categories.json
-goals.json
+Source_Categories.json
+Goals.json
 
 ## Screenshots
 
