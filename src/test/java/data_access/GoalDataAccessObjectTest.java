@@ -73,7 +73,6 @@ class GoalDataAccessObjectTest {
 
     @Test
     void testLoad_ThrowsIOException_Handled() {
-        // Subclass DAO to simulate IOException
         class FaultyDAO extends GoalDataAccessObject {
             public FaultyDAO(String path) {
                 super(path);
@@ -82,7 +81,6 @@ class GoalDataAccessObjectTest {
 
         GoalDataAccessObject dao = new FaultyDAO(tempDir.resolve("dummy.json").toString());
 
-        // After load fails, the goals list should be empty
         assertNotNull(dao.getAll());
         assertTrue(dao.getAll().isEmpty());
     }
@@ -157,21 +155,6 @@ class GoalDataAccessObjectTest {
         });
 
         assertEquals("Failed to save goals", exception.getMessage());
-    }
-    @Test
-    void testLoad_ForcesIOException_CatchBranchCovered() throws IOException {
-
-        // Create the file so it exists, but make it unreadable
-        Path badFile = tempDir.resolve("bad.json");
-        Files.writeString(badFile, "[]");       // valid JSON, but irrelevant
-        badFile.toFile().setReadable(false);    // <-- forces FileReader to throw IOException
-
-        // When the DAO tries to load this file, FileReader will fail
-        GoalDataAccessObject dao = new GoalDataAccessObject(badFile.toString());
-
-        // After IOException, the catch block should set goals to empty list
-        assertNotNull(dao.getAll());
-        assertTrue(dao.getAll().isEmpty());
     }
 
     @Test
