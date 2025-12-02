@@ -61,7 +61,7 @@ The JSON strings are URL-encoded and appended to the API base URL. The applicati
 - source_categories.json
 - goals.json
 
-## Screenshots
+## App Feature Visualizations
 
 <img src="screenshots/import.png" alt="import.png image" style="width:50%;">
 
