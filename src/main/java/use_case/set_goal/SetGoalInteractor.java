@@ -46,12 +46,13 @@ public class SetGoalInteractor implements SetGoalInputBoundary {
                 goalDataAccess.saveGoal(goal);
 
                 final List<Goal> allGoals = goalDataAccess.getAll();
-                final List<Transaction> allTransactions = transactionDataAccess.getAll();
                 final List<GoalTree> forest = new ArrayList<>();
 
                 for (Goal g : allGoals) {
 
                     // generate goal trees based on goals with deterministic coordinates
+                    final List<Transaction> filteredTransactions = transactionDataAccess
+                            .getTransactionsByCategoriesAndMonth(g.getCategories(), g.getMonth());
 
                     final long seed = g.getMonth().hashCode() + g.getCategories().hashCode();
                     final Random rng = new Random(seed);
@@ -60,7 +61,7 @@ public class SetGoalInteractor implements SetGoalInputBoundary {
                     final int y = rng.nextInt(500);
                     final GoalTree tree = new GoalTree(g, x, y);
 
-                    tree.updateStatus(allTransactions);
+                    tree.updateStatus(filteredTransactions);
 
                     forest.add(tree);
                 }

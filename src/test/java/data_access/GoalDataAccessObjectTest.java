@@ -3,17 +3,16 @@ package data_access;
 import entity.Category;
 import entity.Goal;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,7 +73,6 @@ class GoalDataAccessObjectTest {
 
     @Test
     void testLoad_ThrowsIOException_Handled() {
-        // Subclass DAO to simulate IOException
         class FaultyDAO extends GoalDataAccessObject {
             public FaultyDAO(String path) {
                 super(path);
@@ -83,7 +81,6 @@ class GoalDataAccessObjectTest {
 
         GoalDataAccessObject dao = new FaultyDAO(tempDir.resolve("dummy.json").toString());
 
-        // After load fails, the goals list should be empty
         assertNotNull(dao.getAll());
         assertTrue(dao.getAll().isEmpty());
     }
@@ -120,11 +117,9 @@ class GoalDataAccessObjectTest {
 
     @Test
     void testSaveGoal_UpdatesExisting() {
-        // 1. Save initial
         Goal original = new Goal(YearMonth.of(2025, 1), 100);
         dao.saveGoal(original);
 
-        // 2. Save update
         Goal update = new Goal(YearMonth.of(2025, 1), 999);
         dao.saveGoal(update);
 
@@ -132,8 +127,6 @@ class GoalDataAccessObjectTest {
         assertEquals(1, dao2.getAll().size());
         assertEquals(999, dao2.getAll().get(0).getGoalAmount());
     }
-
-    // --- Edge Case / Exception Tests ---
 
     @Test
     void testLoad_EmptyFile_ReturnsEmptyList() throws IOException {

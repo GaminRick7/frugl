@@ -175,10 +175,15 @@ public class TransactionDataAccessObject implements AutosaveDataAccessInterface,
     public List<Transaction> getTransactionsByCategoriesAndMonth(List<Category> categories, YearMonth month) {
         final List<Transaction> result = new ArrayList<>();
 
-        for (Transaction transaction : transactions) {
-            final boolean categoryMatches = categories.contains(sourceToCategoryMap.get(transaction.getSource()));
-            final boolean monthMatches = YearMonth.from(transaction.getDate()).equals(month);
+        final List<String> categoryNames = new ArrayList<>();
+        for (Category c : categories) {
+            categoryNames.add(c.getName());
+        }
 
+        for (Transaction transaction : transactions) {
+            final boolean categoryMatches = categoryNames
+                    .contains(sourceToCategoryMap.get(transaction.getSource()).getName());
+            final boolean monthMatches = YearMonth.from(transaction.getDate()).equals(month);
             if (categoryMatches && monthMatches) {
                 result.add(transaction);
             }

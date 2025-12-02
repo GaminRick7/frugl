@@ -111,53 +111,48 @@ class SetGoalInteractorTest {
         assertEquals(1, repo.getAll().size());
         assertEquals(300, repo.getAll().get(0).getGoalAmount());
     }
-
     @Test
-    void testTransactionGetAllRuntimeException() {
-        SetGoalDataAccessInterface goalRepo = new SetGoalDataAccessInterface() {
-            @Override public void saveGoal(Goal g) {}
-            @Override public List<Goal> getAll() {
-                return List.of(new Goal(
-                        YearMonth.of(2025, 1),
-                        List.of(new Category("Food")),
-                        100
-                ));
-            }
-        };
-
-        ForestDataAccessInterface txRepo = new ForestDataAccessInterface() {
+    void testExecuteRuntimeException() {
+        // Mock repository that throws RuntimeException
+        SetGoalDataAccessInterface repo = new SetGoalDataAccessInterface() {
             @Override
-            public List<Transaction> getAll() {
-                throw new RuntimeException("TX RUNTIME FAIL");
+            public void saveGoal(Goal g) {
+                throw new RuntimeException("Unexpected runtime error");
             }
 
             @Override
-            public List<Transaction> getTransactionsByCategoriesAndMonth(List<Category> c, YearMonth m) {
+            public List<Goal> getAll() {
                 return List.of();
             }
         };
 
+        ForestDataAccessInterface txRepo = new InMemoryTransactionRepo(List.of(), Map.of());
+
         SetGoalInputData input = new SetGoalInputData(
-                YearMonth.of(2025, 1),
-                100,
+                YearMonth.of(2025, 12),
+                200,
                 List.of(new Category("Food"))
         );
 
-        final boolean[] hit = {false};
+        final boolean[] failCalled = {false};
 
         SetGoalOutputBoundary presenter = new SetGoalOutputBoundary() {
-            @Override public void prepareSuccessView(SetGoalOutputData d) { fail(); }
-            @Override public void prepareFailView(String e) {
-                hit[0] = true;
-                assertTrue(e.contains("TX RUNTIME FAIL"));
+            @Override
+            public void prepareSuccessView(SetGoalOutputData data) {
+                fail("Should not succeed");
+            }
+
+            @Override
+            public void prepareFailView(String error) {
+                failCalled[0] = true;
+                assertEquals("Unexpected runtime error", error);
             }
         };
 
-        new SetGoalInteractor(goalRepo, txRepo, presenter).execute(input);
+        new SetGoalInteractor(repo, txRepo, presenter).execute(input);
 
-        assertTrue(hit[0], "RuntimeException branch was not hit");
+        assertTrue(failCalled[0], "prepareFailView was not called");
     }
-
     @Test
     void testSuccess() {
         SetGoalDataAccessInterface goalRepo = new InMemoryGoalRepo();

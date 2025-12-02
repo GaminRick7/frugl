@@ -92,13 +92,12 @@ public class GoalTree {
         final double spent = transactions.stream()
                 .mapToDouble(Transaction::getAmount)
                 .sum();
-
         final float goalAmount = goal.getGoalAmount();
 
         if (currentMonth.isBefore(goalMonth) || currentMonth.equals(goalMonth)) {
             this.status = "sapling";
         }
-        else if (spent <= goalAmount) {
+        else if (Math.abs(spent) <= Math.abs(goalAmount)) {
             this.status = "healthy";
         }
         else {
