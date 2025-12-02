@@ -15,9 +15,9 @@ This contract sets out shared expectations and commitments for how our team will
 * All communication will remain respectful, professional, and constructive.
 
 * A teammate must notify everyone for the following things:
-    * cannot make a deadline
-    * struggling with functionality for an extended amount of time
-    * too much work/too little work
+    * Cannot make a deadline
+    * Struggling with functionality for an extended amount of time
+    * Too much work/too little work
 
 * Respectful and inclusive behaviour are necessary for smooth and productive communications so members must abide by the following:
     * Actively listening to each team members ideas
@@ -67,7 +67,6 @@ Team Member Signatures:
 * Raihaan Sandhu
 * Kerem Berk Bozkurt
 * Yunji Hwang
-* Yiting Jin
 * Parsa Nabifar
 * Kosar Hemmati
 
