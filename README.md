@@ -1,6 +1,6 @@
 # frugl
 
-## Software Design Project - Fall 2025
+## CSC207 Software Design Project - Fall 2025
 ### MONEY TREES (Group 3)
 
 ## Project Summary
@@ -26,9 +26,14 @@ Our application is built on Clean Architecture and SOLID principles, with excell
 
 ## API and Data Used
 
-API Link: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key= _{your api key here}_
+### Gemini API
+#### API Link
 
-API Usage: Categorizing bank statements into categories Income, Rent & Utilities, Transportation, Food & Dining, Shopping, Entertainment, Other.
+https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key= _{your api key here}_
+
+#### API Usage
+
+Categorizing bank statements into the following categories.
 
 | Category | Typical Examples |
 | :--- | :--- |
@@ -40,31 +45,36 @@ API Usage: Categorizing bank statements into categories Income, Rent & Utilities
 | **Entertainment** | Streaming subscriptions, movie tickets, events, games, hobbies |
 | **Other** | Bank fees, transfers, uncategorized transactions, miscellaneous |
 
-Instructions:
+#### Instructions
+
 The application sends a list of transaction *source names* to the Gemini API and receives a predicted category label for each source.
 
-* **Request Construction:**  
-  The program builds a JSON payload that includes all unique vendor/source names from the uploaded bank statement. This payload is passed to the Gemini `generateContent` endpoint using an `OkHttpClient` POST request.
+* **API Request Construction:** The program builds a JSON payload that includes all unique vendor/source names from the uploaded bank statement. This payload is passed to the Gemini `generateContent` endpoint using an `OkHttpClient` POST request.
 
-* **Model Prompting:**  
-  The prompt asks Gemini to classify each source into one of the supported categories:  
-  **Income**, **Rent and Utilities**, **Transportation**, **Food and Dining**, **Shopping**, **Entertainment**, or **Other**.
+* **Model Prompting:** The prompt asks Gemini to classify each source into one of the supported categories.
 
-* **Response Parsing:**  
-  The API returns a list of model-generated categorizations. The application parses the response JSON into a map of `Source → Category`.
-
+* **Response Parsing:** The API returns a list of model-generated categorizations. The application parses the response JSON into a map of `Source → Category`.
 
 ### QuickChart.io API
-API Link: https://quickchart.io/chart?c= _{your chart here}_
+#### API Link
 
-API Usage: Visualizing financial data by spending category (pie chart) and by inflow and outflow over time (time chart).
+https://quickchart.io/chart?c= _{your chart here}_
 
-Instructions:
-The application constructs QuickChart JSON configurations to visualize data through renderers.
-* **Pie Chart Renderer:** Aggregates expense data by category.
-* **Time Chart Renderer:** Generates a **stacked bar chart** comparing "Income" vs. "Expenses" over time.
+#### API Usage
 
-The JSON strings are URL-encoded and appended to the API base URL. The application then fetches the generated image directly as an input stream (`ImageIO.read`) to display in the dashboard without saving local files.
+Visualizing financial data by spending category (pie chart) and by inflow and outflow over time (time chart).
+
+#### Instructions
+
+The application utilizes the QuickChart.io API to render financial visualizations.
+
+* **Data Serialization:**
+    * **Pie Chart Renderer:** Extracts category keys and values to construct a JSON configuration, aggregateing expense data by category.
+    * **Time Chart Renderer:** Constructs a JSON configuration for a **stacked bar chart**, plotting "Income" vs. "Expenses" datasets over a specified time range.
+
+* **API Request Construction:** The constructed JSON string is **URL-encoded** (UTF-8) to ensure safe transmission and this encoded string is appended to the base URL.
+
+* **Image Rendering:** The application then fetches the generated image directly as an input stream (`ImageIO.read`) to display in the dashboard without saving local files.
 
 ### JSON Data
 - transactions.json
