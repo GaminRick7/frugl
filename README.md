@@ -77,9 +77,11 @@ The application utilizes the QuickChart.io API to render financial visualization
 * **Image Rendering:** The application then fetches the generated image directly as an input stream (`ImageIO.read`) to display in the dashboard without saving local files.
 
 ### Data Persistence
-- Used `transactions.json` to store a list of transactions, along with their associate date and vendor. 
-- Used `source_categories.json` to store a associative map between a vendor source and their category.
-- Used `goals.json` to store a list of goals
+The DAOs use Gson for JSON persistence. 
+* `GoalDataAccessObject` stores goals in `goals.json`
+* `TransactionDataAccessObject` stores transactions and source-to-category mappings in `transactions.json` and `source_categories.json`
+
+Both load JSON into in-memory collections on construction and persist changes by writing the collections back to disk. They use custom Gson type adapters (e.g., `LocalDateAdapter`, `YearMonthAdapter`, `SourceAdapter`) to handle non-primitive types during serialization/deserialization, and they implement use-case interfaces to keep the data layer decoupled from business logic.
 
 ## App Feature Visualizations
 
